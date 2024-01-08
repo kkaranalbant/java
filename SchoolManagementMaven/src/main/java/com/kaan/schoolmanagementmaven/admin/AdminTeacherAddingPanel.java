@@ -264,7 +264,7 @@ public class AdminTeacherAddingPanel extends javax.swing.JFrame {
     }//GEN-LAST:event_teacherUIDOriginButtonActionPerformed
 
     private void teacherUIDBoundButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_teacherUIDBoundButtonActionPerformed
-        String boundText = teacherUIDOriginTextField.getText();
+        String boundText = teacherUIDBoundTextField.getText();
         try {
             int bound = Integer.parseInt(boundText);
             admin.getAdminDefaultTeacherProcesesObject().setTeacherUIDBound(bound);

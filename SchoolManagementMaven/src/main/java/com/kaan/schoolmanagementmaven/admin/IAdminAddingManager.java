@@ -20,5 +20,6 @@ public interface IAdminAddingManager {
 
     Map<String, String> addWorkingStudent(String name, String lastName,String phoneNumber) throws SQLException, NotUniqueNameAndLastnameException, InvalidPhoneCountryCodeException , InvalidPhoneNumberLengthException;
 
-    Map<String, String> addTeacher(String name, String lastName, String branchName , int salary,String phoneNumber) throws SQLException, NotUniqueNameAndLastnameException, InvalidPhoneCountryCodeException , InvalidPhoneNumberLengthException;
+    Map<String, String> addTeacher(String name, String lastName, String branchName , int salary,String phoneNumber) throws SQLException, NotUniqueNameAndLastnameException, InvalidPhoneCountryCodeException , InvalidPhoneNumberLengthException , InvalidBranchException , InvalidSalaryException;
+
 }

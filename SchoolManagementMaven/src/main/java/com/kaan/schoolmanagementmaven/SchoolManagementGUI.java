@@ -53,9 +53,18 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
                 new FirstTimeAdminAccessLoginPanel(this).setVisible(true);
                 bufferedReader.close();
                 fileReader.close();
+            } else {
+                IAccess access = Access.getInstance();
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException | SQLException ex) {
+            if (ex instanceof SQLException) {
+                adminLoginButton1.setEnabled(false);
+                studentLoginButton.setEnabled(false);
+                teacherLoginButton.setEnabled(false);
+                new FirstTimeAdminAccessLoginPanel(this).setVisible(true);
+            } else {
+                ex.printStackTrace();
+            }
         }
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override

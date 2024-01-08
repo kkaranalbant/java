@@ -56,14 +56,16 @@ public class AdminAddingManager implements IAdminAddingManager {
     }
 
     @Override
-    public Map<String, String> addTeacher(String name, String lastName, String branchName, int salary, String phoneNumber) throws SQLException, NotUniqueNameAndLastnameException, InvalidPhoneCountryCodeException, InvalidPhoneNumberLengthException {
+    public Map<String, String> addTeacher(String name, String lastName, String branchName, int salary, String phoneNumber) throws SQLException, NotUniqueNameAndLastnameException, InvalidPhoneCountryCodeException, InvalidPhoneNumberLengthException, InvalidBranchException, InvalidSalaryException {
+        if (branchName == null) throw new InvalidBranchException () ;
+        if (salary < 0) throw new InvalidSalaryException () ;
         if (phoneNumber.length() != 13) {
             throw new InvalidPhoneNumberLengthException();
         }
         if (!phoneNumber.substring(0, 3).equals("+90")) {
             throw new InvalidPhoneCountryCodeException();
         }
-        return personManager.createNewTeacher(name, lastName, branchName, salary,phoneNumber);
+        return personManager.createNewTeacher(name, lastName, branchName, salary, phoneNumber);
     }
 
 }

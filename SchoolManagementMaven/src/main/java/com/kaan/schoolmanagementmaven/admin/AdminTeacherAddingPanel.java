@@ -223,13 +223,14 @@ public class AdminTeacherAddingPanel extends javax.swing.JFrame {
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Teacher added : " + name + "  " + lastName);
             }
-        } catch (NumberFormatException | InputMismatchException | NotUniqueNameAndLastnameException | SQLException | IOException | InvalidPhoneNumberLengthException | InvalidPhoneCountryCodeException | NotUniquePhoneNumberException ex) {
+        } catch (NumberFormatException | InputMismatchException | NotUniqueNameAndLastnameException | SQLException | IOException | InvalidPhoneNumberLengthException | InvalidPhoneCountryCodeException | NotUniquePhoneNumberException | InvalidBranchException | InvalidSalaryException ex) {
             if (ex instanceof NumberFormatException) {
                 JOptionPane.showMessageDialog(null, "Invalid number format.");
             } else if (ex instanceof InputMismatchException) {
                 JOptionPane.showMessageDialog(null, "Invalid entry.");
             } else if (ex instanceof SQLException) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, ex.getMessage());
             } else if (ex instanceof IOException) {
                 JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
             } else {

@@ -170,7 +170,7 @@ public class FirstTimeAdminAccess extends javax.swing.JFrame {
                 pass = passwordTf.getText();
                 userName = userNameTf.getText();
                 dbName = dbNameTf.getText();
-                FileWriter fileWriter = new FileWriter(file, true);
+                FileWriter fileWriter = new FileWriter(file);
                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                 bufferedWriter.append(host);
                 bufferedWriter.newLine();

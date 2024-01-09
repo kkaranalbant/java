@@ -13,9 +13,6 @@ import com.kaan.schoolmanagementmaven.dataaccess.connection.DefaultDatabaseInfos
 import com.kaan.schoolmanagementmaven.dataaccess.query.AdminLoginInfoQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IAdminLoginInfoAddingQuery;
 import com.kaan.schoolmanagementmaven.exception.InvalidPassLengthException;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 
 /**
  *
@@ -175,24 +172,7 @@ public class DatabaseProcessPanel extends javax.swing.JFrame {
         try {
             int newPort = Integer.parseInt(portTf.getText());
             if (newPort != port || !(host.equals(hostTf.getText())) || !(pass.equals(passwordTf.getText())) || !(userName.equals(userNameTf.getText())) || !(dbName.equals(dbNameTf.getText()))) {
-                accessManager = new AccessManager(hostTf.getText(), newPort, dbNameTf.getText(), userNameTf.getText(), passwordTf.getText());
-                accessManager.changeDatabaseValues();
-                File file = FirstTimeAdminAccess.getFile();
-                FileWriter fileWriter = new FileWriter(file);
-                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                bufferedWriter.write("");
-                bufferedWriter.append(hostTf.getText());
-                bufferedWriter.newLine();
-                bufferedWriter.append(Integer.toString(newPort));
-                bufferedWriter.newLine();
-                bufferedWriter.append(dbNameTf.getText());
-                bufferedWriter.newLine();
-                bufferedWriter.append(userNameTf.getText());
-                bufferedWriter.newLine();
-                bufferedWriter.append(passwordTf.getText());
-                bufferedWriter.newLine();
-                bufferedWriter.close();
-                fileWriter.close();
+                AccessManager.changeAccessInformations(hostTf.getText(), newPort, dbNameTf.getText(), userNameTf.getText(), passwordTf.getText()).createTables();
                 host = hostTf.getText();
                 port = newPort;
                 pass = passwordTf.getText();
@@ -201,7 +181,7 @@ public class DatabaseProcessPanel extends javax.swing.JFrame {
                 IAdminLoginInfoAddingQuery adminLoginInfoSetter = AdminLoginInfoQuery.getInstanceForAdding() ;
                 String adminUsername = JOptionPane.showInputDialog("New Admin Username : ") ;
                 String adminPass = JOptionPane.showInputDialog("New Admin Password : ") ;
-                if (adminUsername.length() < 8 || adminPass.length() < 8) throw new InvalidPassLengthException () ;
+                if (adminUsername.length() < 8 || adminPass.length() < 8) throw new InvalidPassLengthException () ; // bir managerde kontrol edilsin .
                 adminLoginInfoSetter.addAdmin(userName, pass);
                 if (Admin.getLogManager() != null) {
                     Admin.getLogManager().saveMessage("Database values changed .\n Host : " + host + "\n Port : " + port + "\nDatabase name : " + dbName + "\nUsername :" + userName + "\nPassword : " + pass);
@@ -210,27 +190,13 @@ public class DatabaseProcessPanel extends javax.swing.JFrame {
             }
         } catch (SQLException | IOException | InvalidPassLengthException ex) {
             if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
+                JOptionPane.showMessageDialog(null, ex.getMessage());
             } else {
                 JOptionPane.showMessageDialog(null, ex.getMessage());
                 try {
-                    FileWriter fileWriter = new FileWriter(FirstTimeAdminAccess.getFile());
-                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                    bufferedWriter.write("");
-                    bufferedWriter.append(host);
-                    bufferedWriter.newLine();
-                    bufferedWriter.append(Integer.toString(port));
-                    bufferedWriter.newLine();
-                    bufferedWriter.append(dbName);
-                    bufferedWriter.newLine();
-                    bufferedWriter.append(userName);
-                    bufferedWriter.newLine();
-                    bufferedWriter.append(pass);
-                    bufferedWriter.newLine();
-                    bufferedWriter.close();
-                    fileWriter.close();
+                    AccessManager.changeConnectionFile(host, port, dbName, userName, pass);
                 } catch (IOException ex1) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
+                JOptionPane.showMessageDialog(null, ex1.getMessage());
                 }
             }
 

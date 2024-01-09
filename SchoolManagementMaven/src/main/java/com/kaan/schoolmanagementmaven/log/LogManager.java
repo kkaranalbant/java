@@ -57,6 +57,7 @@ public class LogManager implements ILogManager{
         if (Teacher.getLogManager() != null) {
             Teacher.getLogManager().close(); 
         }
+        
     }
     
     

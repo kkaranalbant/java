@@ -16,6 +16,7 @@ import com.kaan.schoolmanagementmaven.dataaccess.connection.IAccess;
 import com.kaan.schoolmanagementmaven.exception.IncompatibleUsernameAndPhoneNumberException;
 import com.kaan.schoolmanagementmaven.exception.InvalidPassLengthException;
 import com.kaan.schoolmanagementmaven.exception.InvalidUserNameOrPassException;
+import com.kaan.schoolmanagementmaven.log.LogManager;
 import com.kaan.schoolmanagementmaven.person.IPersonChangingManager;
 import com.kaan.schoolmanagementmaven.person.PersonManager;
 import com.kaan.schoolmanagementmaven.person.Student;
@@ -56,10 +57,17 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
                 bufferedReader.close();
                 fileReader.close();
             } else {
+                /*
+                Eger connection dosyasinin icerisinde veri varsa bu baglanti verileri yanlis ise SQLException verecek degilse baglanti kurulmus olacak .
+                */
                 IAccess access = Access.getInstance();
             }
         } catch (IOException | SQLException ex) {
             if (ex instanceof SQLException) {
+                /*
+                Yukaridan SQLException geliyorsa baglanti dosyasinin icerisindeki veriler hatali demektir .
+                Bundan dolayi uygulama baslamadan dogru baglanti bilgilerini girmek icin FirstTimeAdminAccessLoginPanele yonlendiriyor . 
+                */
                 adminLoginButton1.setEnabled(false);
                 studentLoginButton.setEnabled(false);
                 teacherLoginButton.setEnabled(false);
@@ -72,18 +80,10 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
             @Override
             public void windowClosed(java.awt.event.WindowEvent windowEvent) {
                 try {
-                    if (Admin.getLogManager() != null) {
-                        Admin.getLogManager().close();
-                    }
-                    if (Student.getLogManager() != null) {
-                        Student.getLogManager().close();
-                    }
-                    if (WorkingStudent.getLogManager() != null) {
-                        WorkingStudent.getLogManager().close();
-                    }
-                    if (Teacher.getLogManager() != null) {
-                        Teacher.getLogManager().close();
-                    }
+                    /*
+                    Uygulama tamamen kapatildigi zaman IO kaynaklarini kapatmak icin .
+                    */
+                    LogManager.closeAllLogFiles();
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -410,7 +410,7 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
     private void forgotPassButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forgotPassButtonActionPerformed
         String userName = JOptionPane.showInputDialog("Username : ");
         String phoneNumber = JOptionPane.showInputDialog("Phone number : ");
-        try {           
+        try {
             smsSender = PersonManager.getInstanceForSMSManager();
             int verificationCode = smsSender.sendRecoverySMS(userName, phoneNumber);
             int rightNumber = 3;
@@ -426,7 +426,7 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
                     rightNumber--;
                 }
             }
-            
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         } catch (IncompatibleUsernameAndPhoneNumberException | InvalidPassLengthException ex) {

@@ -21,6 +21,7 @@ public class DefaultDatabaseInfos {
     private static FileReader fileReader;
     private static BufferedReader databaseInfoReader;
 
+    /*
     static {
         databaseFile = FirstTimeAdminAccess.getFile();
         try {
@@ -38,6 +39,7 @@ public class DefaultDatabaseInfos {
             ex.printStackTrace();
         }
     }
+    */
 
     public static String host ;
     public static String userName ;

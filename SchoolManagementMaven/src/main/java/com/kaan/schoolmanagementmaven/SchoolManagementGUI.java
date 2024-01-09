@@ -9,10 +9,8 @@ import com.kaan.schoolmanagementmaven.admin.Admin;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import com.kaan.schoolmanagementmaven.admin.AdminPanel;
-import com.kaan.schoolmanagementmaven.admin.FirstTimeAdminAccess;
 import com.kaan.schoolmanagementmaven.admin.FirstTimeAdminAccessLoginPanel;
-import com.kaan.schoolmanagementmaven.dataaccess.connection.Access;
-import com.kaan.schoolmanagementmaven.dataaccess.connection.IAccess;
+import com.kaan.schoolmanagementmaven.dataaccess.connection.AccessManager;
 import com.kaan.schoolmanagementmaven.exception.IncompatibleUsernameAndPhoneNumberException;
 import com.kaan.schoolmanagementmaven.exception.InvalidPassLengthException;
 import com.kaan.schoolmanagementmaven.exception.InvalidUserNameOrPassException;
@@ -27,8 +25,6 @@ import com.kaan.schoolmanagementmaven.person.IPersonCreatorManager;
 import com.kaan.schoolmanagementmaven.person.IPersonSMSManager;
 import com.kaan.schoolmanagementmaven.person.WorkingStudent;
 import com.kaan.schoolmanagementmaven.person.WorkingStudentPanel;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.InputMismatchException;
 import javax.swing.JButton;
 
@@ -47,27 +43,13 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
     public SchoolManagementGUI() {
         initComponents();
         try {
-            FileReader fileReader = new FileReader(FirstTimeAdminAccess.getFile());
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            if (bufferedReader.readLine() == null) {
-                adminLoginButton1.setEnabled(false);
-                studentLoginButton.setEnabled(false);
-                teacherLoginButton.setEnabled(false);
-                new FirstTimeAdminAccessLoginPanel(this).setVisible(true);
-                bufferedReader.close();
-                fileReader.close();
-            } else {
-                /*
-                Eger connection dosyasinin icerisinde veri varsa bu baglanti verileri yanlis ise SQLException verecek degilse baglanti kurulmus olacak .
-                */
-                IAccess access = Access.getInstance();
-            }
+            AccessManager.loadAccessObject() ;
         } catch (IOException | SQLException ex) {
             if (ex instanceof SQLException) {
                 /*
-                Yukaridan SQLException geliyorsa baglanti dosyasinin icerisindeki veriler hatali demektir .
+                Yukaridan SQLException geliyorsa baglanti dosyasinin icerisindeki veriler hatali demektir ya da baglanti dosyasinin icerisi bos demektir . 
                 Bundan dolayi uygulama baslamadan dogru baglanti bilgilerini girmek icin FirstTimeAdminAccessLoginPanele yonlendiriyor . 
-                */
+                 */
                 adminLoginButton1.setEnabled(false);
                 studentLoginButton.setEnabled(false);
                 teacherLoginButton.setEnabled(false);
@@ -82,8 +64,9 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
                 try {
                     /*
                     Uygulama tamamen kapatildigi zaman IO kaynaklarini kapatmak icin .
-                    */
+                     */
                     LogManager.closeAllLogFiles();
+                    AccessManager.closeAllStreams();
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }

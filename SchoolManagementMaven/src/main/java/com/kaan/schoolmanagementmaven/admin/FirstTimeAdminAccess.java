@@ -10,7 +10,6 @@ import com.kaan.schoolmanagementmaven.dataaccess.connection.IAccessManager;
 import com.kaan.schoolmanagementmaven.dataaccess.query.AdminLoginInfoQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IAdminLoginInfoAddingQuery;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -23,7 +22,6 @@ import javax.swing.JOptionPane;
 public class FirstTimeAdminAccess extends javax.swing.JFrame {
 
     private IAccessManager accessManager;
-    private static File file;
     private String host;
     private int port;
     private String dbName;
@@ -31,14 +29,7 @@ public class FirstTimeAdminAccess extends javax.swing.JFrame {
     private String pass;
     private SchoolManagementGUI mainPanel;
 
-    static {
-        file = new File("databaseinfo.txt");
-        try {
-            file.createNewFile();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
+    
 
     /**
      * Creates new form FirstTimeAdminAccess
@@ -48,9 +39,7 @@ public class FirstTimeAdminAccess extends javax.swing.JFrame {
         this.mainPanel = mainPanel;
     }
 
-    public static File getFile() {
-        return file;
-    }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -170,47 +159,37 @@ public class FirstTimeAdminAccess extends javax.swing.JFrame {
                 pass = passwordTf.getText();
                 userName = userNameTf.getText();
                 dbName = dbNameTf.getText();
-                FileWriter fileWriter = new FileWriter(file);
-                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                bufferedWriter.append(host);
-                bufferedWriter.newLine();
-                bufferedWriter.append(Integer.toString(port));
-                bufferedWriter.newLine();
-                bufferedWriter.append(dbName);
-                bufferedWriter.newLine();
-                bufferedWriter.append(userName);
-                bufferedWriter.newLine();
-                bufferedWriter.append(pass);
-                bufferedWriter.newLine();
-                bufferedWriter.close();
-                fileWriter.close();
-                accessManager = new AccessManager (host , port ,dbName , userName , pass) ;
-                accessManager.changeDatabaseValues();
+                AccessManager.changeAccessInformations(host, port, dbName, userName, pass).createTables(); 
                 String userName = JOptionPane.showInputDialog("Admin username : ");
-                String password = JOptionPane.showInputDialog("Admin password : ");
-                IAdminLoginInfoAddingQuery adminInfoAdder = AdminLoginInfoQuery.getInstanceForAdding();
+                String password = JOptionPane.showInputDialog("Admin password : "); // kullanici adi ve sifrenin uzunlugunun kontrolu yapilsin .
+                IAdminLoginInfoAddingQuery adminInfoAdder = AdminLoginInfoQuery.getInstanceForAdding(); // manager yapsin.
                 adminInfoAdder.addAdmin(userName, password);
                 mainPanel.getAdminLoginButton1().setEnabled(true);
                 mainPanel.getStudentLoginButton().setEnabled(true);
                 mainPanel.getTeacherLoginButton().setEnabled(true);
                 this.dispose();
             }
-        } catch (SQLException | IOException ex) {
-            if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
+        } catch (SQLException | IOException | NumberFormatException ex) {
+            if (ex instanceof NumberFormatException) {
+                JOptionPane.showMessageDialog(null, "Invalid Port entry.");
+            }
+            else {
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+            } /*
+            else {
                 JOptionPane.showMessageDialog(null, ex.getMessage());
                 try {
-                    FileWriter fileWriter = new FileWriter (file) ; 
+                    FileWriter fileWriter = new FileWriter (AccessManager.getConnectionFile()) ; 
                     BufferedWriter bufferedWriter = new BufferedWriter (fileWriter) ;
                     bufferedWriter.write("");
                     bufferedWriter.close(); 
                     fileWriter.close();
                 }
                 catch (IOException ex1) {
-                    JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
+                    JOptionPane.showMessageDialog(null, ex1.getMessage());
                 }
             }
+            */
         }
     }//GEN-LAST:event_changeButtonActionPerformed
 

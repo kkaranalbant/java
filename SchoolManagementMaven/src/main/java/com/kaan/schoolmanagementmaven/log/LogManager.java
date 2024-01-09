@@ -4,6 +4,10 @@
  */
 package com.kaan.schoolmanagementmaven.log;
 
+import com.kaan.schoolmanagementmaven.admin.Admin;
+import com.kaan.schoolmanagementmaven.person.Student;
+import com.kaan.schoolmanagementmaven.person.Teacher;
+import com.kaan.schoolmanagementmaven.person.WorkingStudent;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -40,7 +44,20 @@ public class LogManager implements ILogManager{
         fileWriter.close();
     }
 
-    
+    public static void closeAllLogFiles () throws IOException {
+        if (Admin.getLogManager() != null) {
+            Admin.getLogManager().close(); 
+        }
+        if (Student.getLogManager() != null) {
+            Student.getLogManager().close();
+        }
+        if (WorkingStudent.getLogManager() != null) {
+            WorkingStudent.getLogManager().close();
+        }
+        if (Teacher.getLogManager() != null) {
+            Teacher.getLogManager().close(); 
+        }
+    }
     
     
 }

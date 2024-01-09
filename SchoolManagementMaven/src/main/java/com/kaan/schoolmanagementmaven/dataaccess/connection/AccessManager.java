@@ -32,8 +32,6 @@ public class AccessManager implements IAccessManager {
     private Access access;
     private static File connectionFile;
     private static BufferedReader bufferedReader;
-    private static BufferedWriter bufferedWriter;
-    private static FileWriter fileWriter;
     private static FileReader fileReader;
 
     /*
@@ -42,9 +40,8 @@ public class AccessManager implements IAccessManager {
     static {
         connectionFile = new File("databaseinfo.txt");
         try {
-            fileWriter = new FileWriter(connectionFile,true);
+
             fileReader = new FileReader(connectionFile);
-            bufferedWriter = new BufferedWriter(fileWriter);
             bufferedReader = new BufferedReader(fileReader);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage());
@@ -105,7 +102,10 @@ public class AccessManager implements IAccessManager {
     }
 
     public static void changeConnectionFile(String host, int port, String dbName, String userName, String pass) throws IOException {
+        connectionFile.delete();
         connectionFile.createNewFile(); // dosyanin icerisindeki daha onceden olan verileri silmek icin
+        FileWriter fileWriter = new FileWriter(connectionFile);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         bufferedWriter.write(host);
         bufferedWriter.newLine();
         bufferedWriter.write(Integer.toString(port));
@@ -116,6 +116,10 @@ public class AccessManager implements IAccessManager {
         bufferedWriter.newLine();
         bufferedWriter.write(pass);
         bufferedWriter.flush(); // close etmedigimiz icin ve metot bittiginden dolayi tampondaki verileri dosyaya kaydetmeye yariyor . 
+        bufferedWriter.close();
+        fileWriter.close(); 
+        bufferedWriter = null ;
+        fileWriter = null ;
     }
 
     private static boolean isEmptyConnectionFile() throws IOException {
@@ -165,9 +169,7 @@ public class AccessManager implements IAccessManager {
 
     public static void closeAllStreams() throws IOException {
         bufferedReader.close();
-        bufferedWriter.close();
         fileReader.close();
-        fileWriter.close();
     }
 
     private void addAdminTable() throws SQLException {

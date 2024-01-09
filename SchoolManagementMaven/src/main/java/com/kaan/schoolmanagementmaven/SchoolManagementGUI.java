@@ -11,6 +11,8 @@ import javax.swing.JOptionPane;
 import com.kaan.schoolmanagementmaven.admin.AdminPanel;
 import com.kaan.schoolmanagementmaven.admin.FirstTimeAdminAccess;
 import com.kaan.schoolmanagementmaven.admin.FirstTimeAdminAccessLoginPanel;
+import com.kaan.schoolmanagementmaven.dataaccess.connection.Access;
+import com.kaan.schoolmanagementmaven.dataaccess.connection.IAccess;
 import com.kaan.schoolmanagementmaven.exception.IncompatibleUsernameAndPhoneNumberException;
 import com.kaan.schoolmanagementmaven.exception.InvalidPassLengthException;
 import com.kaan.schoolmanagementmaven.exception.InvalidUserNameOrPassException;

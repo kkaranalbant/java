@@ -22,6 +22,7 @@ import com.kaan.schoolmanagementmaven.dataaccess.query.PersonInformationQuery;
 /**
  *
  * @author kaan
+ * 
  */
 public class PersonFactory implements IPersonFactory {
 

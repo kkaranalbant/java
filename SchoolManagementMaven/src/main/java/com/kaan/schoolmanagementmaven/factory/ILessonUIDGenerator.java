@@ -9,6 +9,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface ILessonUIDGenerator {
     public int generateUIDForLesson () throws SQLException;

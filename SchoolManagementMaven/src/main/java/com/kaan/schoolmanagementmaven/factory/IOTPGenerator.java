@@ -7,6 +7,7 @@ package com.kaan.schoolmanagementmaven.factory;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IOTPGenerator {
     int OTP_ORIGIN = 100000 ;

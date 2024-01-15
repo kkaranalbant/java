@@ -7,6 +7,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IPersonUIDGenerator {
     public int generateUIDForNormalStudent() throws SQLException ;

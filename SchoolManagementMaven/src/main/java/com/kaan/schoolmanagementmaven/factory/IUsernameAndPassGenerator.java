@@ -11,6 +11,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IUsernameAndPassGenerator {
 

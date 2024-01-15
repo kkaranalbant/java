@@ -19,6 +19,7 @@ import com.kaan.schoolmanagementmaven.dataaccess.query.LessonFetchingQuery;
 /**
  *
  * @author kaan
+ * 
  */
 public class Generator implements IPersonUIDGenerator, IUsernameAndPassGenerator, ILessonUIDGenerator, IOTPGenerator {
 

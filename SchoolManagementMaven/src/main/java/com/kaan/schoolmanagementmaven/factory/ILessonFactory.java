@@ -15,6 +15,7 @@ import com.kaan.schoolmanagementmaven.lesson.Lesson;
 /**
  *
  * @author kaan
+ * 
  */
 public interface ILessonFactory {
     public Lesson createLessonWhichExistInDb (int lessonUID) throws SQLException ;

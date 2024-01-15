@@ -12,6 +12,7 @@ import com.kaan.schoolmanagementmaven.person.WorkingStudent;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IPersonFactory {
     public Student createNormalStudentWhichExistsInDb(String userName, String pass, int uid) throws SQLException;

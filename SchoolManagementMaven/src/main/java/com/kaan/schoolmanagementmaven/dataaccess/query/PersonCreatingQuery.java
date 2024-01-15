@@ -10,11 +10,15 @@ import java.sql.SQLException;
  *
  * @author kaan
  */
-public class PersonCreatingQuery extends Query implements IPersonCreatingQuery {
+public class PersonCreatingQuery extends Query implements IPersonCreatingQuery , IPersonCreatingQueryForConverting {
 
     private static IPersonCreatingQuery personCreatingQuery;
     private IDefaultValuesQuery defaultValues;
     private ILessonFetchingQuery lessonCreatingQuery;
+    private int defDebt;
+    private int defBalance;
+    private int defLessonCredit;
+    private int defMaxDebtCredit;
 
     static {
         personCreatingQuery = null;
@@ -23,6 +27,10 @@ public class PersonCreatingQuery extends Query implements IPersonCreatingQuery {
     private PersonCreatingQuery() throws SQLException {
         defaultValues = DefaultValuesQuery.getInstance();
         lessonCreatingQuery = LessonFetchingQuery.getInstance();
+        defDebt = defaultValues.getDefaultDebt();
+        defBalance = defaultValues.getDefaultBalance();
+        defLessonCredit = defaultValues.getDefaultLessonCredit();
+        defMaxDebtCredit = defaultValues.getDefaultMaxDebtCredit();
     }
 
     public static IPersonCreatingQuery getInstance() throws SQLException {
@@ -31,65 +39,55 @@ public class PersonCreatingQuery extends Query implements IPersonCreatingQuery {
         }
         return personCreatingQuery;
     }
+    
+    static IPersonCreatingQueryForConverting getInstanceForConverting () throws SQLException {
+        return (IPersonCreatingQueryForConverting) getInstance() ;
+    }
 
     @Override
     public void createNormalStudentInDb(String name, String lastname, String username, String pass, int uid, String phoneNumber) throws SQLException {
-        createNormalStudentInDb(name, lastname, username, pass, uid, super.getAccess().getNormalStudentTable(),phoneNumber);
+        createStudentInfoInDb(super.getAccess().getNormalStudentTable(), name, lastname, uid, phoneNumber);
+        createPersonLoginInfoInDb(username, pass, uid, super.getAccess().getNormalStudentLoginInfosTable());
     }
 
     @Override
     public void createWorkingStudentIndDb(String name, String lastname, String username, String pass, int uid, String phoneNumber) throws SQLException {
-        createWorkingStudentInDb(name, lastname, username, pass, uid, super.getAccess().getWorkingStudentTable(),phoneNumber);
+        createStudentInfoInDb(super.getAccess().getWorkingStudentTable(), name, lastname, uid, phoneNumber);
+        createPersonLoginInfoInDb(username, pass, uid, super.getAccess().getWorkingStudentLoginInfosTable());
     }
 
     @Override
-    public void createTeacherInDb(String name, String lastname, String username, String pass, int uid, String branchName , int salary, String phoneNumber) throws SQLException {
-        createTeacherInDb(name, lastname, username, pass, uid, branchName , salary , super.getAccess().getTeacherTable(),phoneNumber);
+    public void createTeacherInDb(String name, String lastname, String username, String pass, int uid, String branchName, int salary, String phoneNumber) throws SQLException {
+        createTeacherInfoInDb(name, lastname, uid, salary, phoneNumber);
+        createPersonLoginInfoInDb(username, pass, uid, super.getAccess().getTeacherLoginInfos());
+        createTeacherBranchInDb(uid, branchName);
     }
 
-    private void createNormalStudentInDb(String name, String lastname, String username, String pass, int uid, String tableName, String phoneNumber) throws SQLException {
-        int defDebt = defaultValues.getDefaultDebt();
-        int defBalance = defaultValues.getDefaultBalance();
-        int defLessonCredit = defaultValues.getDefaultLessonCredit();
-        int defMaxDebtCredit = defaultValues.getDefaultMaxDebtCredit();
-        String query1 = getStudentCreatingInDbQueryString(tableName, name, lastname, uid, defDebt, defBalance, defLessonCredit, defMaxDebtCredit,phoneNumber);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query1));
-        super.getPreparedStatement().executeUpdate();
-        String query2 = createLoginInfoInDbQueryString(super.getAccess().getNormalStudentLoginInfosTable(), username, pass, uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query2));
-        super.getPreparedStatement().executeUpdate();
+    @Override
+    public void createStudentInfoInDb(String studentTableName, String name, String lastname, int uid, String phoneNumber) throws SQLException {
+        String studentCreatingQuery = getStudentCreatingInDbQueryString(studentTableName, name, lastname, uid, defDebt, defBalance, defLessonCredit, defMaxDebtCredit, phoneNumber);
+        super.runUpdatingQuery(studentCreatingQuery);
     }
 
-    private void createWorkingStudentInDb(String name, String lastname, String username, String pass, int uid, String tableName, String phoneNumber) throws SQLException {
-        int defDebt = defaultValues.getDefaultDebt();
-        int defBalance = defaultValues.getDefaultBalance();
-        int defLessonCredit = defaultValues.getDefaultLessonCredit();
-        int defMaxDebtCredit = defaultValues.getDefaultMaxDebtCredit();
-        String query1 = getStudentCreatingInDbQueryString(tableName, name, lastname, uid, defDebt, defBalance, defLessonCredit, defMaxDebtCredit,phoneNumber);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query1));
-        super.getPreparedStatement().executeUpdate();
-        String query2 = createLoginInfoInDbQueryString(super.getAccess().getWorkingStudentLoginInfosTable(), username, pass, uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query2));
-        super.getPreparedStatement().executeUpdate();
+    @Override
+    public void createPersonLoginInfoInDb(String userName, String pass, int uid, String studentLoginInfoTableName) throws SQLException {
+        String studentLoginInfoCreatingQuery = createLoginInfoInDbQueryString(studentLoginInfoTableName, userName, pass, uid);
+        super.runUpdatingQuery(studentLoginInfoCreatingQuery);
     }
 
-    private void createTeacherInDb(String name, String lastname, String username, String pass, int uid, String branchName, int salary, String tableName, String phoneNumber) throws SQLException {
-        int defBalance = defaultValues.getDefaultBalance();
-        String query1 = getTeacherCreatingInDbQueryString(tableName, name, lastname, uid, defBalance , salary , phoneNumber);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query1));
-        super.getPreparedStatement().executeUpdate();
+    private void createTeacherInfoInDb(String name, String lastname, int uid, int salary, String phoneNumber) throws SQLException {
+        String teacherCreatingQuery = getTeacherCreatingInDbQueryString(super.getAccess().getTeacherTable(), name, lastname, uid, defBalance, salary, phoneNumber);
+        super.runUpdatingQuery(teacherCreatingQuery);
+    }
+
+    private void createTeacherBranchInDb(int teacherUID, String branchName) throws SQLException {
         int branchId = lessonCreatingQuery.getLessonUIDByLessonName(branchName);
-        String query2 = createTeacherBranchInDb(uid, branchId, super.getAccess().getTeacherBranchTable());
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query2));
-        super.getPreparedStatement().executeUpdate();
-        String query3 = createLoginInfoInDbQueryString(super.getAccess().getTeacherLoginInfos(), username, pass, uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query3));
-        super.getPreparedStatement().executeUpdate();
-
+        String branchCreatingQuery = createTeacherBranchInDb(teacherUID, branchId, super.getAccess().getTeacherBranchTable());
+        super.runUpdatingQuery(branchCreatingQuery);
     }
 
-    private String getStudentCreatingInDbQueryString(String tableName, String name, String lastname, int uid, int defDebt, int defBalance, int defLessonCredit, int defMaxDebtCredit , String phoneNumber) {
-        return "insert into " + tableName + " values ('" + name + "','" + lastname + "'," + uid + "," + defBalance + "," + defDebt + "," + defLessonCredit +",'" +phoneNumber+"');";
+    private String getStudentCreatingInDbQueryString(String tableName, String name, String lastname, int uid, int defDebt, int defBalance, int defLessonCredit, int defMaxDebtCredit, String phoneNumber) {
+        return "insert into " + tableName + " values ('" + name + "','" + lastname + "'," + uid + "," + defBalance + "," + defDebt + "," + defLessonCredit + ",'" + phoneNumber + "');";
     }
 
     private String createLoginInfoInDbQueryString(String tableName, String userName, String pass, int uid) {
@@ -97,7 +95,7 @@ public class PersonCreatingQuery extends Query implements IPersonCreatingQuery {
     }
 
     private String getTeacherCreatingInDbQueryString(String tableName, String name, String lastName, int uid, int defBalance, int salary, String phoneNumber) {
-        return "insert into " + tableName + " values ('" + name + "','" + lastName + "'," + uid + "," + defBalance + ", " + salary + ",'" +phoneNumber+"');";
+        return "insert into " + tableName + " values ('" + name + "','" + lastName + "'," + uid + "," + defBalance + ", " + salary + ",'" + phoneNumber + "');";
     }
 
     private String createTeacherBranchInDb(int uid, int branchId, String tableName) {

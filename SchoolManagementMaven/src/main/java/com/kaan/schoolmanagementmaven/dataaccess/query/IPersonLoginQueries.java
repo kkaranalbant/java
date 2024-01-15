@@ -30,4 +30,7 @@ public interface IPersonLoginQueries {
     public String getWorkingStudentPassByUID(int uid) throws SQLException;
 
     public String getTeacherPassByUID(int uid) throws SQLException;
+    
+    public String getPersonUsernameByUID(int uid, String tableName, String columnName) throws SQLException ;
+    
 }

@@ -31,46 +31,46 @@ public class LessonChangingQuery extends Query implements ILessonChangingQuery {
 
     @Override
     public void changeLessonName(String newName, int lessonUID) throws SQLException {
-        String query = "update " + super.getAccess().getLessonTable() + " set lesson_name = '" + newName + "' where lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getLessonChangingQuery("lesson_name", newName, lessonUID) ;
+        super.runUpdatingQuery(query);
     }
 
     @Override
     public void changeLessonCredit(int newCredit, int lessonUID) throws SQLException {
-        String query = "update " + super.getAccess().getLessonTable() + " set lesson_credit = " + newCredit + " where lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getLessonChangingQuery("lesson_credit", newCredit, lessonUID);
+        super.runUpdatingQuery(query);
     }
 
     @Override
     public void changeLessonHour(int newLessonHour, int lessonUID) throws SQLException {
-        String query = "update " + super.getAccess().getLessonTable() + " set lesson_hour = " + newLessonHour + " where lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getLessonChangingQuery("lesson_hour", newLessonHour, lessonUID);
+        super.runUpdatingQuery(query);
     }
 
     @Override
-    public void changeLessonQuota(int newQutoa, int lessonUID) throws SQLException {
-        String query = "update " + super.getAccess().getLessonTable() + " set quota = " + newQutoa + " where lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+    public void changeLessonQuota(int newQuota, int lessonUID) throws SQLException {
+        String query = getLessonChangingQuery("quota", newQuota, lessonUID);
+        super.runUpdatingQuery(query);
     }
 
     @Override
     public void changeLessonMidtermRate(int newMidtermRate, int lessonUID) throws SQLException {
-        String query = "update " + super.getAccess().getLessonTable() + " set average_midterm_rate = " + newMidtermRate + " where lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getLessonChangingQuery("average_midterm_rate", newMidtermRate, lessonUID);
+        super.runUpdatingQuery(query);
     }
 
     @Override
     public void changeLessonFinalRate(int newFinalRate, int lessonUID) throws SQLException {
-        String query = "update " + super.getAccess().getLessonTable() + " set average_final_rate = " + newFinalRate + " where lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getLessonChangingQuery("average_final_rate", newFinalRate, lessonUID);
+        super.runUpdatingQuery(query);
+    }
+
+    private String getLessonChangingQuery(String column, int value, int lessonUID) {
+        return "update " + super.getAccess().getLessonTable() + " set " + column + " = " + value + " where lesson_UID = " + lessonUID + " ;";
     }
     
-    
+    private String getLessonChangingQuery(String column, String value, int lessonUID) {
+        return "update " + super.getAccess().getLessonTable() + " set " + column + " = '" + value + "' where lesson_UID = " + lessonUID + " ;";
+    }
 
 }

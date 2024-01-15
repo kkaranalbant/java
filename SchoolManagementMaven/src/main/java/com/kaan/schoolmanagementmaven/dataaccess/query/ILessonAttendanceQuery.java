@@ -11,7 +11,7 @@ import java.sql.SQLException ;
 public interface ILessonAttendanceQuery {
     void increaseAttendance (String lessonName) throws SQLException ;
     void decreaseAttendance (String lessonName) throws SQLException ;
-    int getLessonAttendance(String lessonName) throws SQLException ;
+    int getLessonAttendanceAmount(String lessonName) throws SQLException ;
     void addLessonAttendanceToDb (String lessonName) throws SQLException ;
     void removeLessonAttendanceFromDb (String lessonName) throws SQLException ;
 }

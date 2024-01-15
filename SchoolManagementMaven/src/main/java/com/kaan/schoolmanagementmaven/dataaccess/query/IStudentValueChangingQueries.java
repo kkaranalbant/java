@@ -10,8 +10,8 @@ import java.sql.SQLException ;
  * @author kaan
  */
 public interface IStudentValueChangingQueries extends IPersonValueChangingQueries{
-    void setNormalStudentDebt (int uid , int value) throws SQLException ;
-    void setWorkingStudentDebt (int uid , int value) throws SQLException ;
-    void setNormalStudentLessonCredit (int uid , int value) throws SQLException ;
-    void setWorkingStudentLessonCredit (int uid , int value) throws SQLException ;
+    void changeNormalStudentDebt (int uid , int value) throws SQLException ;
+    void changeWorkingStudentDebt (int uid , int value) throws SQLException ;
+    void changeNormalStudentLessonCredit (int uid , int value) throws SQLException ;
+    void changeWorkingStudentLessonCredit (int uid , int value) throws SQLException ;
 }

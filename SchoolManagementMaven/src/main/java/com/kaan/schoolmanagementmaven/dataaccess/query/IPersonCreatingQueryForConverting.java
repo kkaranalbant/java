@@ -3,12 +3,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
 package com.kaan.schoolmanagementmaven.dataaccess.query;
+
 import java.sql.SQLException;
 
 /**
  *
  * @author kaan
  */
-public interface ILessonDeletingQuery {
-    boolean deleteLesson (int uid) throws SQLException ;
+public interface IPersonCreatingQueryForConverting {
+
+    void createStudentInfoInDb(String studentTableName, String name, String lastname, int uid, String phoneNumber) throws SQLException;
+
+    void createPersonLoginInfoInDb(String userName, String pass, int uid, String studentLoginInfoTableName) throws SQLException;
 }

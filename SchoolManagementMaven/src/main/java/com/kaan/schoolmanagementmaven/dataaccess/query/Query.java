@@ -7,6 +7,7 @@ package com.kaan.schoolmanagementmaven.dataaccess.query;
 import com.kaan.schoolmanagementmaven.dataaccess.connection.Access;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.ResultSet ;
 
 /**
  *
@@ -25,12 +26,18 @@ public abstract class Query {
         return access;
     }
 
-    PreparedStatement getPreparedStatement() {
-        return pStatement;
+    private void setPreparedStatement(String query) throws SQLException{
+        pStatement = access.getConnection().prepareStatement(query);
+    }
+    
+    int runUpdatingQuery (String query) throws SQLException{
+        setPreparedStatement(query);
+        return pStatement.executeUpdate() ;
     }
 
-    void setPreparedStatement(PreparedStatement pStatement) {
-        this.pStatement = pStatement;
+    ResultSet runGettingQuery (String query) throws SQLException{
+        setPreparedStatement(query);
+        return pStatement.executeQuery() ;
     }
-
+    
 }

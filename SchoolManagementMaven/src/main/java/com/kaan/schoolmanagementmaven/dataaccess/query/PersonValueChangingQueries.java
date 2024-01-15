@@ -5,7 +5,6 @@
 package com.kaan.schoolmanagementmaven.dataaccess.query;
 
 import java.sql.SQLException;
-import java.sql.ResultSet;
 
 /**
  *
@@ -14,12 +13,14 @@ import java.sql.ResultSet;
 public class PersonValueChangingQueries extends Query implements IStudentValueChangingQueries, ITeacherValueChangingQueries {
 
     private static PersonValueChangingQueries valueChangingObject;
+    private IPersonFetchingQueries personFetcher;
 
     static {
         valueChangingObject = null;
     }
 
     private PersonValueChangingQueries() throws SQLException {
+        personFetcher = PersonFetchingQueries.getInstance();
     }
 
     public static IStudentValueChangingQueries getInstanceForStudent() throws SQLException {
@@ -113,49 +114,49 @@ public class PersonValueChangingQueries extends Query implements IStudentValueCh
     }
 
     @Override
-    public void setNormalStudentDebt(int uid, int value) throws SQLException {
+    public void changeNormalStudentDebt(int uid, int value) throws SQLException {
         setStudentDebt(uid, value, super.getAccess().getNormalStudentTable());
     }
 
     @Override
-    public void setWorkingStudentDebt(int uid, int value) throws SQLException {
+    public void changeWorkingStudentDebt(int uid, int value) throws SQLException {
         setStudentDebt(uid, value, super.getAccess().getWorkingStudentTable());
     }
 
     @Override
-    public void setNormalStudentLessonCredit(int uid, int value) throws SQLException {
+    public void changeNormalStudentLessonCredit(int uid, int value) throws SQLException {
         setStudentLessonCredit(uid, value, super.getAccess().getNormalStudentTable(), "student_lesson_credit");
     }
 
     @Override
-    public void setWorkingStudentLessonCredit(int uid, int value) throws SQLException {
+    public void changeWorkingStudentLessonCredit(int uid, int value) throws SQLException {
         setStudentLessonCredit(uid, value, super.getAccess().getWorkingStudentTable(), "lesson_credit");
     }
 
     @Override
     public void setTeacherSalary(int uid, int value) throws SQLException {
-        String query = "update " + super.getAccess().getTeacherTable() + " set salary = " + value + " where UID = " + uid + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getchangingPersonIntegerAttributeQueryString(super.getAccess().getTeacherTable(), "salary", value, uid);
+        super.runUpdatingQuery(query);
     }
 
     @Override
     public void setTeacherBranch(int uid, int branchId) throws SQLException {
-        String query = "update " + super.getAccess().getTeacherBranchTable() + " set lesson_UID = " + branchId + " where teacher_UID = " + uid + " ; ";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getTeacherBranchSettingQueryString(branchId, uid);
+        super.runUpdatingQuery(query);
+    }
+
+    private String getTeacherBranchSettingQueryString(int branchId, int teacherUID) {
+        return "update " + super.getAccess().getTeacherBranchTable() + " set lesson_UID = " + branchId + " where teacher_UID = " + teacherUID + " ; ";
     }
 
     private void setStudentDebt(int uid, int value, String tableName) throws SQLException {
-        String query = "update " + tableName + " set debt = " + value + " where UID = " + uid + " ; ";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getchangingPersonIntegerAttributeQueryString(tableName, "debt", value, uid);
+        super.runUpdatingQuery(query);
     }
 
     private void setStudentLessonCredit(int uid, int value, String tableName, String columnName) throws SQLException {
-        String query = "update " + tableName + " set " + columnName + " = " + value + " where UID = " + uid + " ; ";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getchangingPersonIntegerAttributeQueryString(tableName, columnName, value, uid);
+        super.runUpdatingQuery(query);
     }
 
     @Override
@@ -174,40 +175,45 @@ public class PersonValueChangingQueries extends Query implements IStudentValueCh
     }
 
     private void changePersonPhoneNumber(int uid, String newPhoneNumber, String tableName) throws SQLException {
-        String query = "update " + tableName + " set phone_number = '" + newPhoneNumber + "' where UID = " + uid + ";";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getchangingPersonStringAttributeQueryString(tableName, "phone_number", newPhoneNumber, uid);
+        super.runUpdatingQuery(query);
     }
 
     private void changePersonName(int uid, String newName, String tableName) throws SQLException {
-        String query = "update " + tableName + " set name = '" + newName + "' where UID = " + uid;
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getchangingPersonStringAttributeQueryString(tableName, "name", newName, uid);
+        super.runUpdatingQuery(query);
     }
 
-    private void changePersonLastname(int uid, String newName, String tableName) throws SQLException {
-        String query = "update " + tableName + " set last_name = '" + newName + "' where UID = " + uid;
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+    private void changePersonLastname(int uid, String newLastname, String tableName) throws SQLException {
+        String query = getchangingPersonStringAttributeQueryString(tableName, "last_name", newLastname, uid);
+        super.runUpdatingQuery(query);
     }
 
     private void changePersonBalance(int uid, int newBalance, String tableName) throws SQLException {
-        String query = "update " + tableName + " set balance = " + newBalance + " where UID = " + uid;
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getchangingPersonIntegerAttributeQueryString(tableName, "balance", newBalance, uid);
+        super.runUpdatingQuery(query);
     }
 
     private void changePersonUsername(int uid, String newUserName, String tableName, String columnName) throws SQLException {
-        String query = "update " + tableName + " set username = '" + newUserName + "' where " + columnName + " = " + uid;
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getChangingPersonLoginInfoQueryString(tableName, "username", newUserName, columnName, uid);
+        super.runUpdatingQuery(query);
     }
 
     private void changePersonPass(int uid, String newPass, String tableName, String columnName) throws SQLException {
-        String query = "update " + tableName + " set pass = '" + newPass + "' where " + columnName + " = " + uid;
-        System.out.println(query);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getChangingPersonLoginInfoQueryString(tableName, "pass", newPass, columnName, uid);
+        super.runUpdatingQuery(query);
+    }
+
+    private String getchangingPersonIntegerAttributeQueryString(String tableName, String attributeName, int newValue, int uid) {
+        return "update " + tableName + " set " + attributeName + " = " + newValue + " where UID = " + uid + " ;";
+    }
+
+    private String getchangingPersonStringAttributeQueryString(String tableName, String attributeName, String newValue, int uid) {
+        return "update " + tableName + " set " + attributeName + " = '" + newValue + "' where UID = " + uid + " ;";
+    }
+
+    private String getChangingPersonLoginInfoQueryString(String tableName, String columnName, String newValue, String uidColumnName, int uid) {
+        return "update " + tableName + " set " + columnName + " = '" + newValue + " ' where " + uidColumnName + " = " + uid + " ;";
     }
 
     @Override
@@ -225,17 +231,10 @@ public class PersonValueChangingQueries extends Query implements IStudentValueCh
         changePersonPassWithPhoneNumber(phoneNumber, newPass, super.getAccess().getTeacherTable(), super.getAccess().getTeacherLoginInfos(), "teacher_UID");
     }
 
-    private void changePersonPassWithPhoneNumber(String phoneNumber, String newPass, String tableNameForUID , String tableNameForPass , String columnName) throws SQLException {
-        String query = "select UID from " + tableNameForUID + " where phone_number = '" + phoneNumber+"' ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        ResultSet resultSet = super.getPreparedStatement().executeQuery() ;
-        int uid = 0 ;
-        while (resultSet.next()) {
-            uid = resultSet.getInt("UID") ;
-        }
-        query = "update "+tableNameForPass+" set pass = '"+newPass+"' where "+columnName+" = "+uid ;
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate() ;
+    private void changePersonPassWithPhoneNumber(String phoneNumber, String newPass, String tableNameForUID, String tableNameForPass, String columnName) throws SQLException {
+        int uid = personFetcher.getPersonUIDByPhoneNumber(tableNameForUID, phoneNumber);
+        String query = getChangingPersonLoginInfoQueryString(tableNameForPass, "pass", newPass, columnName, uid);
+        super.runUpdatingQuery(query);
     }
 
 }

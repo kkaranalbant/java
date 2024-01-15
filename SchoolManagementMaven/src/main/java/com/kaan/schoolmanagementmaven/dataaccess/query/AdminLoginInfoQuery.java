@@ -35,22 +35,19 @@ public class AdminLoginInfoQuery extends Query implements IAdminLoginInfoChangeQ
     @Override
     public void setUsername(String userName) throws SQLException {
         String query = "update " + super.getAccess().getAdminTable() + " set username = '" + userName + "' ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        super.runUpdatingQuery(query) ;
     }
 
     @Override
     public void setPassword(String pass) throws SQLException {
         String query = "update " + super.getAccess().getAdminTable() + " set pass = '" + pass + "' ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        super.runUpdatingQuery(query);
     }
 
     @Override
     public void addAdmin(String userName, String pass) throws SQLException {
         String query = "insert into " + super.getAccess().getAdminTable() + " values ('" + userName + "','" + pass + "') ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        super.runUpdatingQuery(query) ;
     }
 
 }

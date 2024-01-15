@@ -16,13 +16,14 @@ import java.util.Map;
 public class PersonValidationQueries extends Query implements IPersonValidationQueries {
 
     private static IPersonValidationQueries personValidation;
+    private IPersonLoginQueries personLoginQuery;
 
     static {
         personValidation = null;
     }
 
     private PersonValidationQueries() throws SQLException {
-
+        personLoginQuery = PersonLoginQueries.getInstance();
     }
 
     public static IPersonValidationQueries getInstance() throws SQLException {
@@ -48,39 +49,48 @@ public class PersonValidationQueries extends Query implements IPersonValidationQ
     }
 
     private ResultSet getPersonNameAndLastname(String tableName) throws SQLException {
-        String query = "select name , last_name from " + tableName + ";";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeQuery();
+        String query = getPersonNameAndLastnameQueryString(tableName);
+        return super.runGettingQuery(query);
     }
 
-    private Map<String, String> getPersonUserameAndPhoneNumber(String personTable, String loginInfoTable, String columnName) throws SQLException {
-        String query = "select UID , phone_number from " + personTable + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        ResultSet resultSet = super.getPreparedStatement().executeQuery();
-        Map<String, String> result = new HashMap();
-        while (resultSet.next()) {
-            query = "select username from " + loginInfoTable + " where " + columnName + " = " + resultSet.getInt("UID");
-            super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-            ResultSet resultSetForUsername = super.getPreparedStatement().executeQuery();
-            resultSetForUsername.next();
-            result.put(resultSet.getString("phone_number"), resultSetForUsername.getString("username"));
+    private String getPersonNameAndLastnameQueryString(String tableName) {
+        return "select name , last_name from " + tableName + ";";
+    }
+
+    private Map<String, String> getPersonUsernameAndPhoneNumber(String personTable, String columnName) throws SQLException {
+        String query = getPersonsUIDAndPhoneNumberQueryString(personTable);
+        ResultSet UIDsAndPhoneNumbers = super.runGettingQuery(query);
+        Map<String, String> userNameAndPhoneNumber = new HashMap();
+        addUsernameAndPhoneNumberToMap(userNameAndPhoneNumber, UIDsAndPhoneNumbers, personTable, columnName);
+        return userNameAndPhoneNumber;
+    }
+
+    private String getPersonsUIDAndPhoneNumberQueryString(String personTable) {
+        return "select UID , phone_number from " + personTable + " ;";
+    }
+
+    private void addUsernameAndPhoneNumberToMap(Map<String, String> userNameAndPhoneNumber, ResultSet UIDsAndPhoneNumbers, String personTable, String columnName) throws SQLException {
+        while (UIDsAndPhoneNumbers.next()) {
+            int personUID = UIDsAndPhoneNumbers.getInt("UID");
+            String userName = personLoginQuery.getPersonUsernameByUID(personUID, personTable, columnName);
+            String phoneNumber = UIDsAndPhoneNumbers.getString("phone_number");
+            userNameAndPhoneNumber.put(phoneNumber, userName);
         }
-        return result;
     }
 
     @Override
     public Map<String, String> getAllNormalStudentUsernameAndPhoneNumber() throws SQLException {
-        return getPersonUserameAndPhoneNumber(super.getAccess().getNormalStudentTable(), super.getAccess().getNormalStudentLoginInfosTable(), "normal_student_UID");
+        return getPersonUsernameAndPhoneNumber(super.getAccess().getNormalStudentTable(), "normal_student_UID");
     }
 
     @Override
     public Map<String, String> getAllWorkingStudentUsernameAndPhoneNumber() throws SQLException {
-        return getPersonUserameAndPhoneNumber(super.getAccess().getWorkingStudentTable(), super.getAccess().getWorkingStudentLoginInfosTable(), "working_student_UID");
+        return getPersonUsernameAndPhoneNumber(super.getAccess().getWorkingStudentTable(), "working_student_UID");
     }
 
     @Override
     public Map<String, String> getAllTeacherUsernameAndPhoneNumber() throws SQLException {
-        return getPersonUserameAndPhoneNumber(super.getAccess().getTeacherTable(), super.getAccess().getTeacherLoginInfos(), "teacher_UID");
+        return getPersonUsernameAndPhoneNumber(super.getAccess().getTeacherTable(), "teacher_UID");
     }
 
 }

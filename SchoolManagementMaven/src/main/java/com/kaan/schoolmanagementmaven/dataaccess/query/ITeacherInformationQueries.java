@@ -14,7 +14,8 @@ import java.util.List;
  */
 public interface ITeacherInformationQueries {
     public ResultSet getAllTeacherNameLastnameAndUID() throws SQLException; 
-    public ResultSet getAllTeacherUIDForBranchID(int branchID) throws SQLException;
-    public List<String> getAllTeacherNameForBranchID (int branchID) throws SQLException;
-    public List<String> getAllTeacherLastnameForBranchID (int branchID) throws SQLException;
+    public ResultSet getAllTeacherUIDWith (int branchID) throws SQLException;
+    public List<String> getAllTeacherNameWith (int branchID) throws SQLException;
+    public List<String> getAllTeacherLastnameWith (int branchID) throws SQLException;
+    public int getBranchId(int teacherUID) throws SQLException ;
 }

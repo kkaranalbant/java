@@ -43,12 +43,12 @@ public class ExamNoteQueries extends Query implements IExamNoteGettingQueries, I
         }
         return examQuery;
     }
-    
-    public static IExamNoteRemovingQueries getInstanceForRemovingQueries () throws SQLException {
+
+    public static IExamNoteRemovingQueries getInstanceForRemovingQueries() throws SQLException {
         if (examQuery == null) {
-            examQuery = new ExamNoteQueries () ;
+            examQuery = new ExamNoteQueries();
         }
-        return examQuery ;
+        return examQuery;
     }
 
     @Override
@@ -62,69 +62,81 @@ public class ExamNoteQueries extends Query implements IExamNoteGettingQueries, I
     }
 
     private void addStudentToExamNoteTable(int studentUID, int lessonUID, String tableName) throws SQLException {
-        String query = "insert into " + tableName + " values (" + studentUID + "," + lessonUID + ",0,0,0) ; ";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getAddingStudentToExamTableStringQuery(tableName, studentUID, lessonUID);
+        super.runUpdatingQuery(query);
+    }
+
+    private String getAddingStudentToExamTableStringQuery(String tableName, int studentUID, int lessonUID) {
+        return "insert into " + tableName + " values (" + studentUID + "," + lessonUID + ",0,0,0) ; ";
     }
 
     @Override
     public void setMidtermNote(int studentUID, int lessonUID, int value) throws SQLException {
-        String query = "update " + super.getAccess().getNormalStudentExamTable() + " set midterm = " + value + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
-        query = "update " + super.getAccess().getWorkingStudentExamTable() + " set midterm = " + value + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        setNote(studentUID, lessonUID, value, "midterm");
+
     }
 
     @Override
     public void setFinalNote(int studentUID, int lessonUID, int value) throws SQLException {
-        String query = "update " + super.getAccess().getNormalStudentExamTable() + " set final = " + value + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
-        query = "update " + super.getAccess().getWorkingStudentExamTable() + " set final = " + value + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        setNote(studentUID, lessonUID, value, "final");
+
     }
 
     @Override
     public void setAverage(int studentUID, int lessonUID, int value) throws SQLException {
-        String query = "update " + super.getAccess().getNormalStudentExamTable() + " set average = " + value + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
-        query = "update " + super.getAccess().getWorkingStudentExamTable() + " set average = " + value + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        setNote(studentUID, lessonUID, value, "average");
+    }
+
+    private void setNote(int studentUID, int lessonUID, int value, String noteColumn) throws SQLException {
+        boolean isNormalStudentTableEffected = setNote(super.getAccess().getNormalStudentExamTable(), noteColumn, studentUID, lessonUID, value);
+        if (isNormalStudentTableEffected) {
+            return;
+        }
+        setNote(super.getAccess().getWorkingStudentExamTable(), noteColumn, studentUID, lessonUID, value);
+    }
+
+    private boolean setNote(String tableName, String column, int studentUID, int lessonUID, int value) throws SQLException {
+        String query = getNoteSettingQuery(tableName, column, studentUID, lessonUID, value);
+        super.runUpdatingQuery(query);
+        int effectedRow = super.runUpdatingQuery(query);
+        if (effectedRow != 0) {
+            return true;
+        }
+        return false;
+    }
+
+    private String getNoteSettingQuery(String examTableName, String column, int studentUID, int lessonUID, int value) {
+        return "update " + examTableName + " set " + column + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
     }
 
     @Override
     public int getNormalStudentMidtermValues(int studentUID, int lessonUID) throws SQLException {
-        return getStudentMidtermValue(studentUID, lessonUID, super.getAccess().getNormalStudentExamTable());
+        return getStudentNote(studentUID, lessonUID, super.getAccess().getNormalStudentExamTable(), "midterm");
     }
 
     @Override
     public int getNormalStudentFinalValues(int studentUID, int lessonUID) throws SQLException {
-        return getStudentFinalValue(studentUID, lessonUID, super.getAccess().getNormalStudentExamTable());
+        return getStudentNote(studentUID, lessonUID, super.getAccess().getNormalStudentExamTable(), "final");
     }
 
     @Override
     public int getNormalStudentAverage(int studentUID, int lessonUID) throws SQLException {
-        return getStudentAverage(studentUID, lessonUID, super.getAccess().getNormalStudentExamTable());
+        return getStudentNote(studentUID, lessonUID, super.getAccess().getNormalStudentExamTable(), "average");
     }
 
     @Override
     public int getWorkingStudentMidtermValues(int studentUID, int lessonUID) throws SQLException {
-        return getStudentMidtermValue(studentUID, lessonUID, super.getAccess().getWorkingStudentExamTable());
+        return getStudentNote(studentUID, lessonUID, super.getAccess().getWorkingStudentExamTable(), "midterm");
     }
 
     @Override
     public int getWorkingStudentFinalValues(int studentUID, int lessonUID) throws SQLException {
-        return getStudentFinalValue(studentUID, lessonUID, super.getAccess().getWorkingStudentExamTable());
+        return getStudentNote(studentUID, lessonUID, super.getAccess().getWorkingStudentExamTable(), "final");
     }
 
     @Override
     public int getWorkingStudentAverage(int studentUID, int lessonUID) throws SQLException {
-        return getStudentAverage(studentUID, lessonUID, super.getAccess().getWorkingStudentExamTable());
+        return getStudentNote(studentUID, lessonUID, super.getAccess().getWorkingStudentExamTable(), "average");
     }
 
     @Override
@@ -138,9 +150,12 @@ public class ExamNoteQueries extends Query implements IExamNoteGettingQueries, I
     }
 
     private void removeStudentFromExamTable(int studentUID, String column) throws SQLException {
-        String query = "delete from " + column + " where student_UID = " + studentUID;
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getRemoveStudentFromExamTableQueryString(studentUID, column);
+        super.runUpdatingQuery(query);
+    }
+
+    private String getRemoveStudentFromExamTableQueryString(int studentUID, String column) {
+        return "delete from " + column + " where student_UID = " + studentUID;
     }
 
     @Override
@@ -152,44 +167,25 @@ public class ExamNoteQueries extends Query implements IExamNoteGettingQueries, I
     public void removeWorkingStudentFromExamTable(int studentUID, int lessonUID) throws SQLException {
         removeStudentFromExamTable(studentUID, lessonUID, super.getAccess().getWorkingStudentExamTable());
     }
-    
-    private void removeStudentFromExamTable (int studentUID , int lessonUID , String column) throws SQLException{
-        String query = "delete from " + column + " where student_UID = " + studentUID+" and lesson_UID = "+lessonUID;
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+
+    private void removeStudentFromExamTable(int studentUID, int lessonUID, String column) throws SQLException {
+        String query = getStudentRemovingFromExamTableQueryString(studentUID, lessonUID, column);
+        super.runUpdatingQuery(query);
     }
 
-    private int getStudentMidtermValue(int studentUID, int lessonUID, String tableName) throws SQLException {
-        String query = "select midterm from " + tableName + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        ResultSet resultSet = super.getPreparedStatement().executeQuery();
-        int result = -1;
-        while (resultSet.next()) {
-            result = resultSet.getInt("midterm");
-        }
-        return result;
+    private String getStudentRemovingFromExamTableQueryString(int studentUID, int lessonUID, String column) {
+        return "delete from " + column + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID;
     }
 
-    private int getStudentFinalValue(int studentUID, int lessonUID, String tableName) throws SQLException {
-        String query = "select final from " + tableName + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        ResultSet resultSet = super.getPreparedStatement().executeQuery();
-        int result = -1;
-        while (resultSet.next()) {
-            result = resultSet.getInt("final");
-        }
-        return result;
+    private int getStudentNote(int studentUID, int lessonUID, String tableName, String noteColumn) throws SQLException {
+        String query = getStudentNoteQuery(tableName, studentUID, lessonUID, noteColumn);
+        ResultSet studentNote = super.runGettingQuery(query);
+        studentNote.next();
+        return studentNote.getInt(noteColumn);
     }
 
-    private int getStudentAverage(int studentUID, int lessonUID, String tableName) throws SQLException {
-        String query = "select average from " + tableName + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        ResultSet resultSet = super.getPreparedStatement().executeQuery();
-        int result = -1;
-        while (resultSet.next()) {
-            result = resultSet.getInt("average");
-        }
-        return result;
+    private String getStudentNoteQuery(String tableName, int studentUID, int lessonUID, String noteColumn) {
+        return "select " + noteColumn + " from " + tableName + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
     }
 
 }

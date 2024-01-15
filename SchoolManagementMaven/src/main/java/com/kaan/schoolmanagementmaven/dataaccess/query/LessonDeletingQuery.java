@@ -25,20 +25,23 @@ public class LessonDeletingQuery extends Query implements ILessonDeletingQuery {
     }
 
     @Override
-    public int deleteLesson(int uid) throws SQLException {
+    public boolean deleteLesson(int uid) throws SQLException {
         deleteLesson(uid, super.getAccess().getNormalStudentCourseTable());
         deleteLesson(uid, super.getAccess().getWorkingStudentCourseTable());
         deleteLesson(uid, super.getAccess().getTeacherBranchTable());
         deleteLesson(uid, super.getAccess().getNormalStudentCourseTable());
-        return deleteLesson(uid, super.getAccess().getLessonTable());
-
-
+        int updatedRowNumber = deleteLesson(uid, super.getAccess().getLessonTable());
+        if (updatedRowNumber != 0) return true ;
+        return false ;
     }
 
     private int deleteLesson(int uid, String tableName) throws SQLException {
-        String query = "delete from " + tableName + " where lesson_UID = " + uid + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeUpdate();
+        String query = getDeletingLessonQueryString(uid, tableName);
+        return super.runUpdatingQuery(query);
+    }
+    
+    private String getDeletingLessonQueryString (int uid , String tableName) {
+        return "delete from " + tableName + " where lesson_UID = " + uid + " ;";
     }
 
 }

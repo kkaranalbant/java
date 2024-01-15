@@ -22,8 +22,6 @@ public interface ILessonFetchingQuery {
     public List <String> getAllLessonNames () throws SQLException;
     public int getLessonUIDByLessonName (String lessonName) throws SQLException ;
     public String getLessonNamebyUID (int uid) throws SQLException ;
-    public int getBranchIdWithTeacherUID (int teacherUID) throws SQLException;
-    public int getBranchId (int teacherUID) throws SQLException ;
     public int getLessonQuota (String lessonName) throws SQLException ;
     public int getLessonAverageMidtermRate (int uid) throws SQLException ;
     public int getLessonAverageFinalRate (int uid) throws SQLException ;

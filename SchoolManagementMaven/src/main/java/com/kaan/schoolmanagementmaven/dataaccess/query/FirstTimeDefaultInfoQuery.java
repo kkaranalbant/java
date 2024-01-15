@@ -26,9 +26,12 @@ public class FirstTimeDefaultInfoQuery extends Query implements IFirstTimeDefaul
 
     @Override
     public void addDefaultValuesRow() throws SQLException {
-        String query = "insert into " + super.getAccess().getDefaultValuesTable() + " values (" + 0 + "," + 0 + "," + 0 + "," + 0 + "," + 0 + "," + 1 + "," + 0 + "," + 1 + "," + 0 + "," + 1 + "," + 0 + "," + 0 + "," + 1 + ") ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getAddingDefaultValuesRowStringQuery() ;
+        super.runUpdatingQuery(query) ;
+    }
+
+    private String getAddingDefaultValuesRowStringQuery() {
+        return "insert into " + super.getAccess().getDefaultValuesTable() + " values (" + 0 + "," + 0 + "," + 0 + "," + 0 + "," + 0 + "," + 1 + "," + 0 + "," + 1 + "," + 0 + "," + 1 + "," + 0 + "," + 0 + "," + 1 + ") ;";
     }
 
 }

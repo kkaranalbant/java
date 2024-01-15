@@ -31,9 +31,12 @@ public class LessonCreatingQuery extends Query implements ILessonCreatingQuery {
 
     @Override
     public void addLessonToDb(String lessonName, int lessonCredit, int lessonHour, int lessonUID, int quota , int midtermRate , int finalRate) throws SQLException {
-        String query = "insert into " + super.getAccess().getLessonTable() + " values ('" + lessonName + "'," + lessonCredit + "," + lessonHour + "," + lessonUID + "," + quota + ","+midtermRate+ ","+ finalRate +") ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        String query = getAddingLessonToDbQueryString(lessonName, lessonCredit, lessonHour, lessonUID, quota, midtermRate, finalRate) ;
+        super.runUpdatingQuery(query);
+    }
+    
+    private String getAddingLessonToDbQueryString (String lessonName, int lessonCredit, int lessonHour, int lessonUID, int quota , int midtermRate , int finalRate) {
+        return "insert into " + super.getAccess().getLessonTable() + " values ('" + lessonName + "'," + lessonCredit + "," + lessonHour + "," + lessonUID + "," + quota + ","+midtermRate+ ","+ finalRate +") ;";
     }
 
 }

@@ -29,6 +29,8 @@ public interface IPersonFetchingQueries {
     
     public int getPersonUIDByNameAndLastname (String name , String lastName) throws SQLException ;
     
+    public int getPersonUIDByPhoneNumber (String tableName,String phoneNumber) throws SQLException ;
+    
     
 
 }

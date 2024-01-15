@@ -16,13 +16,14 @@ import java.util.List;
 public class PersonInformationQuery extends Query implements IStudentInformationQueries, ITeacherInformationQueries {
 
     private static PersonInformationQuery personInformationQuery;
+    private IPersonFetchingQueries personFetcher;
 
     static {
         personInformationQuery = null;
     }
 
     private PersonInformationQuery() throws SQLException {
-
+        personFetcher = PersonFetchingQueries.getInstance();
     }
 
     public static IStudentInformationQueries getInstanceForStudent() throws SQLException {
@@ -56,8 +57,7 @@ public class PersonInformationQuery extends Query implements IStudentInformation
 
     private ResultSet getAllPersonNameLastnameAndUID(String tableName) throws SQLException {
         String query = getAllPersonNameLastnameAndUIDQueryString(tableName);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeQuery();
+        return super.runGettingQuery(query);
     }
 
     private String getAllPersonNameLastnameAndUIDQueryString(String table) {
@@ -65,35 +65,57 @@ public class PersonInformationQuery extends Query implements IStudentInformation
     }
 
     @Override
-    public ResultSet getAllTeacherUIDForBranchID(int branchID) throws SQLException {
-        String query = "select teacher_UID from " + super.getAccess().getTeacherBranchTable() + " where lesson_UID = " + branchID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeQuery();
+    public ResultSet getAllTeacherUIDWith(int branchID) throws SQLException {
+        String query = getAllTeacherUIDQueryString(branchID);
+        return super.runGettingQuery(query);
+    }
+
+    private String getAllTeacherUIDQueryString(int branchUID) throws SQLException {
+        return "select teacher_UID from " + super.getAccess().getTeacherBranchTable() + " where lesson_UID = " + branchUID + " ;";
     }
 
     @Override
-    public List<String> getAllTeacherNameForBranchID(int branchID) throws SQLException {
-        return getTeacherNameOrLastname("name", branchID);
+    public int getBranchId(int teacherUID) throws SQLException {
+        String query = getBranchUIDQueryString(teacherUID);
+        ResultSet branchUID = super.runGettingQuery(query);
+        branchUID.next();
+        return branchUID.getInt("lesson_UID");
+    }
+
+    private String getBranchUIDQueryString(int teacherUID) {
+        return "select lesson_UID from " + super.getAccess().getTeacherBranchTable() + " where teacher_UID = " + teacherUID + " ;";
     }
 
     @Override
-    public List<String> getAllTeacherLastnameForBranchID(int branchID) throws SQLException {
-        return getTeacherNameOrLastname("last_name", branchID);
+    public List<String> getAllTeacherNameWith(int branchID) throws SQLException {
+        List <String> teacherNames = new ArrayList () ;
+        addTeacherNameOrLastnameList("name", branchID, teacherNames);
+        return teacherNames ;
     }
 
-    private List<String> getTeacherNameOrLastname(String columnName, int branchID) throws SQLException {
-        ResultSet resultSet = getAllTeacherUIDForBranchID(branchID);
-        List<String> result = new ArrayList();
-        while (resultSet.next()) {
-            String query = "select " + columnName + " from " + super.getAccess().getTeacherTable() + " where UID = " + resultSet.getInt("teacher_UID");
-            System.out.println(query);
-            super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-            ResultSet resultForNameOrLastname = super.getPreparedStatement().executeQuery();
-            while (resultForNameOrLastname.next()) {
-                result.add(resultForNameOrLastname.getString(columnName));
-            }
+    @Override
+    public List<String> getAllTeacherLastnameWith(int branchID) throws SQLException {
+        List <String> teacherLastnames = new ArrayList () ;
+        addTeacherNameOrLastnameList("last_name", branchID, teacherLastnames);
+        return teacherLastnames ;
+    }
+
+    private void addTeacherNameOrLastnameList(String columnName, int branchID, List<String> teacherNamesOrLastnames) throws SQLException {
+        ResultSet teachers = getAllTeacherUIDWith(branchID);
+        while (teachers.next()) {
+            int teacherUID = teachers.getInt("UID");
+            ResultSet teacher = personFetcher.getTeacherInfo(teacherUID);
+            String nameOrLastname = getTeacherNameOrLastName(columnName, teacher);
+            teacherNamesOrLastnames.add(nameOrLastname);
         }
-        return result;
+    }
+
+    private String getTeacherNameOrLastName(String columnName, ResultSet teacher) throws SQLException {
+        String nameOrLastname = null ;
+        while (teacher.next()) {
+            nameOrLastname = teacher.getString(columnName);
+        }
+        return nameOrLastname ;
     }
 
 }

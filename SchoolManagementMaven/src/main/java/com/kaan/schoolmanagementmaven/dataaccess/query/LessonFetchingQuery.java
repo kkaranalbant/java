@@ -30,135 +30,110 @@ public class LessonFetchingQuery extends Query implements ILessonFetchingQuery {
     @Override
     public ResultSet getNormalStudentLessonUID(int normalStudenUID) throws SQLException {
         String query = getNormalStudentLessonListQueryString(normalStudenUID);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeQuery();
+        return super.runGettingQuery(query);
     }
 
     @Override
     public ResultSet getWorkingStudentLessonUID(int workingStudentUID) throws SQLException {
         String query = getWorkingStudentLessonListQueryString(workingStudentUID);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeQuery();
+        return super.runGettingQuery(query);
     }
 
     @Override
     public ResultSet getLessonInfo(int uid) throws SQLException {
         String query = getLessonInfoQueryString(uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeQuery();
+        return super.runGettingQuery(query);
+    }
+
+    private String getLessonAttributeString(String query, String column) throws SQLException {
+        ResultSet attributes = super.runGettingQuery(query);
+        attributes.next();
+        return attributes.getString(column);
+    }
+
+    private int getLessonAttributeInteger(String query, String column) throws SQLException {
+        ResultSet attributes = super.runGettingQuery(query);
+        attributes.next();
+        return attributes.getInt(column);
+    }
+
+    @Override
+    public String getLessonNamebyUID(int uid) throws SQLException {
+        String query = getLessonNameByUIDQueryString(uid);
+        return getLessonAttributeString(query, "lesson_name");
     }
 
     @Override
     public int getLessonUIDByLessonName(String lessonName) throws SQLException {
         String query = getLessonUIDByLessonNameQueryString(lessonName);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        ResultSet resultSet = super.getPreparedStatement().executeQuery();
-        int result = 0 ;
-        while (resultSet.next()) {
-            result = resultSet.getInt("lesson_UID");
-        }
-        return result;
-    }
-
-    @Override
-    public List<String> getAllLessonNames() throws SQLException {
-        String query = getAllLessonNamesQueryString();
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        ResultSet resultSet = super.getPreparedStatement().executeQuery();
-        List<String> lessonNames = new ArrayList();
-        while (resultSet.next()) {
-            String lessonName = resultSet.getString("lesson_name");
-            lessonNames.add(lessonName);
-        }
-        return lessonNames;
-    }
-
-    @Override
-    public int getBranchIdWithTeacherUID(int teacherUID) throws SQLException {
-        String query = getBranchUIDWithTeacherUIDQueryString(teacherUID);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        ResultSet resultSet = super.getPreparedStatement().executeQuery();
-        resultSet.next();
-        int result = resultSet.getInt("lesson_UID");
-        return result;
-    }
-
-    @Override
-    public int getBranchId(int teacherUID) throws SQLException {
-        String query = "select lesson_UID from " + super.getAccess().getTeacherBranchTable() + " where teacher_UID = " + teacherUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        ResultSet resultSet = super.getPreparedStatement().executeQuery();
-        resultSet.next();
-        return resultSet.getInt("lesson_UID");
-    }
-
-    @Override
-    public List<String> getNormalStudentLessonNames(int uid) throws SQLException {
-        ResultSet resultSet = getNormalStudentLessonUID(uid);
-        List<String> result = new ArrayList();
-        while (resultSet.next()) {
-            int lessonUID = resultSet.getInt("lesson_UID");
-            ResultSet lessonInfo = getLessonInfo(lessonUID) ;
-            lessonInfo.next();
-            result.add(lessonInfo.getString("lesson_name"));
-        }
-        return result;
-    }
-
-    @Override
-    public List<String> getWorkingStudentLessonNames(int uid) throws SQLException {
-        ResultSet resultSet = getWorkingStudentLessonUID(uid);
-        List<String> result = new ArrayList();
-        while (resultSet.next()) {
-            int lessonUID = resultSet.getInt("lesson_UID");
-            ResultSet lessonInfo = getLessonInfo(lessonUID) ;
-            lessonInfo.next();
-            result.add(lessonInfo.getString("lesson_name"));
-        }
-        return result;
+        return getLessonAttributeInteger(query, "lesson_UID");
     }
 
     @Override
     public int getLessonQuota(String lessonName) throws SQLException {
         int lessonUID = getLessonUIDByLessonName(lessonName);
-        String query = "select quota from " + super.getAccess().getLessonTable() + " where lesson_UID = " + lessonUID + " ;";
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        ResultSet resultSet = super.getPreparedStatement().executeQuery();
-        resultSet.next();
-        return resultSet.getInt("quota");
+        String query = getLessonQuotaQueryString(lessonUID);
+        return getLessonAttributeInteger(query, "quota");
+    }
+
+    @Override
+    public List<String> getAllLessonNames() throws SQLException {
+        String query = getAllLessonNamesQueryString();
+        ResultSet lessonNamesInDb = super.runGettingQuery(query);
+        List<String> lessonNames = new ArrayList();
+        addLessonNamestoList(lessonNamesInDb, lessonNames);
+        return lessonNames;
+    }
+
+    private void addLessonNamestoList(ResultSet lessonNamesInDb, List<String> lessonNames) throws SQLException {
+        while (lessonNamesInDb.next()) {
+            String lessonName = lessonNamesInDb.getString("lesson_name");
+            lessonNames.add(lessonName);
+        }
     }
 
     @Override
     public int getLessonAverageMidtermRate(int uid) throws SQLException {
-        String query = "select average_midterm_rate from "+super.getAccess().getLessonTable()+" where lesson_UID = "+uid+" ;" ;
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));;
-        ResultSet resultSet = super.getPreparedStatement().executeQuery() ;
-        int result = 0 ;
-        while (resultSet.next()) {
-            result = resultSet.getInt("average_midterm_rate");
-        }
-        return result ;
+        String query = getLessonAverageMidtermRateQueryString(uid);
+        return getLessonAttributeInteger(query, "average_midterm_rate");
     }
 
     @Override
     public int getLessonAverageFinalRate(int uid) throws SQLException {
-        String query = "select average_final_rate from "+super.getAccess().getLessonTable()+" where lesson_UID = "+uid+" ;" ;
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));;
-        ResultSet resultSet = super.getPreparedStatement().executeQuery() ;
-        int result = 0 ;
-        while (resultSet.next()) {
-            result = resultSet.getInt("average_final_rate");
-        }
-        return result ;
+        String query = getLessonAverageFinalRateQueryString(uid);
+        return getLessonAttributeInteger(query, "average_final_rate");
     }
 
     @Override
-    public String getLessonNamebyUID(int uid) throws SQLException {
-        String query = "select lesson_name from "+super.getAccess().getLessonTable()+" where lesson_UID = "+uid ;
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        ResultSet resultSet = super.getPreparedStatement().executeQuery();
-        resultSet.next() ;
-        return resultSet.getString("lesson_name");
+    public List<String> getNormalStudentLessonNames(int uid) throws SQLException {
+        ResultSet lessonUIDsOfNormalStudent = getNormalStudentLessonUID(uid);
+        List<String> lessonNamesOfNormalStudent = new ArrayList();
+        addLessonNamesOfStudentToList(lessonUIDsOfNormalStudent, lessonNamesOfNormalStudent);
+        return lessonNamesOfNormalStudent;
+    }
+
+    @Override
+    public List<String> getWorkingStudentLessonNames(int uid) throws SQLException {
+        ResultSet lessonUIDsOfWorkingStudent = getWorkingStudentLessonUID(uid);
+        List<String> lessonNamesOfWorkingStudent = new ArrayList();
+        addLessonNamesOfStudentToList(lessonUIDsOfWorkingStudent, lessonNamesOfWorkingStudent);
+        return lessonNamesOfWorkingStudent;
+    }
+
+    private void addLessonNamesOfStudentToList(ResultSet lessonUIDsOfStudent, List<String> lessonNamesOfStudent) throws SQLException {
+        while (lessonUIDsOfStudent.next()) {
+            int lessonUID = lessonUIDsOfStudent.getInt("lesson_UID");
+            String lessonName = getLessonNamebyUID(lessonUID);
+            lessonNamesOfStudent.add(lessonName);
+        }
+    }
+
+    private String getLessonNameByUIDQueryString(int uid) throws SQLException {
+        return "select lesson_name from " + super.getAccess().getLessonTable() + " where lesson_UID = " + uid;
+    }
+
+    private String getLessonUIDByLessonNameQueryString(String lessonName) throws SQLException {
+        return "select lesson_UID from " + super.getAccess().getLessonTable() + " where lesson_name = '" + lessonName + "' ;";
     }
 
     private String getNormalStudentLessonListQueryString(int uid) {
@@ -177,12 +152,16 @@ public class LessonFetchingQuery extends Query implements ILessonFetchingQuery {
         return "select lesson_name from " + super.getAccess().getLessonTable() + " ;";
     }
 
-    private String getLessonUIDByLessonNameQueryString(String lessonName) {
-        return "select lesson_UID from " + super.getAccess().getLessonTable() + " where lesson_name = '" + lessonName + "' ;";
+    private String getLessonQuotaQueryString(int lessonUID) {
+        return "select quota from " + super.getAccess().getLessonTable() + " where lesson_UID = " + lessonUID + " ;";
     }
 
-    private String getBranchUIDWithTeacherUIDQueryString(int uid) {
-        return "select lesson_UID from " + super.getAccess().getTeacherBranchTable() + " where teacher_UID = " + uid + " ;";
+    private String getLessonAverageMidtermRateQueryString(int lessonUID) {
+        return "select average_midterm_rate from " + super.getAccess().getLessonTable() + " where lesson_UID = " + lessonUID + " ;";
+    }
+
+    private String getLessonAverageFinalRateQueryString(int lessonUID) {
+        return "select average_final_rate from " + super.getAccess().getLessonTable() + " where lesson_UID = " + lessonUID + " ;";
     }
 
 }

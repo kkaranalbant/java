@@ -14,14 +14,14 @@ import com.kaan.schoolmanagementmaven.exception.InvalidUIDException;
 public class PersonDeletingQuery extends Query implements IPersonDeletingQuery {
 
     private static IPersonDeletingQuery personDeletingObject;
-    private IExamNoteRemovingQueries examTableRemovingObject ;
+    private IExamNoteRemovingQueries examTableRemovingObject;
 
     static {
         personDeletingObject = null;
     }
 
     private PersonDeletingQuery() throws SQLException {
-        examTableRemovingObject = ExamNoteQueries.getInstanceForRemovingQueries() ;
+        examTableRemovingObject = ExamNoteQueries.getInstanceForRemovingQueries();
     }
 
     public static IPersonDeletingQuery getInstance() throws SQLException {
@@ -33,46 +33,42 @@ public class PersonDeletingQuery extends Query implements IPersonDeletingQuery {
 
     @Override
     public void deletePersonFromDb(int uid) throws SQLException, InvalidUIDException {
-        int value = deletePersonFromNormalStudentLoginTable(uid);
-        if (value != 0) {
+        int effectedRowNumber = deletePersonFromNormalStudentLoginTable(uid);
+        if (effectedRowNumber != 0) {
             examTableRemovingObject.removeNormalStudentFromExamTable(uid);
             deletePersonFromNormalStudentsCourse(uid);
             deletePersonFromNormalStudentTable(uid);
             return;
         }
-        value = deletePersonFromWorkingStudentLoginTable(uid);
-        if (value != 0) {
+        effectedRowNumber = deletePersonFromWorkingStudentLoginTable(uid);
+        if (effectedRowNumber != 0) {
             examTableRemovingObject.removeWorkingStudentFromExamTable(uid);
             deletePersonFromWorkingStudensCourse(uid);
             deletePersonFromWorkingStudentTable(uid);
             return;
         }
-        value = deletePersonFromTeacherLoginTable(uid);
-        if (value != 0) {
+        effectedRowNumber = deletePersonFromTeacherLoginTable(uid);
+        if (effectedRowNumber != 0) {
             deletePersonFromTeacherBranchTable(uid);
             deletePersonFromTeacherTable(uid);
             return;
         }
         throw new InvalidUIDException();
     }
- 
-    
+
     private void deletePersonFromNormalStudentTable(int uid) throws SQLException {
         String query = deleteNormalStudentQueryString(uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        super.runUpdatingQuery(query);
     }
 
     private void deletePersonFromWorkingStudentTable(int uid) throws SQLException {
         String query = deleteWorkingStudentQueryString(uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        super.runUpdatingQuery(query);
     }
 
     private void deletePersonFromTeacherTable(int uid) throws SQLException {
         String query = deleteTeacherQueryString(uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        super.getPreparedStatement().executeUpdate();
+        super.runUpdatingQuery(query);
     }
 
     private String deleteNormalStudentQueryString(int uid) {
@@ -89,8 +85,7 @@ public class PersonDeletingQuery extends Query implements IPersonDeletingQuery {
 
     private int deletePersonFromNormalStudentLoginTable(int uid) throws SQLException {
         String query = deletePersonFromNormalStudentLoginTableQueryString(uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeUpdate();
+        return super.runUpdatingQuery(query);
     }
 
     private String deletePersonFromNormalStudentLoginTableQueryString(int uid) {
@@ -99,8 +94,7 @@ public class PersonDeletingQuery extends Query implements IPersonDeletingQuery {
 
     private int deletePersonFromWorkingStudentLoginTable(int uid) throws SQLException {
         String query = deletePersonFromWorkingStudentLoginTableQueryString(uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeUpdate();
+        return super.runUpdatingQuery(query);
     }
 
     private String deletePersonFromWorkingStudentLoginTableQueryString(int uid) {
@@ -109,8 +103,7 @@ public class PersonDeletingQuery extends Query implements IPersonDeletingQuery {
 
     private int deletePersonFromTeacherLoginTable(int uid) throws SQLException {
         String query = deletePersonFromTeacherLoginTableQueryString(uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeUpdate();
+        return super.runUpdatingQuery(query);
     }
 
     private String deletePersonFromTeacherLoginTableQueryString(int uid) {
@@ -119,8 +112,7 @@ public class PersonDeletingQuery extends Query implements IPersonDeletingQuery {
 
     private int deletePersonFromNormalStudentsCourse(int uid) throws SQLException {
         String query = deletePersonFromNormalStudentsCourseQueryString(uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeUpdate();
+        return super.runUpdatingQuery(query);
     }
 
     private String deletePersonFromNormalStudentsCourseQueryString(int uid) {
@@ -129,8 +121,7 @@ public class PersonDeletingQuery extends Query implements IPersonDeletingQuery {
 
     private int deletePersonFromWorkingStudensCourse(int uid) throws SQLException {
         String query = deletePersonFromWorkingStudensCourseQueryString(uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeUpdate();
+        return super.runUpdatingQuery(query);
     }
 
     private String deletePersonFromWorkingStudensCourseQueryString(int uid) {
@@ -139,8 +130,7 @@ public class PersonDeletingQuery extends Query implements IPersonDeletingQuery {
 
     private int deletePersonFromTeacherBranchTable(int uid) throws SQLException {
         String query = deletePersonFromTeacherBranchTableQueryString(uid);
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeUpdate();
+        return super.runUpdatingQuery(query);
     }
 
     private String deletePersonFromTeacherBranchTableQueryString(int uid) {

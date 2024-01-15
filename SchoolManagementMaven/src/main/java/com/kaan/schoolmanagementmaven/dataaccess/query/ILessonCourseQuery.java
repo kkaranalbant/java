@@ -32,6 +32,6 @@ public interface ILessonCourseQuery {
 
     int findTeacherUIDFromNormalStudentCourse(int studentUID, int lessonUID) throws SQLException;
 
-    int findTeacherYUDFromWorkingStudentCourse(int studentUID, int lessonUID) throws SQLException;
+    int findTeacherUIDFromWorkingStudentCourse(int studentUID, int lessonUID) throws SQLException;
 
 }

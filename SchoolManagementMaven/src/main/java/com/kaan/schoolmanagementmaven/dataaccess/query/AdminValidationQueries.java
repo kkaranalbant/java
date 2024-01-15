@@ -30,8 +30,7 @@ public final class AdminValidationQueries extends Query implements IAdminValidat
     @Override
     public ResultSet getAdminInformations() throws SQLException{
         String query = AdminValidationQueryStringCreator.createQueryString(super.getAccess().getAdminTable());
-        super.setPreparedStatement(super.getAccess().getConnection().prepareStatement(query));
-        return super.getPreparedStatement().executeQuery() ;
+        return super.runGettingQuery(query) ;
     }
 
 }

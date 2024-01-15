@@ -9,6 +9,7 @@ import java.io.IOException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface ILogManager {
     public void saveMessage (String logMessage) throws IOException ;

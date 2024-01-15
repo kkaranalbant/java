@@ -16,6 +16,7 @@ import java.io.IOException;
 /**
  *
  * @author kaan
+ * 
  */
 public class LogManager implements ILogManager{
 

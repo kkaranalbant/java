@@ -20,7 +20,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniqueUsernameAndPassExceptio
 /**
  *
  * @author kaan
- * 
+ *
  */
 public interface IPersonChangingManager {
 
@@ -78,5 +78,5 @@ public interface IPersonChangingManager {
 
     public void changeTeacherPhoneNumber(int uid, String phoneNumber) throws InvalidPhoneNumberLengthException, InvalidPhoneCountryCodeException, NotUniquePhoneNumberException , SQLException ;
 
-    public void changeForgottenPass (String phoneNumber , String pass) throws InvalidPassLengthException , SQLException ;
+    public void changeForgottenPass (String phoneNumber , String pass) throws InvalidPassLengthException , SQLException , NotUniqueUsernameAndPassException ;
 }

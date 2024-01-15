@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class PersonLoginQueries extends Query implements IPersonLoginQueries {
 
@@ -86,12 +86,9 @@ public class PersonLoginQueries extends Query implements IPersonLoginQueries {
         return getPersonPassByUID(uid, super.getAccess().getTeacherLoginInfos(), "teacher_UID");
     }
 
-    @Override
-    public String getPersonUsernameByUID(int uid, String tableName, String columnName) throws SQLException {
+    private String getPersonUsernameByUID(int uid, String tableName, String columnName) throws SQLException {
         String query = getPersonUsernameByUIDQueryString(tableName, columnName, uid);
-        ResultSet usernameOfPerson = super.runGettingQuery(query);
-        usernameOfPerson.next();
-        return usernameOfPerson.getString("username");
+        return getPersonUsernameOrPass(query, "username");
     }
 
     private String getPersonUsernameByUIDQueryString(String tableName, String columnName, int uid) {
@@ -100,13 +97,38 @@ public class PersonLoginQueries extends Query implements IPersonLoginQueries {
 
     private String getPersonPassByUID(int uid, String tableName, String columnName) throws SQLException {
         String query = getPersonPassByUIDQueryString(tableName, columnName, uid);
-        ResultSet passOfPerson = super.runGettingQuery(query);
-        passOfPerson.next();
-        return passOfPerson.getString("pass");
+        return getPersonUsernameOrPass(query, "pass");
+    }
+
+    private String getPersonUsernameOrPass(String query, String column) throws SQLException {
+        ResultSet passOrUsernameOfPerson = super.runGettingQuery(query);
+        String passOrUsername = null;
+        if (!isEmptyResultSet(passOrUsernameOfPerson)) {
+            passOrUsername = passOrUsernameOfPerson.getString(column);
+        }
+        return passOrUsername ;
     }
 
     private String getPersonPassByUIDQueryString(String tableName, String columnName, int uid) {
         return "select pass from " + tableName + " where " + columnName + " = " + uid + " ;";
+    }
+
+    @Override
+    public String getPersonUsernameByUID(int uid) throws SQLException {
+        String normalStudentUsername = getPersonUsernameByUID(uid, super.getAccess().getNormalStudentLoginInfosTable(), "normal_student_UID");
+        if (normalStudentUsername != null) {
+            return normalStudentUsername;
+        }
+        String workingStudentUsername = getPersonUsernameByUID(uid, super.getAccess().getWorkingStudentLoginInfosTable(), "working_student_UID");
+        if (workingStudentUsername != null) {
+            return workingStudentUsername;
+        }
+        String teacherUsername = getPersonUsernameByUID(uid, super.getAccess().getTeacherLoginInfos(), "teacher_UID");
+        return teacherUsername;
+    }
+
+    private boolean isEmptyResultSet(ResultSet resultSet) throws SQLException {
+        return !resultSet.next();
     }
 
 }

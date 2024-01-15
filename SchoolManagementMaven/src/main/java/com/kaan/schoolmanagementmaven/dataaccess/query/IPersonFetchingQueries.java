@@ -10,26 +10,26 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public interface IPersonFetchingQueries {
 
     public ResultSet getNormalStudentInfo(int uid) throws SQLException;
 
     public ResultSet getWorkingStudentInfo(int uid) throws SQLException;
-    
+
     public ResultSet getTeacherInfo (int uid) throws SQLException;
-    
+
     public ResultSet getAllNormalStudentInfo() throws SQLException;
 
     public ResultSet getAllWorkingStudentInfo() throws SQLException;
-    
+
     public ResultSet getAllTeacherInfo () throws SQLException;
-    
+
     public int getPersonUIDByNameAndLastname (String name , String lastName) throws SQLException ;
-    
-    public int getPersonUIDByPhoneNumber (String tableName,String phoneNumber) throws SQLException ;
-    
-    
+
+    public int getPersonUIDByPhoneNumber (String phoneNumber) throws SQLException ;
+
+
 
 }

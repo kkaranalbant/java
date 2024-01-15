@@ -4,7 +4,6 @@
  */
 package com.kaan.schoolmanagementmaven.person;
 
-
 import java.sql.SQLException;
 import com.kaan.schoolmanagementmaven.exception.InvalidUserNameOrPassException;
 import java.sql.ResultSet;
@@ -52,11 +51,12 @@ import com.kaan.schoolmanagementmaven.factory.IPersonUIDGenerator;
 import com.kaan.schoolmanagementmaven.lesson.Lesson;
 import com.kaan.schoolmanagementmaven.sms.IMessageSendingManager;
 import com.kaan.schoolmanagementmaven.sms.MessageSendingManager;
+import javax.activation.DataContentHandler;
 
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class PersonManager implements IPersonCreatorManager, IPersonDeletingManager, IPersonChangingManager, IStudentConvertingManager, IPersonSMSManager {
 
@@ -644,8 +644,11 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
     }
 
     @Override
-    public void changeForgottenPass(String phoneNumber, String pass) throws InvalidPassLengthException, SQLException {
+    public void changeForgottenPass(String phoneNumber, String pass) throws InvalidPassLengthException, SQLException, NotUniqueUsernameAndPassException {
         throwExceptionIfInvalidPasswordLength(pass);
+        int personUID = personFetchingQuery.getPersonUIDByPhoneNumber(phoneNumber);
+        String personUsername = personLoginQuery.getPersonUsernameByUID(personUID);
+        throwExceptionIfNotUniqueUsernameAndPassword(personUsername, pass);
         studentChangingQuery.changeNormalStudentPassWithPhoneNumber(phoneNumber, pass);
         studentChangingQuery.changeWorkingStudentPassWithPhoneNumber(phoneNumber, pass);
         teacherChangingQuery.changeTeacherPassWithPhoneNumber(phoneNumber, pass);

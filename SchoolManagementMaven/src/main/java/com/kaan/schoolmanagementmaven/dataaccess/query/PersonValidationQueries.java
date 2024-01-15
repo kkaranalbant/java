@@ -12,12 +12,13 @@ import java.util.Map;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class PersonValidationQueries extends Query implements IPersonValidationQueries {
 
     private static IPersonValidationQueries personValidation;
     private IPersonLoginQueries personLoginQuery;
+    private IPersonFetchingQueries personFetcher;
 
     static {
         personValidation = null;
@@ -25,6 +26,7 @@ public class PersonValidationQueries extends Query implements IPersonValidationQ
 
     private PersonValidationQueries() throws SQLException {
         personLoginQuery = PersonLoginQueries.getInstance();
+        personFetcher = PersonFetchingQueries.getInstance();
     }
 
     public static IPersonValidationQueries getInstance() throws SQLException {
@@ -58,11 +60,11 @@ public class PersonValidationQueries extends Query implements IPersonValidationQ
         return "select name , last_name from " + tableName + ";";
     }
 
-    private Map<String, String> getPersonUsernameAndPhoneNumber(String personTable, String columnName) throws SQLException {
+    private Map<String, String> getPersonUsernameAndPhoneNumber(String personTable) throws SQLException {
         String query = getPersonsUIDAndPhoneNumberQueryString(personTable);
         ResultSet UIDsAndPhoneNumbers = super.runGettingQuery(query);
         Map<String, String> userNameAndPhoneNumber = new HashMap();
-        addUsernameAndPhoneNumberToMap(userNameAndPhoneNumber, UIDsAndPhoneNumbers, personTable, columnName);
+        addUsernameAndPhoneNumberToMap(userNameAndPhoneNumber, UIDsAndPhoneNumbers);
         return userNameAndPhoneNumber;
     }
 
@@ -70,10 +72,10 @@ public class PersonValidationQueries extends Query implements IPersonValidationQ
         return "select UID , phone_number from " + personTable + " ;";
     }
 
-    private void addUsernameAndPhoneNumberToMap(Map<String, String> userNameAndPhoneNumber, ResultSet UIDsAndPhoneNumbers, String personTable, String columnName) throws SQLException {
+    private void addUsernameAndPhoneNumberToMap(Map<String, String> userNameAndPhoneNumber, ResultSet UIDsAndPhoneNumbers) throws SQLException {
         while (UIDsAndPhoneNumbers.next()) {
             int personUID = UIDsAndPhoneNumbers.getInt("UID");
-            String userName = personLoginQuery.getPersonUsernameByUID(personUID, personTable, columnName);
+            String userName = personLoginQuery.getPersonUsernameByUID(personUID);
             String phoneNumber = UIDsAndPhoneNumbers.getString("phone_number");
             userNameAndPhoneNumber.put(phoneNumber, userName);
         }
@@ -81,17 +83,45 @@ public class PersonValidationQueries extends Query implements IPersonValidationQ
 
     @Override
     public Map<String, String> getAllNormalStudentUsernameAndPhoneNumber() throws SQLException {
-        return getPersonUsernameAndPhoneNumber(super.getAccess().getNormalStudentTable(), "normal_student_UID");
+        return getPersonUsernameAndPhoneNumber(super.getAccess().getNormalStudentTable());
     }
 
     @Override
     public Map<String, String> getAllWorkingStudentUsernameAndPhoneNumber() throws SQLException {
-        return getPersonUsernameAndPhoneNumber(super.getAccess().getWorkingStudentTable(), "working_student_UID");
+        return getPersonUsernameAndPhoneNumber(super.getAccess().getWorkingStudentTable());
     }
 
     @Override
     public Map<String, String> getAllTeacherUsernameAndPhoneNumber() throws SQLException {
-        return getPersonUsernameAndPhoneNumber(super.getAccess().getTeacherTable(), "teacher_UID");
+        return getPersonUsernameAndPhoneNumber(super.getAccess().getTeacherTable());
+    }
+
+    @Override
+    public boolean isValidUIDForNormalStudentTable(int uid) throws SQLException {
+        ResultSet normalStudents = personFetcher.getAllNormalStudentInfo();
+        return isValidUID(normalStudents, uid);
+    }
+
+    @Override
+    public boolean isValidUIDForWorkingStudentTable(int uid) throws SQLException {
+        ResultSet workingStudents = personFetcher.getAllWorkingStudentInfo();
+        return isValidUID(workingStudents, uid);
+    }
+
+    @Override
+    public boolean isValidUIDForTeacherTable(int uid) throws SQLException {
+        ResultSet teachers = personFetcher.getAllTeacherInfo();
+        return isValidUID(teachers, uid);
+    }
+
+    private boolean isValidUID(ResultSet persons, int uid) throws SQLException {
+        while (persons.next()) {
+            int personUID = persons.getInt("UID");
+            if (personUID == uid) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

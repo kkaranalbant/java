@@ -9,7 +9,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class PersonValueChangingQueries extends Query implements IStudentValueChangingQueries, ITeacherValueChangingQueries {
 
@@ -219,21 +219,21 @@ public class PersonValueChangingQueries extends Query implements IStudentValueCh
 
     @Override
     public void changeNormalStudentPassWithPhoneNumber(String phoneNumber, String newPass) throws SQLException {
-        changePersonPassWithPhoneNumber(phoneNumber, newPass, super.getAccess().getNormalStudentTable(), super.getAccess().getNormalStudentLoginInfosTable(), "normal_student_UID");
+        changePersonPassWithPhoneNumber(phoneNumber, newPass, super.getAccess().getNormalStudentLoginInfosTable(), "normal_student_UID");
     }
 
     @Override
     public void changeWorkingStudentPassWithPhoneNumber(String phoneNumber, String newPass) throws SQLException {
-        changePersonPassWithPhoneNumber(phoneNumber, newPass, super.getAccess().getWorkingStudentTable(), super.getAccess().getWorkingStudentLoginInfosTable(), "working_student_UID");
+        changePersonPassWithPhoneNumber(phoneNumber, newPass, super.getAccess().getWorkingStudentLoginInfosTable(), "working_student_UID");
     }
 
     @Override
     public void changeTeacherPassWithPhoneNumber(String phoneNumber, String newPass) throws SQLException {
-        changePersonPassWithPhoneNumber(phoneNumber, newPass, super.getAccess().getTeacherTable(), super.getAccess().getTeacherLoginInfos(), "teacher_UID");
+        changePersonPassWithPhoneNumber(phoneNumber, newPass, super.getAccess().getTeacherLoginInfos(), "teacher_UID");
     }
 
-    private void changePersonPassWithPhoneNumber(String phoneNumber, String newPass, String tableNameForUID, String tableNameForPass, String columnName) throws SQLException {
-        int uid = personFetcher.getPersonUIDByPhoneNumber(tableNameForUID, phoneNumber);
+    private void changePersonPassWithPhoneNumber(String phoneNumber, String newPass, String tableNameForPass, String columnName) throws SQLException {
+        int uid = personFetcher.getPersonUIDByPhoneNumber(phoneNumber);
         String query = getChangingPersonLoginInfoQueryString(tableNameForPass, "pass", newPass, columnName, uid);
         super.runUpdatingQuery(query);
     }

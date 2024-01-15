@@ -32,10 +32,10 @@ import com.kaan.schoolmanagementmaven.log.LogManager;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class Student extends Person {
-    
+
     private static int defaultLessonCreditNumber;
     private static int defaultMaxDebtCredit;
     private static ILogManager logManager;
@@ -50,7 +50,7 @@ public class Student extends Person {
     private ILessonFetchingQuery lessonFetcher;
     private IExamNoteGettingQueries examGetter;
     private IExamNoteSettingQueries examSetter;
-    
+
     static {
         IDefaultValuesQuery query = null;
         try {
@@ -62,7 +62,7 @@ public class Student extends Person {
         }
         optionalLogManager = Optional.ofNullable(logManager);
     }
-    
+
     public Student(String userName, String pass, int debt, int lessonCredit, String name, String lastName, int uid, int balance, List<Lesson> lessonList, String phoneNumber) throws SQLException {
         super(userName, pass, name, lastName, uid, balance, phoneNumber);
         this.debt = debt;
@@ -76,43 +76,43 @@ public class Student extends Person {
         examSetter = ExamNoteQueries.getInstanceForSettingQueries();
         lessonFetcher = LessonFetchingQuery.getInstance();
     }
-    
+
     public static void setDefaultLessonCredit(int value) throws InvalidLessonCreditException {
-        throwExceptionIfInvalidDefaultLessonCredit(defaultLessonCreditNumber);
+        throwExceptionIfInvalidDefaultLessonCredit(value);
         defaultLessonCreditNumber = value;
     }
-    
+
     private static void throwExceptionIfInvalidDefaultLessonCredit(int defaultlessonCreditAmount) throws InvalidLessonCreditException {
         if (!StudentValidation.isValidDefaultLessonCredit(defaultlessonCreditAmount)) {
             throw new InvalidLessonCreditException();
         }
     }
-    
+
     public static void setDefaultMaxDebtCredit(int value) throws InvalidMaxDebtCreditException {
         throwExceptionIfInvalidMaxDebtCredit(defaultMaxDebtCredit);
         defaultMaxDebtCredit = value;
     }
-    
+
     private static void throwExceptionIfInvalidMaxDebtCredit(int maxDebtCredit) throws InvalidMaxDebtCreditException {
         if (!StudentValidation.isValidMaxDebtCredit(maxDebtCredit)) {
             throw new InvalidMaxDebtCreditException();
         }
     }
-    
+
     public void addLesson(Lesson lesson, int teacherUID) throws NotSufficentCreditException, SQLException, OutOfQuotaException {
         throwExceptionIfNotSufficentCredit(lesson.getLessonCredit());
         lessonList.add(lesson);
         lessonCredit -= lesson.getLessonCredit();
         personChangingManager.changeNormalStudentLessonCredit(personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName()), lessonCredit);
-        lessonManager.addLessonToNormalStudentCourse(lesson.getName(), personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName()), teacherUID);      
+        lessonManager.addLessonToNormalStudentCourse(lesson.getName(), personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName()), teacherUID);
     }
-    
+
     private void throwExceptionIfNotSufficentCredit(int creditOfLesson) throws NotSufficentCreditException {
         if (creditOfLesson > lessonCredit) {
             throw new NotSufficentCreditException();
         }
     }
-    
+
     public String showExamInfo() throws SQLException {
         int uid = personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName());
         List<String> lessonNames = lessonFetcher.getNormalStudentLessonNames(uid);
@@ -120,7 +120,7 @@ public class Student extends Person {
         fillLessonUIDListFromLessonNameList(lessonNames, lessonUIDs);
         return createExamInfoString(uid, lessonUIDs);
     }
-    
+
     void fillLessonUIDListFromLessonNameList(List<String> lessonNames, List<Integer> lessonUIDs) throws SQLException {
         for (String currentLessonName : lessonNames) {
             lessonUIDs.add(lessonFetcher.getLessonUIDByLessonName(currentLessonName));
@@ -138,72 +138,72 @@ public class Student extends Person {
         }
         return sb.toString();
     }
-    
+
     public void removeLesson(Lesson lesson) throws SQLException {
         lessonList.remove(lesson);
         lessonCredit += lesson.getLessonCredit();
         personChangingManager.changeNormalStudentLessonCredit(personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName()), lessonCredit);
         lessonManager.removeLessonFromNormalStudentCourse(lesson.getName(), personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName()));
     }
-    
+
     public void beWorkingStudent() throws SQLException {
         studentConvertingManager.convertToWorkingStudent(this);
     }
-    
+
     public List<Lesson> getLessonList() {
         return lessonList;
     }
-    
+
     public int getDebt() {
         return debt;
     }
-    
+
     public int getLessonCredit() {
         return lessonCredit;
     }
-    
+
     void setLessonCredit(int lessonCredit) {
         this.lessonCredit = lessonCredit;
     }
-    
+
     IStudentConvertingManager getStudentConvertingManager() {
         return studentConvertingManager;
     }
-    
+
     IPersonChangingManager getPersonChangingManager() {
         return personChangingManager;
     }
-    
+
     IPersonFetchingQueries getPersonFetcher() {
         return personFetcher;
     }
-    
+
     ILessonManager getLessonManager() {
         return lessonManager;
     }
-    
+
     ILessonFetchingQuery getLessonFetcher() {
         return lessonFetcher;
     }
-    
+
     public IExamNoteGettingQueries getExamGetter() {
         return examGetter;
     }
-    
+
     public IExamNoteSettingQueries getExamSetter() {
         return examSetter;
     }
-    
+
     public static ILogManager getLogManager() {
         return Student.logManager;
     }
-    
+
     public static Optional<ILogManager> getOptionalLogManager() {
         return optionalLogManager;
     }
-    
+
     public static void setLogManager(File logFile) throws IOException {
         Student.logManager = new LogManager(logFile);
     }
-    
+
 }

@@ -8,9 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * 
+ *
  * @author kaan
- * 
+ *
  */
 public class PersonFetchingQueries extends Query implements IPersonFetchingQueries {
 
@@ -124,7 +124,20 @@ public class PersonFetchingQueries extends Query implements IPersonFetchingQueri
     }
 
     @Override
-    public int getPersonUIDByPhoneNumber(String tableName, String phoneNumber) throws SQLException {
+    public int getPersonUIDByPhoneNumber(String phoneNumber) throws SQLException {
+        int normalStudentUID = getPersonUIDByPhoneNumber(super.getAccess().getNormalStudentTable(), phoneNumber);
+        if (normalStudentUID != INVALID_UID) {
+            return normalStudentUID;
+        }
+        int workingStudentUID = getPersonUIDByPhoneNumber(super.getAccess().getNormalStudentTable(), phoneNumber);
+        if (workingStudentUID != INVALID_UID) {
+            return workingStudentUID;
+        }
+        int teacherUID = getPersonUIDByPhoneNumber(super.getAccess().getNormalStudentTable(), phoneNumber);
+        return teacherUID;
+    }
+
+    private int getPersonUIDByPhoneNumber(String tableName, String phoneNumber) throws SQLException {
         String query = getPersonUIDByPhoneNumberQueryString(tableName, phoneNumber);
         ResultSet personUID = super.runGettingQuery(query);
         return getPersonUIDFromResultSet(personUID);

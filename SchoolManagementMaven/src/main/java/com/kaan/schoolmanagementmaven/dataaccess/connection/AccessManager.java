@@ -144,10 +144,12 @@ public class AccessManager implements IAccessManager {
             return null;
         }
         List<String> informations = new ArrayList();
-        String accesInformation = bufferedReader.readLine();
-        while (accesInformation != null) {
-            informations.add(accesInformation);
-            accesInformation = bufferedReader.readLine();
+        String accessInformation = null ;
+        while ((accessInformation = bufferedReader.readLine()) != null) {
+            informations.add(accessInformation);
+        }
+        for (String xx : informations) {
+            System.out.println(xx);
         }
         bufferedReaderReset();
         return informations;

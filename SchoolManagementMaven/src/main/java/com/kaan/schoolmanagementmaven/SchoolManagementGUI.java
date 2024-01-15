@@ -37,9 +37,7 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
     private IPersonSMSManager smsSender;
     private IPersonChangingManager personChanger;
 
-    /**
-     * Creates new form SchoolManagementGUI
-     */
+    
     public SchoolManagementGUI() {
         initComponents();
         try {

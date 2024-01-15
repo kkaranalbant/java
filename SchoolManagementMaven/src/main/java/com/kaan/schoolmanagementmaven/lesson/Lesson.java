@@ -7,6 +7,7 @@ package com.kaan.schoolmanagementmaven.lesson;
 /**
  *
  * @author kaan
+ * 
  */
 public class Lesson {
     private String name ;

@@ -20,6 +20,7 @@ import com.kaan.schoolmanagementmaven.exception.OutOfQuotaException;
 /**
  *
  * @author kaan
+ * 
  */
 public class LessonManager implements ILessonManager {
 

@@ -5,12 +5,12 @@
 package com.kaan.schoolmanagementmaven.lesson;
 
 import java.sql.SQLException;
-import java.util.List;
 import com.kaan.schoolmanagementmaven.exception.OutOfQuotaException;
 
 /**
  *
  * @author kaan
+ * 
  */
 public interface ILessonManager {
 

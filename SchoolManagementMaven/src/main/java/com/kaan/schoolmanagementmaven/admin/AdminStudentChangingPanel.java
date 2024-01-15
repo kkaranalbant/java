@@ -40,6 +40,12 @@ public class AdminStudentChangingPanel extends javax.swing.JFrame {
 
     /**
      * Creates new form AdminStudentChangingPanel
+     * @param main
+     * @param studentResultSet
+     * @param userName
+     * @param password
+     * @param lessonCreditColumn
+     * @throws java.sql.SQLException
      */
     public AdminStudentChangingPanel(AdminPersonChangingMainPanel main, ResultSet studentResultSet, String userName, String password, String lessonCreditColumn) throws SQLException {
         initComponents();

@@ -10,7 +10,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public interface IPersonLoginQueries {
 
@@ -32,6 +32,6 @@ public interface IPersonLoginQueries {
 
     public String getTeacherPassByUID(int uid) throws SQLException;
     
-    public String getPersonUsernameByUID(int uid, String tableName, String columnName) throws SQLException ;
+    public String getPersonUsernameByUID(int uid) throws SQLException;
     
 }

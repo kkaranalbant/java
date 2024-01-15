@@ -69,6 +69,9 @@ public class AccessManager implements IAccessManager {
 
     public static Access loadAccessObject() throws SQLException, IOException , EmptyConnectionFileException {
         List <String> resultList = throwExceptionIfEmptyConnectionFileOrElseReturnInformations();
+        for (String xx : resultList) {
+            System.out.println(xx);
+        }
         Connection connection = throwExceptionIfInvalidConnectionInformationsOrElseCreateConnection(resultList.get(0), Integer.parseInt(resultList.get(1)), resultList.get(2), resultList.get(3), resultList.get(4));
         changeDefaultDatabaseInfo(resultList.get(0), Integer.parseInt(resultList.get(1)), resultList.get(2), resultList.get(3), resultList.get(4));
         Access.getInstance().setConnection(connection);
@@ -143,13 +146,13 @@ public class AccessManager implements IAccessManager {
         if (isEmptyConnectionFile()) {
             return null;
         }
-        List<String> resultList = new ArrayList();
-        String value = null;
-        while ((value = bufferedReader.readLine()) != null) {
-            resultList.add(value);
+        List<String> informations = new ArrayList();
+        String acccesInformation = null;
+        while ((acccesInformation = bufferedReader.readLine()) != null) {
+            informations.add(acccesInformation);
         }
         bufferedReaderReset();
-        return resultList;
+        return informations;
     }
     
     private static void bufferedReaderReset () throws IOException{

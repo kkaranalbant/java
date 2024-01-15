@@ -10,6 +10,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IPersonSMSManager {
     public int sendRecoverySMS(String userName, String phoneNumber) throws IncompatibleUsernameAndPhoneNumberException, SQLException ;

@@ -14,7 +14,6 @@ import com.kaan.schoolmanagementmaven.exception.InvalidMaxDebtCreditException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
-import javax.swing.JOptionPane;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ExamNoteQueries;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IExamNoteGettingQueries;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IExamNoteSettingQueries;
@@ -33,6 +32,7 @@ import com.kaan.schoolmanagementmaven.log.LogManager;
 /**
  *
  * @author kaan
+ * 
  */
 public class Student extends Person {
     

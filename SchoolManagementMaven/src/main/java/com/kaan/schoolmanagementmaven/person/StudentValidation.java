@@ -7,11 +7,8 @@ package com.kaan.schoolmanagementmaven.person;
 /**
  *
  * @author kaan
+ * 
  */
-
-/*
-    Utility class
-*/
 public class StudentValidation {
     static boolean isValidMaxDebtCredit (int value) {
         return value>=0 ; 

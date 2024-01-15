@@ -13,6 +13,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniquePhoneNumberException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IPersonCreatorManager {
 

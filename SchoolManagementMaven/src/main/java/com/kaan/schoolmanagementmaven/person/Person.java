@@ -7,6 +7,7 @@ package com.kaan.schoolmanagementmaven.person;
 /**
  *
  * @author kaan
+ * 
  */
 public abstract class Person {
     private String userName ;

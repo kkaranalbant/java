@@ -8,6 +8,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IStudentConvertingManager {
     void convertToWorkingStudent (Student student) throws SQLException;

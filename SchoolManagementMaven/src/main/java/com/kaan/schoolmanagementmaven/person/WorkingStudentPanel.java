@@ -26,6 +26,7 @@ import com.kaan.schoolmanagementmaven.lesson.Lesson;
 /**
  *
  * @author kaan
+ * 
  */
 public class WorkingStudentPanel extends javax.swing.JFrame {
 

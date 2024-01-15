@@ -10,6 +10,7 @@ import com.kaan.schoolmanagementmaven.exception.InvalidUIDException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IPersonDeletingManager {
 

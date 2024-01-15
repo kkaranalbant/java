@@ -55,6 +55,7 @@ import com.kaan.schoolmanagementmaven.sms.MessageSendingManager;
 /**
  *
  * @author kaan
+ * 
  */
 public class PersonManager implements IPersonCreatorManager, IPersonDeletingManager, IPersonChangingManager, IStudentConvertingManager, IPersonSMSManager {
 

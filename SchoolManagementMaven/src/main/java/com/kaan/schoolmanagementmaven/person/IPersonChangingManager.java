@@ -20,6 +20,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniqueUsernameAndPassExceptio
 /**
  *
  * @author kaan
+ * 
  */
 public interface IPersonChangingManager {
 

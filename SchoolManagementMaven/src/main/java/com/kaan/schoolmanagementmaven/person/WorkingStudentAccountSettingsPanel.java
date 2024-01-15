@@ -4,7 +4,6 @@
  */
 package com.kaan.schoolmanagementmaven.person;
 
-import com.kaan.schoolmanagementmaven.person.WorkingStudentPanel;
 import java.io.IOException;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IPersonFetchingQueries;
 import com.kaan.schoolmanagementmaven.dataaccess.query.PersonFetchingQueries;
@@ -18,6 +17,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniqueUsernameAndPassExceptio
 /**
  *
  * @author kaan
+ * 
  */
 public class WorkingStudentAccountSettingsPanel extends javax.swing.JFrame {
 

@@ -17,6 +17,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniqueUsernameAndPassExceptio
 /**
  *
  * @author kaan
+ * 
  */
 public class NormalStudentAccountSettingsPanel extends javax.swing.JFrame {
 

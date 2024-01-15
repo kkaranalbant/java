@@ -21,6 +21,7 @@ import com.kaan.schoolmanagementmaven.exception.InvalidStudentUIDException;
 /**
  *
  * @author kaan
+ * 
  */
 public class TeacherPanel extends javax.swing.JFrame {
 

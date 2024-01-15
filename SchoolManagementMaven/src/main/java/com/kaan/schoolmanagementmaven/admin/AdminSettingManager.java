@@ -4,6 +4,8 @@
  */
 package com.kaan.schoolmanagementmaven.admin;
 
+import com.kaan.schoolmanagementmaven.dataaccess.query.IPersonValidationQueries;
+import com.kaan.schoolmanagementmaven.dataaccess.query.PersonValidationQueries;
 import java.sql.SQLException;
 import com.kaan.schoolmanagementmaven.exception.InvalidBalanceException;
 import com.kaan.schoolmanagementmaven.exception.InvalidDebtException;
@@ -22,72 +24,114 @@ import com.kaan.schoolmanagementmaven.person.PersonManager;
 /**
  *
  * @author kaan
- * 
+ *
  */
-public class AdminSettingManager implements IAdminSettingManager{
+public class AdminSettingManager implements IAdminSettingManager {
 
-    private static IAdminSettingManager adminSettingManager ;
-    
-    private IPersonChangingManager personManager ;
-    
+    private static IAdminSettingManager adminSettingManager;
+
+    private IPersonChangingManager personManager;
+    private IPersonValidationQueries personValidator;
+
     static {
-        adminSettingManager = null ;
+        adminSettingManager = null;
     }
-    
-    private AdminSettingManager () throws SQLException{
+
+    private AdminSettingManager() throws SQLException {
         personManager = PersonManager.getInstanceForChangingManager();
+        personValidator = PersonValidationQueries.getInstance();
     }
-    
-    static IAdminSettingManager getInstance () throws SQLException {
-        if (adminSettingManager == null) adminSettingManager = new AdminSettingManager();
-        return adminSettingManager ;
+
+    static IAdminSettingManager getInstance() throws SQLException {
+        if (adminSettingManager == null) {
+            adminSettingManager = new AdminSettingManager();
+        }
+        return adminSettingManager;
     }
-    
+
     @Override
     public void setBalance(int uid, int value) throws SQLException, InvalidBalanceException {
-        personManager.changeNormalStudentBalanceWithUID(uid, value);
-        personManager.changeTeacherBalanceWithUID(uid, value);
-        personManager.changeWorkingStudentBalanceWithUID(uid, value);
+        if (personValidator.isValidUIDForNormalStudentTable(uid)) {
+            personManager.changeNormalStudentBalanceWithUID(uid, value);
+
+        } else if (personValidator.isValidUIDForWorkingStudentTable(uid)) {
+            personManager.changeWorkingStudentBalanceWithUID(uid, value);
+
+        } else {
+            personManager.changeTeacherBalanceWithUID(uid, value);
+        }
     }
 
     @Override
-    public void setUsername(int uid, String newUsername) throws SQLException, NotUniqueUsernameAndPassException , InvalidUsernameLengthException{
-        personManager.changeNormalStudentUserNameWithUID(uid, newUsername);
-        personManager.changeTeacherUserNameWithUID(uid, newUsername);
-        personManager.changeWorkingStudentUserNameWithUID(uid, newUsername);
+    public void setUsername(int uid, String newUsername) throws SQLException, NotUniqueUsernameAndPassException, InvalidUsernameLengthException {
+        if (personValidator.isValidUIDForNormalStudentTable(uid)) {
+            personManager.changeNormalStudentUserNameWithUID(uid, newUsername);
+
+        } else if (personValidator.isValidUIDForWorkingStudentTable(uid)) {
+            personManager.changeWorkingStudentUserNameWithUID(uid, newUsername);
+
+        } else {
+            personManager.changeTeacherUserNameWithUID(uid, newUsername);
+        }
     }
 
     @Override
-    public void setPass(int uid, String newPass) throws SQLException, NotUniqueUsernameAndPassException , InvalidPassLengthException {
-        personManager.changeNormalStudentPassWithUID(uid, newPass);
-        personManager.changeWorkingStudentPassWithUID(uid, newPass);
-        personManager.changeTeacherPassWithUID(uid, newPass);
+    public void setPass(int uid, String newPass) throws SQLException, NotUniqueUsernameAndPassException, InvalidPassLengthException {
+        if (personValidator.isValidUIDForNormalStudentTable(uid)) {
+            personManager.changeNormalStudentPassWithUID(uid, newPass);
+
+        } else if (personValidator.isValidUIDForWorkingStudentTable(uid)) {
+            personManager.changeWorkingStudentPassWithUID(uid, newPass);
+
+        } else {
+            personManager.changeTeacherPassWithUID(uid, newPass);
+        }
     }
 
     @Override
     public void setName(int uid, String newName) throws SQLException, NotUniqueNameAndLastnameException {
-        personManager.changeNormalStudentNameWithUID(uid, newName);
-        personManager.changeWorkingStudentNameWithUID(uid, newName);
-        personManager.changeTeacherNameWithUID(uid, newName);
+        if (personValidator.isValidUIDForNormalStudentTable(uid)) {
+            personManager.changeNormalStudentNameWithUID(uid, newName);
+
+        } else if (personValidator.isValidUIDForWorkingStudentTable(uid)) {
+            personManager.changeWorkingStudentNameWithUID(uid, newName);
+
+        } else {
+            personManager.changeTeacherNameWithUID(uid, newName);
+        }
     }
-    
+
     @Override
-    public void setLastName (int uid , String newLastname) throws SQLException , NotUniqueNameAndLastnameException {
-        personManager.changeNormalStudentLastnameWithUID(uid, newLastname);
-        personManager.changeWorkingStudentLastnameWithUID(uid, newLastname);
-        personManager.changeTeacherLastnameWithUID(uid, newLastname);
+    public void setLastName(int uid, String newLastname) throws SQLException, NotUniqueNameAndLastnameException {
+        if (personValidator.isValidUIDForNormalStudentTable(uid)) {
+            personManager.changeNormalStudentLastnameWithUID(uid, newLastname);
+
+        } else if (personValidator.isValidUIDForWorkingStudentTable(uid)) {
+            personManager.changeWorkingStudentLastnameWithUID(uid, newLastname);
+
+        } else {
+            personManager.changeTeacherLastnameWithUID(uid, newLastname);
+        }
     }
 
     @Override
     public void setDebt(int uid, int value) throws SQLException, InvalidDebtException {
-        personManager.changeNormalStudentDebt(uid, value);
-        personManager.changeWorkingStudentDebt(uid, value);
+        if (personValidator.isValidUIDForNormalStudentTable(uid)) {
+            personManager.changeNormalStudentDebt(uid, value);
+
+        } else {
+            personManager.changeWorkingStudentDebt(uid, value);
+        }
     }
 
     @Override
     public void setLessonCredit(int uid, int value) throws SQLException, InvalidLessonCreditException {
-        personManager.changeNormalStudentLessonCredit(uid, value);
-        personManager.changeWorkingStudentLessonCredit(uid, value);
+        if (personValidator.isValidUIDForNormalStudentTable(uid)) {
+            personManager.changeNormalStudentLessonCredit(uid, value);
+
+        } else {
+            personManager.changeWorkingStudentLessonCredit(uid, value);
+        }
     }
 
     @Override
@@ -99,13 +143,18 @@ public class AdminSettingManager implements IAdminSettingManager{
     public void setBranch(int uid, int branchId) throws SQLException {
         personManager.changeTeacherBranch(uid, branchId);
     }
-    
+
     @Override
-    public void setPhoneNumber (int uid , String newPhoneNumber) throws SQLException , InvalidPhoneCountryCodeException , InvalidPhoneNumberLengthException , NotUniquePhoneNumberException {
-        personManager.changeNormalStudentPhoneNumber(uid, newPhoneNumber);
-        personManager.changeWorkingStudentPhoneNumber(uid, newPhoneNumber);
-        personManager.changeTeacherPhoneNumber(uid, newPhoneNumber);
+    public void setPhoneNumber(int uid, String newPhoneNumber) throws SQLException, InvalidPhoneCountryCodeException, InvalidPhoneNumberLengthException, NotUniquePhoneNumberException {
+        if (personValidator.isValidUIDForNormalStudentTable(uid)) {
+            personManager.changeNormalStudentPhoneNumber(uid, newPhoneNumber);
+
+        } else if (personValidator.isValidUIDForWorkingStudentTable(uid)) {
+            personManager.changeWorkingStudentPhoneNumber(uid, newPhoneNumber);
+
+        } else {
+            personManager.changeTeacherPhoneNumber(uid, newPhoneNumber);
+
+        }
     }
-    
-    
 }

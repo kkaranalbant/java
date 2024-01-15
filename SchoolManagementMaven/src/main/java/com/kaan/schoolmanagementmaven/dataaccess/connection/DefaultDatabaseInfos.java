@@ -4,16 +4,14 @@
  */
 package com.kaan.schoolmanagementmaven.dataaccess.connection;
 
-import com.kaan.schoolmanagementmaven.admin.FirstTimeAdminAccess;
-import com.kaan.schoolmanagementmaven.admin.FirstTimeAdminAccessLoginPanel;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 
 /**
  *
  * @author kaan
+ * 
  */
 public class DefaultDatabaseInfos {
 
@@ -21,31 +19,13 @@ public class DefaultDatabaseInfos {
     private static FileReader fileReader;
     private static BufferedReader databaseInfoReader;
 
-    /*
-    static {
-        databaseFile = FirstTimeAdminAccess.getFile();
-        try {
-            fileReader = new FileReader(databaseFile);
-            databaseInfoReader = new BufferedReader(fileReader);
-            host = databaseInfoReader.readLine() ;
-            port = Integer.parseInt(databaseInfoReader.readLine());
-            dbName = databaseInfoReader.readLine() ;
-            userName = databaseInfoReader.readLine() ;
-            pass = databaseInfoReader.readLine() ;
-            fileReader.close();
-            databaseInfoReader.close();
-        }
-        catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
-    */
-
     public static String host ;
     public static String userName ;
     public static String pass ;
     public static String dbName ;
     public static int port ;
+    
+    
     static String adminTable = "admin";
     static String normalStudentTable = "normal_students";
     static String workingStudentTable = "working_students";

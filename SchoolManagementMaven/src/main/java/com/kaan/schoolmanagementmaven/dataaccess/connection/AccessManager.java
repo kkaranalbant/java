@@ -23,6 +23,7 @@ import javax.swing.JOptionPane;
 /**
  *
  * @author kaan
+ * 
  */
 public class AccessManager implements IAccessManager {
 

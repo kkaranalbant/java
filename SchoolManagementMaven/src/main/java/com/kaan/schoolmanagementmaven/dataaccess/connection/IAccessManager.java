@@ -4,12 +4,12 @@
  */
 package com.kaan.schoolmanagementmaven.dataaccess.connection;
 
-import java.io.IOException;
 import java.sql.SQLException;
 
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAccessManager {
     void createTables () throws SQLException;

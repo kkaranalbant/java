@@ -8,6 +8,7 @@ import java.sql.Connection ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAccess {
     Connection getConnection () ;

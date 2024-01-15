@@ -9,6 +9,7 @@ import com.twilio.type.PhoneNumber ;
 /**
  *
  * @author kaan
+ * 
  */
 public class MessageSendingManager implements IMessageSendingManager{
     private static final String ACCOUNT_SID = "ACc572315c592ae95b2835bd61ea84a2c4" ;

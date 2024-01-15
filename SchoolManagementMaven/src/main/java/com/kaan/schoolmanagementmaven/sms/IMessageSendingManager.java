@@ -7,6 +7,7 @@ package com.kaan.schoolmanagementmaven.sms;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IMessageSendingManager {
     void sendMessage (String destinationPhoneNumber , int code) ;

@@ -11,6 +11,6 @@ import java.sql.SQLException;
  * @author kaan
  */
 public interface IAdminStudentInformationManager {
-    public String normalStudentInfo() throws SQLException ;
-    public String workingStudentInfo() throws SQLException;
+    public String getNormalStudentInfo() throws SQLException ;
+    public String getWorkingStudentInfo() throws SQLException;
 }

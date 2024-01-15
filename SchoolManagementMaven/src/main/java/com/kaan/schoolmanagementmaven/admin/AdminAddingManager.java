@@ -37,37 +37,52 @@ public class AdminAddingManager implements IAdminAddingManager {
 
     @Override
     public Map<String, String> addNormalStudent(String name, String lastName, String phoneNumber) throws SQLException, NotUniqueNameAndLastnameException, InvalidPhoneCountryCodeException, InvalidPhoneNumberLengthException {
+        throwExceptionIfInvalidPhoneNumberLengthOrPhoneCountryCode(phoneNumber);
+        return personManager.createNewNormalStudentAndReturnLoginInfo(name, lastName, phoneNumber) ;
+    }
+    
+    
+    private void throwExceptionIfInvalidPhoneNumberLengthOrPhoneCountryCode (String phoneNumber) throws InvalidPhoneNumberLengthException , InvalidPhoneCountryCodeException {
+        throwExceptionIfInvalidNumberLength(phoneNumber);
+        throwExceptionIfInvalidCountryCode(phoneNumber);
+    }
+    
+    private void throwExceptionIfInvalidNumberLength (String phoneNumber) throws InvalidPhoneNumberLengthException {
         if (phoneNumber.length() != 13) {
             throw new InvalidPhoneNumberLengthException();
         }
-        if (!phoneNumber.substring(0, 3).equals("+90")) {
+    }
+    
+    private void throwExceptionIfInvalidCountryCode (String phoneNumber) throws InvalidPhoneCountryCodeException {
+        if (!phoneNumber.substring(0, 3).equals("+90")){
             throw new InvalidPhoneCountryCodeException();
         }
-        return personManager.createNewNormalStudent(name, lastName , phoneNumber);
     }
 
     @Override
     public Map<String, String> addWorkingStudent(String name, String lastName, String phoneNumber) throws SQLException, NotUniqueNameAndLastnameException, InvalidPhoneCountryCodeException, InvalidPhoneNumberLengthException {
-        if (phoneNumber.length() != 13) {
-            throw new InvalidPhoneNumberLengthException();
-        }
-        if (!phoneNumber.substring(0, 3).equals("+90")) {
-            throw new InvalidPhoneCountryCodeException();
-        }
-        return personManager.createNewWorkingStudent(lastName, name , phoneNumber);
+        throwExceptionIfInvalidPhoneNumberLengthOrPhoneCountryCode(phoneNumber);
+        return personManager.createNewWorkingStudentAndReturnLoginInfo(lastName, name , phoneNumber);
     }
 
     @Override
     public Map<String, String> addTeacher(String name, String lastName, String branchName, int salary, String phoneNumber) throws SQLException, NotUniqueNameAndLastnameException, InvalidPhoneCountryCodeException, InvalidPhoneNumberLengthException, InvalidBranchException, InvalidSalaryException {
-        if (branchName == null) throw new InvalidBranchException () ;
-        if (salary < 0) throw new InvalidSalaryException () ;
-        if (phoneNumber.length() != 13) {
-            throw new InvalidPhoneNumberLengthException();
-        }
-        if (!phoneNumber.substring(0, 3).equals("+90")) {
-            throw new InvalidPhoneCountryCodeException();
-        }
-        return personManager.createNewTeacher(name, lastName, branchName, salary, phoneNumber);
+        throwExceptionIfInvalidBranchNameOrInvalidSalaryAmount(branchName, salary);
+        throwExceptionIfInvalidPhoneNumberLengthOrPhoneCountryCode(phoneNumber);
+        return personManager.createNewTeacherAndReturnLoginInfo(name, lastName, branchName, salary, phoneNumber);
+    }
+    
+    private void throwExceptionIfInvalidBranchNameOrInvalidSalaryAmount (String branchName , int salary) throws InvalidBranchException , InvalidSalaryException {
+        throwExceptionIfInvalidBranchName(branchName);
+        throwExceptionIfInvalidSalaryAmount(salary);
     }
 
+    private void throwExceptionIfInvalidSalaryAmount (int salary) throws InvalidSalaryException {
+        if (salary < 0) throw new InvalidSalaryException() ;
+    }
+    
+    private void throwExceptionIfInvalidBranchName (String branchName) throws InvalidBranchException {
+        if (branchName == null) throw new InvalidBranchException () ;
+    }
+    
 }

@@ -55,14 +55,14 @@ public class Generator implements IPersonUIDGenerator, IUsernameAndPassGenerator
     public static ILessonUIDGenerator getLessonUIDGenerator() throws SQLException {
         return (ILessonUIDGenerator) getUsernameAndPassGenerator();
     }
-    
-    public static IOTPGenerator getOTPGenerator () throws SQLException {
-        return (IOTPGenerator) getUsernameAndPassGenerator() ;
+
+    public static IOTPGenerator getOTPGenerator() throws SQLException {
+        return (IOTPGenerator) getUsernameAndPassGenerator();
     }
 
     private String generateUniqueUsernameAndPass() {
         StringBuilder sb = new StringBuilder();
-        while (sb.length() != 16) {
+        while (sb.length() != IUsernameAndPassGenerator.DEFAULT_USERNAME_AND_PASSWORD_LENGTH) {
             sb.append((char) random.nextInt(48, 58));
             sb.append((char) random.nextInt(65, 91));
             sb.append(specialCharacters[random.nextInt(0, specialCharacters.length)]);
@@ -79,70 +79,50 @@ public class Generator implements IPersonUIDGenerator, IUsernameAndPassGenerator
             userName = generateUniqueUsernameAndPass();
             pass = generateUniqueUsernameAndPass();
         }
-        Map<String, String> resultMap = new HashMap();
-        resultMap.put(userName, pass);
-        return resultMap;
+        Map<String, String> userNameAndPassPair = new HashMap();
+        userNameAndPassPair.put(userName, pass);
+        return userNameAndPassPair;
     }
 
     @Override
     public int generateUIDForNormalStudent() throws SQLException {
         int origin = defaultValuesQuery.getDefaultNormalStudentUIDOrigin();
         int bound = defaultValuesQuery.getDefaultNormalStudentUIDBound();
-        int id = random.nextInt(origin, bound);
-        while (!(isUniqueIDForWorkingStudent(id) && isUniqueIDForNormalStudent(id) && isUniqueIDForTeacher(id))) {
-            id = random.nextInt(origin, bound);
-        }
-        return id;
-    }
-
-    private boolean isUniqueIDForNormalStudent(int id) throws SQLException {
-        ResultSet resultSet = personLoginQuery.getAllNormalStudentUserNameAndPassword();
-        while (resultSet.next()) {
-            int uid = resultSet.getInt("normal_student_UID");
-            if (uid == id) {
-                return false;
-            }
-        }
-        return true;
+        return generateUIDForAllPersons(origin, bound);
     }
 
     @Override
     public int generateUIDForWorkingStudent() throws SQLException {
         int origin = defaultValuesQuery.getDefaultWorkingStudentUIDOrigin();
         int bound = defaultValuesQuery.getDefaultWorkingStudentUIDBound();
-        int id = random.nextInt(origin, bound);
-        while (!(isUniqueIDForWorkingStudent(id) && isUniqueIDForNormalStudent(id) && isUniqueIDForTeacher(id))) {
-            id = random.nextInt(origin, bound);
-        }
-        return id;
-    }
-
-    private boolean isUniqueIDForWorkingStudent(int id) throws SQLException {
-        ResultSet resultSet = personLoginQuery.getAllWorkingStudentUserNameAndPassword();
-        while (resultSet.next()) {
-            int uid = resultSet.getInt("working_student_UID");
-            if (uid == id) {
-                return false;
-            }
-        }
-        return true;
+        return generateUIDForAllPersons(origin, bound);
     }
 
     @Override
     public int generateUIDForTeacher() throws SQLException {
         int origin = defaultValuesQuery.getDefaultTeacherUIDOrigin();
         int bound = defaultValuesQuery.getDefaultTeacherUIDBound();
-        int id = random.nextInt(origin, bound);
-        while (!(isUniqueIDForWorkingStudent(id) && isUniqueIDForNormalStudent(id) && isUniqueIDForTeacher(id))) {
-            id = random.nextInt(origin, bound);
-        }
-        return id;
+        return generateUIDForAllPersons(origin, bound);
+    }
+
+    private boolean isUniqueIDForNormalStudent(int id) throws SQLException {
+        ResultSet normalStudentUsernamesAndPasswords = personLoginQuery.getAllNormalStudentUserNameAndPassword();
+        return isUniqueIDForPerson(id, "normal_student_UID", normalStudentUsernamesAndPasswords);
+    }
+
+    private boolean isUniqueIDForWorkingStudent(int id) throws SQLException {
+        ResultSet workingStudentUsernamesAndPasswords = personLoginQuery.getAllWorkingStudentUserNameAndPassword();
+        return isUniqueIDForPerson(id, "working_student_UID", workingStudentUsernamesAndPasswords);
     }
 
     private boolean isUniqueIDForTeacher(int id) throws SQLException {
-        ResultSet resultSet = personLoginQuery.getAllNormalStudentUserNameAndPassword();
-        while (resultSet.next()) {
-            int uid = resultSet.getInt("normal_student_UID");
+        ResultSet teacherUsernamesAndPasswords = personLoginQuery.getAllTeacherUserNameAndPassword();
+        return isUniqueIDForPerson(id, "teacher_UID", teacherUsernamesAndPasswords);
+    }
+
+    private boolean isUniqueIDForPerson(int id, String column, ResultSet userNamesAndPasswords) throws SQLException {
+        while (userNamesAndPasswords.next()) {
+            int uid = userNamesAndPasswords.getInt(column);
             if (uid == id) {
                 return false;
             }
@@ -150,8 +130,16 @@ public class Generator implements IPersonUIDGenerator, IUsernameAndPassGenerator
         return true;
     }
 
+    private int generateUIDForAllPersons(int origin, int bound) throws SQLException {
+        int id = random.nextInt(origin, bound);
+        while (!(isUniqueIDForWorkingStudent(id) && isUniqueIDForNormalStudent(id) && isUniqueIDForTeacher(id))) {
+            id = random.nextInt(origin, bound);
+        }
+        return id;
+    }
+
     @Override
-    public int generatorUIDForLesson() throws SQLException {
+    public int generateUIDForLesson() throws SQLException {
         int origin = defaultValuesQuery.getDefaultLessonUIDOrigin();
         int bound = defaultValuesQuery.getDefaultLessonUIDBound();
         int id = random.nextInt(origin, bound);
@@ -162,32 +150,24 @@ public class Generator implements IPersonUIDGenerator, IUsernameAndPassGenerator
     }
 
     private boolean isUniqueIDForLesson(int uid) throws SQLException {
-        ResultSet resultSet = lessonFetcher.getLessonInfo(uid);
-        return !resultSet.next();
+        ResultSet lesson = lessonFetcher.getLessonInfo(uid);
+        boolean isEmptyResultSet = !lesson.next();
+        if (isEmptyResultSet) {
+            return true;
+        }
+        return false;
     }
 
     private boolean isUniqueUserNameAndPassword(String userName, String password) throws SQLException {
-        ResultSet resultSet1 = personLoginQuery.getAllNormalStudentUserNameAndPassword();
-        ResultSet resultSet2 = personLoginQuery.getAllWorkingStudentUserNameAndPassword();
-        ResultSet resultSet3 = personLoginQuery.getAllTeacherUserNameAndPassword();
-        while (resultSet1.next()) {
-            String userNameInDb = resultSet1.getString("username");
-            String passInDb = resultSet1.getString("pass");
-            if (userName.equals(userNameInDb) && password.equals(passInDb)) {
-                return false;
-            }
-        }
-        while (resultSet2.next()) {
-            String userNameInDb = resultSet2.getString("username");
-            String passInDb = resultSet2.getString("pass");
-            if (userName.equals(userNameInDb) && password.equals(passInDb)) {
-                return false;
-            }
-        }
-        while (resultSet3.next()) {
-            String userNameInDb = resultSet3.getString("username");
-            String passInDb = resultSet3.getString("pass");
-            if (userName.equals(userNameInDb) && password.equals(passInDb)) {
+        ResultSet normalStudents = personLoginQuery.getAllNormalStudentUserNameAndPassword();
+        ResultSet workingStudents = personLoginQuery.getAllWorkingStudentUserNameAndPassword();
+        ResultSet teachers = personLoginQuery.getAllTeacherUserNameAndPassword();
+        return isUniqueUsernameAndPassword(teachers, userName, password) && isUniqueUsernameAndPassword(normalStudents, userName, password) && isUniqueUsernameAndPassword(workingStudents, userName, password);
+    }
+
+    private boolean isUniqueUsernameAndPassword(ResultSet persons, String userName, String pass) throws SQLException {
+        while (persons.next()) {
+            if (userName.equals(persons.getString("username")) && pass.equals(persons.getString("pass"))) {
                 return false;
             }
         }
@@ -196,7 +176,7 @@ public class Generator implements IPersonUIDGenerator, IUsernameAndPassGenerator
 
     @Override
     public int generateOTP() {
-        return random.nextInt(100000,1000000) ;
+        return random.nextInt(IOTPGenerator.OTP_ORIGIN, IOTPGenerator.OTP_BOUND);
     }
 
 }

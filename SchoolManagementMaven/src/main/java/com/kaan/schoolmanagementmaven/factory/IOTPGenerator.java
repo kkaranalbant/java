@@ -9,5 +9,7 @@ package com.kaan.schoolmanagementmaven.factory;
  * @author kaan
  */
 public interface IOTPGenerator {
+    int OTP_ORIGIN = 100000 ;
+    int OTP_BOUND = 1000000 ;
     int generateOTP () ;
 }

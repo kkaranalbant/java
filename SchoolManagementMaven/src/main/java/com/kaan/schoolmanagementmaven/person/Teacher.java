@@ -20,7 +20,9 @@ import com.kaan.schoolmanagementmaven.dataaccess.query.ExamNoteQueries;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IExamNoteGettingQueries;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IExamNoteSettingQueries;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonFetchingQuery;
+import com.kaan.schoolmanagementmaven.dataaccess.query.ITeacherInformationQueries;
 import com.kaan.schoolmanagementmaven.dataaccess.query.LessonFetchingQuery;
+import com.kaan.schoolmanagementmaven.dataaccess.query.PersonInformationQuery;
 import com.kaan.schoolmanagementmaven.exception.InvalidExamNoteException;
 import com.kaan.schoolmanagementmaven.exception.InvalidStudentUIDException;
 import com.kaan.schoolmanagementmaven.log.ILogManager;
@@ -32,8 +34,8 @@ import com.kaan.schoolmanagementmaven.log.LogManager;
  */
 public class Teacher extends Person {
 
-    private static ILogManager logManager ;
-    private static Optional <ILogManager> optinalLogManager ;
+    private static ILogManager logManager;
+    private static Optional<ILogManager> optinalLogManager;
     private ILessonCourseQuery lessonCourseQuery;
     private IPersonFetchingQueries personFetcher;
     private int salary;
@@ -41,13 +43,14 @@ public class Teacher extends Person {
     private IExamNoteSettingQueries examSetter;
     private IExamNoteGettingQueries examGetter;
     private ILessonFetchingQuery lessonFetcher;
-    
+    private ITeacherInformationQueries teacherInfo ;
+
     static {
         optinalLogManager = Optional.ofNullable(logManager);
     }
 
-    public Teacher(String userName, String pass, String name, String lastName, int uid, int balance, Lesson branch, int salary , String phoneNumber) throws SQLException {
-        super(userName, pass, name, lastName, uid, balance , phoneNumber);
+    public Teacher(String userName, String pass, String name, String lastName, int uid, int balance, Lesson branch, int salary, String phoneNumber) throws SQLException {
+        super(userName, pass, name, lastName, uid, balance, phoneNumber);
         this.branch = branch;
         this.salary = salary;
         lessonCourseQuery = LessonCourseQuery.getInstance();
@@ -55,72 +58,65 @@ public class Teacher extends Person {
         examSetter = ExamNoteQueries.getInstanceForSettingQueries();
         examGetter = ExamNoteQueries.getInstanceForGettingQueries();
         lessonFetcher = LessonFetchingQuery.getInstance();
+        teacherInfo = PersonInformationQuery.getInstanceForTeacher() ;
     }
 
     public List<String> showStudentList() throws SQLException {
-        List<String> result = new ArrayList();
+        List<String> studentList = new ArrayList();
         int teacherUID = personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName());
-        List<ResultSet> resultSetListForNormalStudent = lessonCourseQuery.getAllNormalStudentInfo(teacherUID);
-        List<ResultSet> resultSetListForWorkingStudent = lessonCourseQuery.getAllWorkingStudentInfo(teacherUID);
-        for (ResultSet resultSet : resultSetListForNormalStudent) {
-            while (resultSet.next()) {
-                result.add(resultSet.getString("name") + "\n" + resultSet.getString("last_name") + "\n" + resultSet.getInt(("UID")));
+        List<ResultSet> normalStudentsOfTeacher = lessonCourseQuery.getAllNormalStudentInfo(teacherUID);
+        List<ResultSet> workingStudentsOfTeacher = lessonCourseQuery.getAllWorkingStudentInfo(teacherUID);
+        addStudentList(normalStudentsOfTeacher, studentList);
+        addStudentList(workingStudentsOfTeacher, studentList);
+        return studentList;
+    }
+
+    private void addStudentList(List<ResultSet> studentsOfTeacher, List<String> studentList) throws SQLException {
+        for (ResultSet student : studentsOfTeacher) {
+            while (student.next()) {
+                String studentName = student.getString("name");
+                String studentLastname = student.getString("last_name");
+                int studentUID = student.getInt("UID");
+                studentList.add(studentName + "\n" + studentLastname + "\n" + studentUID + "\n");
             }
         }
-        for (ResultSet resultSet : resultSetListForWorkingStudent) {
-            while (resultSet.next()) {
-                result.add(resultSet.getString("name") + "\n" + resultSet.getString("last_name") + "\n" + resultSet.getInt(("UID")));
-            }
-        }
-        return result;
     }
 
     public void enterMidtermNote(int studentUID, int value) throws InvalidExamNoteException, InvalidStudentUIDException, SQLException {
-        if (value < 0) {
-            throw new InvalidExamNoteException();
-        }
+        throwExceptionIfInvalidExamNote(value);
         int teacherUID = personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName());
-        List<Integer> normalStudentList = lessonCourseQuery.getAllNormalStudentUID(teacherUID);
-        List<Integer> workingStudentList = lessonCourseQuery.getAllWorkingStudentUID(teacherUID);
-        int lessonUID = lessonFetcher.getBranchId(teacherUID);
-        for (int currentStudentUID : normalStudentList) {
-            if (currentStudentUID == studentUID) {
-                examSetter.setMidtermNote(studentUID, lessonUID, value);
-                setAverage(studentUID, lessonUID);
-                return;
-            }
-        }
-        for (int currentStudentUID : workingStudentList) {
-            if (currentStudentUID == studentUID) {
-                examSetter.setMidtermNote(studentUID, lessonUID, value);
-                setAverage(studentUID, lessonUID);
-                return;
-            }
-        }
-        throw new InvalidStudentUIDException();
+        throwExceptionIfNotTeachersStudent(studentUID, teacherUID);
+        int lessonUID = teacherInfo.getBranchId(teacherUID);
+        examSetter.setMidtermNote(studentUID, lessonUID, value);
     }
 
     public void enterFinalNote(int studentUID, int value) throws InvalidExamNoteException, InvalidStudentUIDException, SQLException {
-        if (value < 0) {
+        throwExceptionIfInvalidExamNote(value);
+        int teacherUID = personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName());
+        throwExceptionIfNotTeachersStudent(studentUID, teacherUID);
+        int lessonUID = teacherInfo.getBranchId(teacherUID);
+        examSetter.setFinalNote(studentUID, lessonUID, value);
+    }
+
+    private void throwExceptionIfInvalidExamNote(int note) throws InvalidExamNoteException {
+        if (note < 0) {
             throw new InvalidExamNoteException();
         }
-        int teacherUID = personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName());
-        int lessonUID = lessonFetcher.getBranchId(teacherUID);
-        List<Integer> normalStudentList = lessonCourseQuery.getAllNormalStudentUID(teacherUID);
-        List<Integer> workingStudentList = lessonCourseQuery.getAllWorkingStudentUID(teacherUID);
-        for (int currentStudentUID : normalStudentList) {
-            if (currentStudentUID == studentUID) {
-                examSetter.setFinalNote(studentUID, lessonUID, value);
-                return;
+    }
+
+    private void throwExceptionIfNotTeachersStudent(int studentUID , int teacherUID) throws InvalidStudentUIDException , SQLException{
+        List<Integer> normalStudentUIDs = lessonCourseQuery.getAllNormalStudentUID(teacherUID) ;
+        List<Integer> workingStudentUIDs = lessonCourseQuery.getAllWorkingStudentUID(teacherUID);
+        if (!(isInStudentUIDList(studentUID, normalStudentUIDs) || isInStudentUIDList(studentUID, workingStudentUIDs))) throw new InvalidStudentUIDException () ;
+    }
+
+    private boolean isInStudentUIDList(int uid, List<Integer> studentUIDs) {
+        for (int studentUID : studentUIDs) {
+            if (uid == studentUID) {
+                return true;
             }
         }
-        for (int currentStudentUID : workingStudentList) {
-            if (currentStudentUID == studentUID) {
-                examSetter.setFinalNote(studentUID, lessonUID, value);
-                return;
-            }
-        }
-        throw new InvalidStudentUIDException();
+        return false;
     }
 
     int setAverage(int studentUID, int lessonUID) throws SQLException {
@@ -129,30 +125,29 @@ public class Teacher extends Person {
             int finalValue = examGetter.getNormalStudentFinalValues(studentUID, lessonUID);
             int midtermRate = lessonFetcher.getLessonAverageMidtermRate(lessonUID);
             int finalRate = lessonFetcher.getLessonAverageFinalRate(lessonUID);
-            int result = (int) ((((float)midtermRate / 100)) * midterm + (((float)finalRate / 100)) * finalValue);
+            int result = (int) ((((float) midtermRate / 100)) * midterm + (((float) finalRate / 100)) * finalValue);
             examSetter.setAverage(studentUID, lessonUID, result);
-            return result ;
+            return result;
         }
         midterm = examGetter.getWorkingStudentMidtermValues(studentUID, lessonUID);
         int finalValue = examGetter.getWorkingStudentFinalValues(studentUID, lessonUID);
         int midtermRate = lessonFetcher.getLessonAverageMidtermRate(lessonUID);
         int finalRate = lessonFetcher.getLessonAverageFinalRate(lessonUID);
-        int result = (int) ((((float)midtermRate / 100)) * midterm + (((float)finalRate / 100)) * finalValue);
+        int result = (int) ((((float) midtermRate / 100)) * midterm + (((float) finalRate / 100)) * finalValue);
         examSetter.setAverage(studentUID, lessonUID, result);
-        return result ;
+        return result;
     }
-    
-    public static ILogManager getLogManager () {
-        return Teacher.logManager ;
+
+    public static ILogManager getLogManager() {
+        return Teacher.logManager;
     }
-    
-    public static void setLogManager (File logFile) throws IOException{
-        Teacher.logManager = new LogManager (logFile) ;
+
+    public static void setLogManager(File logFile) throws IOException {
+        Teacher.logManager = new LogManager(logFile);
     }
 
     public static Optional<ILogManager> getOptinalLogManager() {
         return optinalLogManager;
     }
-    
-    
+
 }

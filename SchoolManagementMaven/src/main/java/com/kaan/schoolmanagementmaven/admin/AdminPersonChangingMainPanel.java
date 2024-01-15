@@ -147,8 +147,8 @@ public class AdminPersonChangingMainPanel extends javax.swing.JFrame {
 
     private void showAllStudentInfoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showAllStudentInfoButtonActionPerformed
         try {
-            String infoNormalStudent = studentInfo.normalStudentInfo();
-            String infoWorkingStudent = studentInfo.workingStudentInfo();
+            String infoNormalStudent = studentInfo.getNormalStudentInfo();
+            String infoWorkingStudent = studentInfo.getWorkingStudentInfo();
             JOptionPane.showMessageDialog(null, infoNormalStudent + "\n\n" + infoWorkingStudent);
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -199,7 +199,7 @@ public class AdminPersonChangingMainPanel extends javax.swing.JFrame {
 
     private void teacherInfoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_teacherInfoButtonActionPerformed
         try {
-            String result = teacherInfo.teacherInfo();
+            String result = teacherInfo.getTeacherInfo();
             JOptionPane.showMessageDialog(null, result);
         }
         catch (SQLException ex) {

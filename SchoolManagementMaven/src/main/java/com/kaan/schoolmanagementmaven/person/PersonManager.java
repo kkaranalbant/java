@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonCourseQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IPersonCreatingQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IPersonDeletingQuery;
@@ -59,22 +58,33 @@ import com.kaan.schoolmanagementmaven.sms.MessageSendingManager;
  */
 public class PersonManager implements IPersonCreatorManager, IPersonDeletingManager, IPersonChangingManager, IStudentConvertingManager, IPersonSMSManager {
 
-    private IPersonLoginQueries personLoginQuery;
     private static PersonManager personManager;
-    private IPersonFetchingQueries personFetchingQuery;
-    private ILessonFetchingQuery lessonFetchingQuery;
     private IPersonFactory personFactory;
-    private IUsernameAndPassGenerator usernameAndPassGen;
-    private IPersonUIDGenerator uidGen;
-    private IOTPGenerator otpGen;
-    private IPersonValidationQueries personValidation;
+    private IPersonFetchingQueries personFetchingQuery;
     private IPersonCreatingQuery personCreatingQuery;
     private IPersonDeletingQuery personDeletingQuery;
+    private IPersonConvertingQuery converter;
+
+    private IPersonLoginQueries personLoginQuery;
+    private IUsernameAndPassGenerator usernameAndPassGen;
+    private IPersonUIDGenerator uidGen;
+    private IPersonValidationQueries personValidation;
+
     private IStudentValueChangingQueries studentChangingQuery;
     private ITeacherValueChangingQueries teacherChangingQuery;
-    private IPersonConvertingQuery converter;
+
     private ILessonCourseQuery lessonCourseQuery;
+    private ILessonFetchingQuery lessonFetchingQuery;
+
     private IMessageSendingManager messageSender;
+    private IOTPGenerator otpGen;
+
+    private static final int INVALID_UID_NUMBER;
+
+    static {
+        personManager = null;
+        INVALID_UID_NUMBER = -1;
+    }
 
     private PersonManager() throws SQLException {
         personLoginQuery = PersonLoginQueries.getInstance();
@@ -117,137 +127,109 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
 
     @Override
     public Student createNormalStudent(String userName, String pass) throws SQLException, InvalidUserNameOrPassException {
-        int uid = getUIDIfValidUserNameAndPassForNormalStudent(userName, pass);
-        if (uid != -1) {
-            return personFactory.createNormalStudentWhichExistsInDb(userName, pass, uid);
-        } else {
-            throw new InvalidUserNameOrPassException();
-        }
-    }
-
-    private int getUIDIfValidUserNameAndPassForNormalStudent(String userName, String pass) throws SQLException {
-        ResultSet resultSet = personLoginQuery.getAllNormalStudentUserNameAndPassword();
-        while (resultSet.next()) {
-            String currentUserName = resultSet.getString("username");
-            String currentPass = resultSet.getString("pass");
-            if (currentUserName.equals(userName) && currentPass.equals(pass)) {
-                return resultSet.getInt("normal_student_UID");
-            }
-        }
-        return -1;
+        int uid = getUIDOfNormalStudent(userName, pass);
+        throwExceptionIfInvalidUID(uid);
+        return personFactory.createNormalStudentWhichExistsInDb(userName, pass, uid);
     }
 
     @Override
     public WorkingStudent createWorkingStudent(String userName, String pass) throws SQLException, InvalidUserNameOrPassException {
-        int uid = getUIDIfValidUserNameAndPassForWorkingStudent(userName, pass);
-        if (uid != -1) {
-            return personFactory.createWorkingStudentWhichExistsInDb(userName, pass, uid);
-        } else {
-            throw new InvalidUserNameOrPassException();
-        }
-    }
-
-    private int getUIDIfValidUserNameAndPassForWorkingStudent(String userName, String pass) throws SQLException {
-        ResultSet resultSet = personLoginQuery.getAllWorkingStudentUserNameAndPassword();
-        while (resultSet.next()) {
-            String currentUserName = resultSet.getString("username");
-            String currentPass = resultSet.getString("pass");
-            if (currentUserName.equals(userName) && currentPass.equals(pass)) {
-                return resultSet.getInt("working_student_UID");
-            }
-        }
-        return -1;
+        int uid = getUIDOfWorkingStudent(userName, pass);
+        throwExceptionIfInvalidUID(uid);
+        return personFactory.createWorkingStudentWhichExistsInDb(userName, pass, uid);
     }
 
     @Override
     public Teacher createTeacher(String userName, String pass) throws SQLException, InvalidUserNameOrPassException {
-        int uid = getUIDIfValidUserNameAndPassForTeacher(userName, pass);
-        if (uid != -1) {
-            return personFactory.createTeacherWhichExistsInDb(userName, pass, uid);
-        } else {
+        int uid = getUIDOfTeacher(userName, pass);
+        throwExceptionIfInvalidUID(uid);
+        return personFactory.createTeacherWhichExistsInDb(userName, pass, uid);
+    }
+
+    private void throwExceptionIfInvalidUID(int uid) {
+        if (uid == INVALID_UID_NUMBER) {
             throw new InvalidUserNameOrPassException();
         }
     }
 
-    private int getUIDIfValidUserNameAndPassForTeacher(String userName, String pass) throws SQLException {
-        ResultSet resultSet = personLoginQuery.getAllTeacherUserNameAndPassword();
-        while (resultSet.next()) {
-            String currentUserName = resultSet.getString("username");
-            String currentPass = resultSet.getString("pass");
+    private int getUIDOfNormalStudent(String userName, String pass) throws SQLException {
+        ResultSet normalStudentLoginInfos = personLoginQuery.getAllNormalStudentUserNameAndPassword();
+        return getUIDOfPerson(normalStudentLoginInfos, userName, pass, "normal_student_UID");
+    }
+
+    private int getUIDOfWorkingStudent(String userName, String pass) throws SQLException {
+        ResultSet workingStudentLoginInfos = personLoginQuery.getAllWorkingStudentUserNameAndPassword();
+        return getUIDOfPerson(workingStudentLoginInfos, userName, pass, "working_student_UID");
+    }
+
+    private int getUIDOfTeacher(String userName, String pass) throws SQLException {
+        ResultSet teacherLoginInfos = personLoginQuery.getAllTeacherUserNameAndPassword();
+        return getUIDOfPerson(teacherLoginInfos, userName, pass, "teacher_UID");
+    }
+
+    private int getUIDOfPerson(ResultSet personLoginInfos, String userName, String pass, String column) throws SQLException {
+        while (personLoginInfos.next()) {
+            String currentUserName = personLoginInfos.getString("username");
+            String currentPass = personLoginInfos.getString("pass");
             if (currentUserName.equals(userName) && currentPass.equals(pass)) {
-                return resultSet.getInt("teacher_UID");
+                return personLoginInfos.getInt(column);
             }
         }
-        return -1;
+        return INVALID_UID_NUMBER;
     }
 
     @Override
-    public Map<String, String> createNewNormalStudent(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException {
-        ResultSet resultSetForNormalStudent = personValidation.getAllNormalStudentNameAndLastname();
-        ResultSet resultSetForWorkingStudent = personValidation.getAllWorkingStudentNameAndLastname();
-        ResultSet resultSetForTeacher = personValidation.getAllTeacherNameAndLastname();
-        if (!phoneNumberValidation(phoneNumber)) {
-            throw new NotUniquePhoneNumberException();
-        }
-        if (isUniqueNameAndLastname(resultSetForTeacher, name, lastName) && isUniqueNameAndLastname(resultSetForNormalStudent, name, lastName) && isUniqueNameAndLastname(resultSetForWorkingStudent, name, lastName)) {
-            Map<String, String> usernameAndPass = usernameAndPassGen.generateUsernameAndPass();
-            String userName = null, pass = null;
-            for (Entry<String, String> entrySet : usernameAndPass.entrySet()) {
-                userName = entrySet.getKey();
-                pass = entrySet.getValue();
-            }
-            int uid = uidGen.generateUIDForNormalStudent();
-            personCreatingQuery.createNormalStudentInDb(name, lastName, userName, pass, uid, phoneNumber);
-            return usernameAndPass;
-        } else {
-            throw new NotUniqueNameAndLastnameException();
-        }
+    public Map<String, String> createNewNormalStudentAndReturnLoginInfo(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException {
+        phoneNumberControl(phoneNumber);
+        throwExceptionIfNotUniqueNameAndLastname(name, lastName);
+        Map<String, String> usernameAndPass = usernameAndPassGen.generateUsernameAndPass();
+        String userName = extractUsernameFromMap(usernameAndPass);
+        String pass = extractPasswordFromMap(usernameAndPass);
+        int uid = uidGen.generateUIDForNormalStudent();
+        personCreatingQuery.createNormalStudentInDb(name, lastName, userName, pass, uid, phoneNumber);
+        return usernameAndPass;
+
     }
 
     @Override
-    public Map<String, String> createNewWorkingStudent(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException {
-        ResultSet resultSetForNormalStudent = personValidation.getAllNormalStudentNameAndLastname();
-        ResultSet resultSetForWorkingStudent = personValidation.getAllWorkingStudentNameAndLastname();
-        ResultSet resultSetForTeacher = personValidation.getAllTeacherNameAndLastname();
-        if (!phoneNumberValidation(phoneNumber)) {
-            throw new NotUniquePhoneNumberException();
-        }
-        if (isUniqueNameAndLastname(resultSetForTeacher, name, lastName) && isUniqueNameAndLastname(resultSetForNormalStudent, name, lastName) && isUniqueNameAndLastname(resultSetForWorkingStudent, name, lastName)) {
-            Map<String, String> usernameAndPass = usernameAndPassGen.generateUsernameAndPass();
-            String userName = null, pass = null;
-            for (Entry<String, String> entrySet : usernameAndPass.entrySet()) {
-                userName = entrySet.getKey();
-                pass = entrySet.getValue();
-            }
-            int uid = uidGen.generateUIDForWorkingStudent();
-            personCreatingQuery.createWorkingStudentIndDb(name, lastName, userName, pass, uid, phoneNumber);
-            return usernameAndPass;
-        } else {
-            throw new NotUniqueNameAndLastnameException();
-        }
+    public Map<String, String> createNewWorkingStudentAndReturnLoginInfo(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException {
+        phoneNumberControl(phoneNumber);
+        throwExceptionIfNotUniqueNameAndLastname(name, lastName);
+        Map<String, String> usernameAndPass = usernameAndPassGen.generateUsernameAndPass();
+        String userName = extractUsernameFromMap(usernameAndPass);
+        String pass = extractPasswordFromMap(usernameAndPass);
+        int uid = uidGen.generateUIDForWorkingStudent();
+        personCreatingQuery.createWorkingStudentIndDb(name, lastName, userName, pass, uid, phoneNumber);
+        return usernameAndPass;
     }
 
     @Override
-    public Map<String, String> createNewTeacher(String name, String lastName, String branchName, int salary, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException {
-        ResultSet resultSetForNormalStudent = personValidation.getAllNormalStudentNameAndLastname();
-        ResultSet resultSetForWorkingStudent = personValidation.getAllWorkingStudentNameAndLastname();
-        ResultSet resultSetForTeacher = personValidation.getAllTeacherNameAndLastname();
-        if (!phoneNumberValidation(phoneNumber)) {
-            throw new NotUniquePhoneNumberException();
+    public Map<String, String> createNewTeacherAndReturnLoginInfo(String name, String lastName, String branchName, int salary, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException, InvalidPhoneCountryCodeException, InvalidPhoneNumberLengthException {
+        phoneNumberControl(phoneNumber);
+        throwExceptionIfNotUniqueNameAndLastname(name, lastName);
+        Map<String, String> usernameAndPass = usernameAndPassGen.generateUsernameAndPass();
+        String userName = extractUsernameFromMap(usernameAndPass);
+        String pass = extractPasswordFromMap(usernameAndPass);
+        int uid = uidGen.generateUIDForTeacher();
+        personCreatingQuery.createTeacherInDb(name, lastName, userName, pass, uid, branchName, salary, phoneNumber);
+        return usernameAndPass;
+
+    }
+
+    private String extractUsernameFromMap(Map<String, String> userNameAndPass) {
+        String userName = null;
+        for (Map.Entry<String, String> userNameAndPassEntry : userNameAndPass.entrySet()) {
+            userName = userNameAndPassEntry.getKey();
         }
-        if (isUniqueNameAndLastname(resultSetForTeacher, name, lastName) && isUniqueNameAndLastname(resultSetForNormalStudent, name, lastName) && isUniqueNameAndLastname(resultSetForWorkingStudent, name, lastName)) {
-            Map<String, String> usernameAndPass = usernameAndPassGen.generateUsernameAndPass();
-            String userName = null, pass = null;
-            for (Entry<String, String> entrySet : usernameAndPass.entrySet()) {
-                userName = entrySet.getKey();
-                pass = entrySet.getValue();
-            }
-            int uid = uidGen.generateUIDForTeacher();
-            personCreatingQuery.createTeacherInDb(name, lastName, userName, pass, uid, branchName, salary, phoneNumber);
-            return usernameAndPass;
-        } else {
-            throw new NotUniqueNameAndLastnameException();
+        return userName;
+    }
+
+    private String extractPasswordFromMap(Map<String, String> userNameAndPass) {
+        String pass = null;
+        for (Map.Entry<String, String> userNameAndPassEntry : userNameAndPass.entrySet()) {
+            pass = userNameAndPassEntry.getValue();
         }
+        return pass;
     }
 
     @Override
@@ -267,6 +249,21 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
 
     }
 
+    private void throwExceptionIfNotUniqueNameAndLastname(String name, String lastName) throws NotUniqueNameAndLastnameException, SQLException {
+        ResultSet normalStudentNamesAndLastnames = personValidation.getAllNormalStudentNameAndLastname();
+        ResultSet workingStudentNamesAndLastnames = personValidation.getAllWorkingStudentNameAndLastname();
+        ResultSet teacherStudentNamesAndLastnames = personValidation.getAllTeacherNameAndLastname();
+
+        boolean isUniqueForNormalStudent = isUniqueNameAndLastname(normalStudentNamesAndLastnames, name, lastName);
+        boolean isUniqueForWorkingStudent = isUniqueNameAndLastname(workingStudentNamesAndLastnames, name, lastName);
+        boolean isUniqueForTeacher = isUniqueNameAndLastname(teacherStudentNamesAndLastnames, name, lastName);
+
+        if (!(isUniqueForNormalStudent && isUniqueForWorkingStudent && isUniqueForTeacher)) {
+            throw new NotUniqueNameAndLastnameException();
+        }
+
+    }
+
     private boolean isUniquePhoneNumber(ResultSet resultSet, String phoneNumber) throws SQLException {
         while (resultSet.next()) {
             if (resultSet.getString("phone_number").equals(phoneNumber)) {
@@ -278,358 +275,245 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
 
     @Override
     public void changeNormalStudentNameWithUID(int uid, String newName) throws SQLException, NotUniqueNameAndLastnameException {
-        ResultSet resultSet = personFetchingQuery.getNormalStudentInfo(uid);
-        String lastName = null;
-        while (resultSet.next()) {
-            lastName = resultSet.getString("name");
-        }
-        if (lastName == null) {
-            return;
-        }
-        ResultSet resultSetForNormalStudent = personValidation.getAllNormalStudentNameAndLastname();
-        ResultSet resultSetForWorkingStudent = personValidation.getAllWorkingStudentNameAndLastname();
-        ResultSet resultSetForTeacher = personValidation.getAllTeacherNameAndLastname();
-        if (isUniqueNameAndLastname(resultSetForNormalStudent, newName, lastName) && isUniqueNameAndLastname(resultSetForWorkingStudent, newName, lastName) && isUniqueNameAndLastname(resultSetForTeacher, newName, lastName)) {
-            studentChangingQuery.changeNormalStudentName(uid, newName);
-        } else {
-            throw new NotUniqueNameAndLastnameException();
-        }
+        ResultSet normalStudent = personFetchingQuery.getNormalStudentInfo(uid);
+        String lastName = getPersonAttributeString(normalStudent, "lastname");
+        throwExceptionIfNotUniqueNameAndLastname(newName, lastName);
+        studentChangingQuery.changeNormalStudentName(uid, newName);
+    }
+
+    @Override
+    public void changeWorkingStudentNameWithUID(int uid, String newName) throws SQLException, NotUniqueNameAndLastnameException {
+        ResultSet workingStudent = personFetchingQuery.getWorkingStudentInfo(uid);
+        String lastName = getPersonAttributeString(workingStudent, "lastname");
+        throwExceptionIfNotUniqueNameAndLastname(newName, lastName);
+        studentChangingQuery.changeWorkingStudentName(uid, newName);
+    }
+
+    @Override
+    public void changeTeacherNameWithUID(int uid, String newName) throws SQLException, NotUniqueNameAndLastnameException {
+        ResultSet teacher = personFetchingQuery.getTeacherInfo(uid);
+        String lastName = getPersonAttributeString(teacher, "lastname");
+        throwExceptionIfNotUniqueNameAndLastname(newName, lastName);
+        teacherChangingQuery.changeTeacherName(uid, newName);
     }
 
     @Override
     public void changeNormalStudentLastnameWithUID(int uid, String newLastname) throws SQLException, NotUniqueNameAndLastnameException {
-        ResultSet resultSet = personFetchingQuery.getNormalStudentInfo(uid);
-        String name = null;
-        while (resultSet.next()) {
-            name = resultSet.getString("name");
-        }
-        if (name == null) {
-            return;
-        }
-        ResultSet resultSetForNormalStudent = personValidation.getAllNormalStudentNameAndLastname();
-        ResultSet resultSetForWorkingStudent = personValidation.getAllWorkingStudentNameAndLastname();
-        ResultSet resultSetForTeacher = personValidation.getAllTeacherNameAndLastname();
-        if (isUniqueNameAndLastname(resultSetForNormalStudent, name, newLastname) && isUniqueNameAndLastname(resultSetForWorkingStudent, name, newLastname) && isUniqueNameAndLastname(resultSetForTeacher, name, newLastname)) {
-            studentChangingQuery.changeNormalStudentLastname(uid, newLastname);
-        } else {
-            throw new NotUniqueNameAndLastnameException();
-        }
+        ResultSet normalStudent = personFetchingQuery.getNormalStudentInfo(uid);
+        String name = getPersonAttributeString(normalStudent, "name");
+        throwExceptionIfNotUniqueNameAndLastname(name, newLastname);
+        studentChangingQuery.changeNormalStudentLastname(uid, newLastname);
+
     }
 
     @Override
-    public void changeNormalStudentBalanceWithUID(int uid, int newBalance) throws SQLException, InvalidBalanceException {
-        if (newBalance < 0) {
-            throw new InvalidBalanceException();
-        }
-        studentChangingQuery.changeNormalStudentBalance(uid, newBalance);
+    public void changeWorkingStudentLastnameWithUID(int uid, String newLastname) throws SQLException, NotUniqueNameAndLastnameException {
+        ResultSet workingStudent = personFetchingQuery.getWorkingStudentInfo(uid);
+        String name = getPersonAttributeString(workingStudent, "name");
+        throwExceptionIfNotUniqueNameAndLastname(name, newLastname);
+        studentChangingQuery.changeWorkingStudentLastname(uid, newLastname);
+    }
+
+    @Override
+    public void changeTeacherLastnameWithUID(int uid, String newLastname) throws SQLException, NotUniqueNameAndLastnameException {
+        ResultSet teacher = personFetchingQuery.getTeacherInfo(uid);
+        String name = getPersonAttributeString(teacher, "name");
+        throwExceptionIfNotUniqueNameAndLastname(name, newLastname);
+        teacherChangingQuery.changeTeacherLastname(uid, newLastname);
+    }
+
+    private String getPersonAttributeString(ResultSet person, String column) throws SQLException {
+        person.next();
+        return person.getString(column);
     }
 
     @Override
     public void changeNormalStudentUserNameWithUID(int uid, String newUserName) throws SQLException, NotUniqueUsernameAndPassException, InvalidUsernameLengthException {
-        if (newUserName.length() < 8) {
-            throw new InvalidUsernameLengthException();
-        }
+        throwExceptionIfInvalidUsernameLength(newUserName);
         String pass = personLoginQuery.getNormalStudentPassByUID(uid);
-        if (pass == null) {
-            return;
-        }
-        if (isUniqueUserNameAndPassword(newUserName, pass)) {
-            studentChangingQuery.changeNormalStudentUsername(uid, newUserName);
-        } else {
-            throw new NotUniqueUsernameAndPassException();
+        throwExceptionIfNotUniqueUsernameAndPassword(newUserName, pass);
+        studentChangingQuery.changeNormalStudentUsername(uid, newUserName);
+    }
+
+    @Override
+    public void changeWorkingStudentUserNameWithUID(int uid, String newUserName) throws SQLException, NotUniqueUsernameAndPassException, InvalidUsernameLengthException {
+        throwExceptionIfInvalidUsernameLength(newUserName);
+        String pass = personLoginQuery.getWorkingStudentPassByUID(uid);
+        throwExceptionIfNotUniqueUsernameAndPassword(newUserName, pass);
+        studentChangingQuery.changeWorkingStudentUsername(uid, newUserName);
+    }
+
+    @Override
+    public void changeTeacherUserNameWithUID(int uid, String newUserName) throws SQLException, NotUniqueUsernameAndPassException, InvalidUsernameLengthException {
+        throwExceptionIfInvalidUsernameLength(newUserName);
+        String pass = personLoginQuery.getTeacherPassByUID(uid);
+        throwExceptionIfNotUniqueUsernameAndPassword(newUserName, pass);
+        teacherChangingQuery.changeTeacherUsername(uid, newUserName);
+    }
+
+    private void throwExceptionIfInvalidUsernameLength(String userName) {
+        if (userName.length() < 8) {
+            throw new InvalidUsernameLengthException();
         }
     }
 
     @Override
     public void changeNormalStudentPassWithUID(int uid, String newPass) throws SQLException, NotUniqueUsernameAndPassException, InvalidPassLengthException {
-        if (newPass.length() < 8) {
-            throw new InvalidPassLengthException();
-        }
+        throwExceptionIfInvalidPasswordLength(newPass);
         String userName = personLoginQuery.getNormalStudentUsernameByUID(uid);
-        if (userName == null) {
-            return;
-        }
-        if (isUniqueUserNameAndPassword(userName, newPass)) {
-            studentChangingQuery.changeNormalStudentPass(uid, newPass);
-        } else {
-            throw new NotUniqueUsernameAndPassException();
-        }
+        throwExceptionIfNotUniqueUsernameAndPassword(userName, newPass);
+        studentChangingQuery.changeNormalStudentPass(uid, newPass);
     }
 
     @Override
-    public void changeWorkingStudentNameWithUID(int uid, String newName) throws SQLException, NotUniqueNameAndLastnameException {
-        ResultSet resultSet = personFetchingQuery.getWorkingStudentInfo(uid);
-        String lastName = null;
-        while (resultSet.next()) {
-            lastName = resultSet.getString("last_name");
-        }
-        if (lastName == null) {
-            return;
-        }
-        ResultSet resultSetForNormalStudent = personValidation.getAllNormalStudentNameAndLastname();
-        ResultSet resultSetForWorkingStudent = personValidation.getAllWorkingStudentNameAndLastname();
-        ResultSet resultSetForTeacher = personValidation.getAllTeacherNameAndLastname();
-        if (isUniqueNameAndLastname(resultSetForNormalStudent, newName, lastName) && isUniqueNameAndLastname(resultSetForWorkingStudent, newName, lastName) && isUniqueNameAndLastname(resultSetForTeacher, newName, lastName)) {
-            studentChangingQuery.changeWorkingStudentName(uid, newName);
-        } else {
-            throw new NotUniqueNameAndLastnameException();
-        }
+    public void changeWorkingStudentPassWithUID(int uid, String newPass) throws SQLException, NotUniqueUsernameAndPassException, InvalidPassLengthException {
+        throwExceptionIfInvalidPasswordLength(newPass);
+        String userName = personLoginQuery.getWorkingStudentUsernameByUID(uid);
+        throwExceptionIfNotUniqueUsernameAndPassword(userName, newPass);
+        studentChangingQuery.changeWorkingStudentPass(uid, newPass);
     }
 
     @Override
-    public void changeTeacherNameWithUID(int uid, String newName) throws SQLException, NotUniqueNameAndLastnameException {
-        ResultSet resultSet = personFetchingQuery.getTeacherInfo(uid);
-        String lastName = null;
-        while (resultSet.next()) {
-            lastName = resultSet.getString("last_name");
-        }
-        if (lastName == null) {
-            return;
-        }
-        ResultSet resultSetForNormalStudent = personValidation.getAllNormalStudentNameAndLastname();
-        ResultSet resultSetForWorkingStudent = personValidation.getAllWorkingStudentNameAndLastname();
-        ResultSet resultSetForTeacher = personValidation.getAllTeacherNameAndLastname();
-        if (isUniqueNameAndLastname(resultSetForNormalStudent, newName, lastName) && isUniqueNameAndLastname(resultSetForWorkingStudent, newName, lastName) && isUniqueNameAndLastname(resultSetForTeacher, newName, lastName)) {
-            teacherChangingQuery.changeTeacherName(uid, newName);
-        } else {
-            throw new NotUniqueNameAndLastnameException();
-        }
+    public void changeTeacherPassWithUID(int uid, String newPass) throws SQLException, NotUniqueUsernameAndPassException {
+        throwExceptionIfInvalidPasswordLength(newPass);
+        String userName = personLoginQuery.getTeacherUsernameByUID(uid);
+        throwExceptionIfNotUniqueUsernameAndPassword(userName, newPass);
+        teacherChangingQuery.changeTeacherPass(uid, newPass);
     }
 
-    @Override
-    public void changeWorkingStudentLastnameWithUID(int uid, String newLastname) throws SQLException, NotUniqueNameAndLastnameException {
-        ResultSet resultSet = personFetchingQuery.getWorkingStudentInfo(uid);
-        String name = null;
-        while (resultSet.next()) {
-            name = resultSet.getString("name");
-        }
-        if (name == null) {
-            return;
-        }
-        ResultSet resultSetForNormalStudent = personValidation.getAllNormalStudentNameAndLastname();
-        ResultSet resultSetForWorkingStudent = personValidation.getAllWorkingStudentNameAndLastname();
-        ResultSet resultSetForTeacher = personValidation.getAllTeacherNameAndLastname();
-        if (isUniqueNameAndLastname(resultSetForNormalStudent, name, newLastname) && isUniqueNameAndLastname(resultSetForWorkingStudent, name, newLastname) && isUniqueNameAndLastname(resultSetForTeacher, name, newLastname)) {
-            studentChangingQuery.changeWorkingStudentLastname(uid, newLastname);
-        } else {
-            throw new NotUniqueNameAndLastnameException();
-        }
-    }
-
-    @Override
-    public void changeTeacherLastnameWithUID(int uid, String newLastname) throws SQLException, NotUniqueNameAndLastnameException {
-        ResultSet resultSet = personFetchingQuery.getTeacherInfo(uid);
-        String name = null;
-        while (resultSet.next()) {
-            name = resultSet.getString("name");
-        }
-        if (name == null) {
-            return;
-        }
-        ResultSet resultSetForNormalStudent = personValidation.getAllNormalStudentNameAndLastname();
-        ResultSet resultSetForWorkingStudent = personValidation.getAllWorkingStudentNameAndLastname();
-        ResultSet resultSetForTeacher = personValidation.getAllTeacherNameAndLastname();
-        if (isUniqueNameAndLastname(resultSetForNormalStudent, name, newLastname) && isUniqueNameAndLastname(resultSetForWorkingStudent, name, newLastname) && isUniqueNameAndLastname(resultSetForTeacher, name, newLastname)) {
-            teacherChangingQuery.changeTeacherLastname(uid, newLastname);
-        } else {
-            throw new NotUniqueNameAndLastnameException();
-        }
-    }
-
-    @Override
-    public void changeWorkingStudentBalanceWithUID(int uid, int newBalance) throws SQLException, InvalidBalanceException {
-        if (newBalance < 0) {
-            throw new InvalidBalanceException();
-        }
-        studentChangingQuery.changeWorkingStudentBalance(uid, newBalance);
-    }
-
-    @Override
-    public void changeTeacherBalanceWithUID(int uid, int newBalance) throws SQLException, InvalidBalanceException {
-        if (newBalance < 0) {
-            throw new InvalidBalanceException();
-        }
-        teacherChangingQuery.changeTeacherBalance(uid, newBalance);
-    }
-
-    @Override
-    public void changeWorkingStudentUserNameWithUID(int uid, String newUserName) throws SQLException, NotUniqueUsernameAndPassException, InvalidUsernameLengthException {
-        if (newUserName.length() < 8) {
-            throw new InvalidUsernameLengthException();
-        }
-        String pass = personLoginQuery.getWorkingStudentPassByUID(uid);
-        if (pass == null) {
-            return;
-        }
-        if (isUniqueUserNameAndPassword(newUserName, pass)) {
-            studentChangingQuery.changeWorkingStudentUsername(uid, newUserName);
-        } else {
-            throw new NotUniqueUsernameAndPassException();
-        }
-    }
-
-    @Override
-    public void changeWorkingStudentUsernameAndPass(int uid, String newUsername, String newPass) throws SQLException, NotUniqueUsernameAndPassException, InvalidPassLengthException, InvalidUsernameLengthException {
-        if (isUniqueUserNameAndPassword(newUsername, newPass)) {
-            if (newUsername.length() < 8) {
-                throw new InvalidUsernameLengthException();
-            }
-            if (newPass.length() < 8) {
-                throw new InvalidPassLengthException();
-            }
-            studentChangingQuery.changeWorkingStudentUsername(uid, newUsername);
-            studentChangingQuery.changeWorkingStudentPass(uid, newPass);
-        } else {
-            throw new NotUniqueUsernameAndPassException();
+    private void throwExceptionIfInvalidPasswordLength(String password) {
+        if (password.length() < 8) {
+            throw new InvalidPassLengthException();
         }
     }
 
     @Override
     public void changeNormalStudentUsernameAndPass(int uid, String newUsername, String newPass) throws SQLException, NotUniqueUsernameAndPassException, InvalidPassLengthException, InvalidUsernameLengthException {
-        if (isUniqueUserNameAndPassword(newUsername, newPass)) {
-            if (newUsername.length() < 8) {
-                throw new InvalidUsernameLengthException();
-            }
-            if (newPass.length() < 8) {
-                throw new InvalidPassLengthException();
-            }
-            studentChangingQuery.changeNormalStudentUsername(uid, newUsername);
-            studentChangingQuery.changeNormalStudentPass(uid, newPass);
-        } else {
-            throw new NotUniqueUsernameAndPassException();
-        }
+        throwExceptionIfInvalidUsernameLength(newUsername);
+        throwExceptionIfInvalidPasswordLength(newPass);
+        throwExceptionIfNotUniqueUsernameAndPassword(newUsername, newPass);
+        studentChangingQuery.changeNormalStudentUsername(uid, newUsername);
+        studentChangingQuery.changeNormalStudentPass(uid, newPass);
+    }
+
+    @Override
+    public void changeWorkingStudentUsernameAndPass(int uid, String newUsername, String newPass) throws SQLException, NotUniqueUsernameAndPassException, InvalidPassLengthException, InvalidUsernameLengthException {
+        throwExceptionIfInvalidUsernameLength(newUsername);
+        throwExceptionIfInvalidPasswordLength(newPass);
+        throwExceptionIfNotUniqueUsernameAndPassword(newUsername, newPass);
+        studentChangingQuery.changeWorkingStudentUsername(uid, newUsername);
+        studentChangingQuery.changeWorkingStudentPass(uid, newPass);
     }
 
     @Override
     public void changeTeacherUsernameAndPass(int uid, String newUsername, String newPass) throws SQLException, NotUniqueUsernameAndPassException, InvalidPassLengthException, InvalidUsernameLengthException {
-        if (isUniqueUserNameAndPassword(newUsername, newPass)) {
-            if (newUsername.length() < 8) {
-                throw new InvalidUsernameLengthException();
+        throwExceptionIfInvalidUsernameLength(newUsername);
+        throwExceptionIfInvalidPasswordLength(newPass);
+        throwExceptionIfNotUniqueUsernameAndPassword(newUsername, newPass);
+        teacherChangingQuery.changeTeacherUsername(uid, newUsername);
+        teacherChangingQuery.changeTeacherPass(uid, newPass);
+    }
+
+    private boolean isUniqueUserNameAndPassword(ResultSet loginInfo, String userName, String password) throws SQLException {
+        while (loginInfo.next()) {
+            String userNameInDb = loginInfo.getString("username");
+            String passInDb = loginInfo.getString("pass");
+            if (userName.equals(userNameInDb) && password.equals(passInDb)) {
+                return false;
             }
-            if (newPass.length() < 8) {
-                throw new InvalidPassLengthException();
-            }
-            teacherChangingQuery.changeTeacherUsername(uid, newUsername);
-            teacherChangingQuery.changeTeacherPass(uid, newPass);
-        } else {
+        }
+        return true;
+    }
+
+    private void throwExceptionIfNotUniqueUsernameAndPassword(String userName, String password) throws NotUniqueUsernameAndPassException, SQLException {
+        ResultSet normalStudentLoginInfos = personLoginQuery.getAllNormalStudentUserNameAndPassword();
+        ResultSet workingStudentLoginInfos = personLoginQuery.getAllNormalStudentUserNameAndPassword();
+        ResultSet teacherLoginInfos = personLoginQuery.getAllNormalStudentUserNameAndPassword();
+
+        boolean isUniqueForNormalStudent = isUniqueUserNameAndPassword(normalStudentLoginInfos, userName, password);
+        boolean isUniqueForWorkingStudent = isUniqueUserNameAndPassword(workingStudentLoginInfos, userName, password);
+        boolean isUniqueForTeacher = isUniqueUserNameAndPassword(teacherLoginInfos, userName, password);
+
+        if (!(isUniqueForNormalStudent && isUniqueForWorkingStudent && isUniqueForTeacher)) {
             throw new NotUniqueUsernameAndPassException();
         }
     }
 
     @Override
-    public void changeTeacherUserNameWithUID(int uid, String newUserName) throws SQLException, NotUniqueUsernameAndPassException, InvalidUsernameLengthException {
-        if (newUserName.length() < 8) {
-            throw new InvalidUsernameLengthException();
-        }
-        String pass = personLoginQuery.getTeacherPassByUID(uid);
-        if (pass == null) {
-            return;
-        }
-        if (isUniqueUserNameAndPassword(newUserName, pass)) {
-            teacherChangingQuery.changeTeacherUsername(uid, newUserName);
-        } else {
-            throw new NotUniqueUsernameAndPassException();
-        }
+    public void changeNormalStudentBalanceWithUID(int uid, int newBalance) throws SQLException, InvalidBalanceException {
+        throwExceptionIfInvalidBalance(newBalance);
+        studentChangingQuery.changeNormalStudentBalance(uid, newBalance);
     }
 
     @Override
-    public void changeWorkingStudentPassWithUID(int uid, String newPass) throws SQLException, NotUniqueUsernameAndPassException, InvalidPassLengthException {
-        if (newPass.length() < 8) {
-            throw new InvalidPassLengthException();
-        }
-
-        String userName = personLoginQuery.getWorkingStudentUsernameByUID(uid);
-        if (userName == null) {
-            return;
-        }
-        if (isUniqueUserNameAndPassword(userName, newPass)) {
-            studentChangingQuery.changeWorkingStudentPass(uid, newPass);
-        } else {
-            throw new NotUniqueNameAndLastnameException();
-        }
+    public void changeWorkingStudentBalanceWithUID(int uid, int newBalance) throws SQLException, InvalidBalanceException {
+        throwExceptionIfInvalidBalance(newBalance);
+        studentChangingQuery.changeWorkingStudentBalance(uid, newBalance);
     }
 
     @Override
-    public void changeTeacherPassWithUID(int uid, String newPass) throws SQLException, NotUniqueUsernameAndPassException {
-        if (newPass.length() < 8) {
-            throw new InvalidPassLengthException();
-        }
-        String userName = personLoginQuery.getTeacherUsernameByUID(uid);
-        if (userName == null) {
-            return;
-        }
-        if (isUniqueUserNameAndPassword(userName, newPass)) {
-            studentChangingQuery.changeTeacherPass(uid, newPass);
-        } else {
-            throw new NotUniqueNameAndLastnameException();
+    public void changeTeacherBalanceWithUID(int uid, int newBalance) throws SQLException, InvalidBalanceException {
+        throwExceptionIfInvalidBalance(newBalance);
+        teacherChangingQuery.changeTeacherBalance(uid, newBalance);
+    }
+
+    private void throwExceptionIfInvalidBalance(int balance) throws InvalidBalanceException {
+        if (balance < 0) {
+            throw new InvalidBalanceException();
         }
     }
 
     @Override
     public void changeNormalStudentDebt(int uid, int newDebt) throws SQLException, InvalidDebtException {
-        if (newDebt < 0) {
-            throw new InvalidDebtException();
-        }
-        studentChangingQuery.setNormalStudentDebt(uid, newDebt);
+        throwExceptionIfInvalidDebt(newDebt);
+        studentChangingQuery.changeNormalStudentDebt(uid, newDebt);
     }
 
     @Override
     public void changeWorkingStudentDebt(int uid, int newDebt) throws SQLException, InvalidDebtException {
-        if (newDebt < 0) {
+        throwExceptionIfInvalidDebt(newDebt);
+        studentChangingQuery.changeWorkingStudentDebt(uid, newDebt);
+    }
+
+    private void throwExceptionIfInvalidDebt(int debt) throws InvalidDebtException {
+        if (debt < 0) {
             throw new InvalidDebtException();
         }
-        studentChangingQuery.setWorkingStudentDebt(uid, newDebt);
     }
 
     @Override
     public void changeNormalStudentLessonCredit(int uid, int newCredit) throws SQLException, InvalidLessonCreditException {
-        if (newCredit < 0) {
-            throw new InvalidLessonCreditException();
-        }
-        studentChangingQuery.setNormalStudentLessonCredit(uid, newCredit);
+        throwExceptionIfInvalidLessonCredit(newCredit);
+        studentChangingQuery.changeNormalStudentLessonCredit(uid, newCredit);
     }
 
     @Override
     public void changeWorkingStudentLessonCredit(int uid, int newCredit) throws SQLException, InvalidLessonCreditException {
-        if (newCredit < 0) {
+        throwExceptionIfInvalidLessonCredit(newCredit);
+        studentChangingQuery.changeWorkingStudentLessonCredit(uid, newCredit);
+    }
+
+    private void throwExceptionIfInvalidLessonCredit(int lessonCredit) throws InvalidLessonCreditException {
+        if (lessonCredit < 0) {
             throw new InvalidLessonCreditException();
         }
-        studentChangingQuery.setWorkingStudentLessonCredit(uid, newCredit);
     }
 
     @Override
     public void changeTeacherSalary(int uid, int newSalary) throws SQLException, InvalidSalaryException {
-        if (newSalary <= 0) {
+        throwExceptionIfInvalidSalary(newSalary);
+        teacherChangingQuery.setTeacherSalary(uid, newSalary);
+    }
+
+    private void throwExceptionIfInvalidSalary(int salary) throws InvalidSalaryException {
+        if (salary < 0) {
             throw new InvalidSalaryException();
         }
-        teacherChangingQuery.setTeacherSalary(uid, newSalary);
     }
 
     @Override
     public void changeTeacherBranch(int uid, int newBranchId) throws SQLException {
         teacherChangingQuery.setTeacherBranch(uid, newBranchId);
-    }
-
-    @Override
-    public void convertToWorkingStudent(Student student) throws SQLException {
-        int newUID = uidGen.generateUIDForWorkingStudent();
-        String userName = student.getUserName();
-        String pass = student.getPass();
-        String name = student.getName();
-        String lastName = student.getLastName();
-        String phoneNumber = student.getPhoneNumber();
-        int uid = personFetchingQuery.getPersonUIDByNameAndLastname(name, lastName);
-        int debt = student.getDebt();
-        int balance = student.getBalance();
-        int lessonCredit = student.getLessonCredit();
-        List<Lesson> lessonList = student.getLessonList();
-        Map<Integer, Integer> lessonTeacherMap = new HashMap();
-        for (Lesson currentLesson : lessonList) {
-            int lessonUID = lessonFetchingQuery.getLessonUIDByLessonName(currentLesson.getName());
-            int teacherUID = lessonCourseQuery.findTeacherUIDFromNormalStudentCourse(uid, lessonUID);
-            lessonTeacherMap.put(lessonUID, teacherUID);
-        }
-        converter.convertToWorkingStudent(userName, pass, name, lastName, uid, newUID, balance, debt, lessonCredit, lessonTeacherMap, phoneNumber);
     }
 
     @Override
@@ -645,125 +529,121 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
         int lessonCredit = workingStudent.getLessonCredit();
         String phoneNumber = workingStudent.getPhoneNumber();
         List<Lesson> lessonList = workingStudent.getLessonList();
-        Map<Integer, Integer> lessonTeacherMap = new HashMap();
-        for (Lesson currentLesson : lessonList) {
-            int lessonUID = lessonFetchingQuery.getLessonUIDByLessonName(currentLesson.getName());
-            int teacherUID = lessonCourseQuery.findTeacherYUDFromWorkingStudentCourse(uid, lessonUID);
-            lessonTeacherMap.put(lessonUID, teacherUID);
-        }
-        converter.convertToNormalStudent(userName, pass, name, lastName, uid, newUID, balance, debt, lessonCredit, lessonTeacherMap, phoneNumber);
+        Map<Integer, Integer> lessonsAndTeachersForStudent = new HashMap();
+        putLessonUIDAndTeacherUIDToMap(lessonsAndTeachersForStudent, lessonList, uid);
+        converter.convertToNormalStudent(userName, pass, name, lastName, uid, newUID, balance, debt, lessonCredit, lessonsAndTeachersForStudent, phoneNumber);
     }
 
-    private boolean isUniqueUserNameAndPassword(String userName, String password) throws SQLException {
-        ResultSet resultSet1 = personLoginQuery.getAllNormalStudentUserNameAndPassword();
-        ResultSet resultSet2 = personLoginQuery.getAllWorkingStudentUserNameAndPassword();
-        ResultSet resultSet3 = personLoginQuery.getAllTeacherUserNameAndPassword();
-        while (resultSet1.next()) {
-            String userNameInDb = resultSet1.getString("username");
-            String passInDb = resultSet1.getString("pass");
-            if (userName.equals(userNameInDb) && password.equals(passInDb)) {
-                System.out.println("False1");
-                return false;
-            }
+    @Override
+    public void convertToWorkingStudent(Student student) throws SQLException {
+        int newUID = uidGen.generateUIDForWorkingStudent();
+        String userName = student.getUserName();
+        String pass = student.getPass();
+        String name = student.getName();
+        String lastName = student.getLastName();
+        String phoneNumber = student.getPhoneNumber();
+        int uid = personFetchingQuery.getPersonUIDByNameAndLastname(name, lastName);
+        int debt = student.getDebt();
+        int balance = student.getBalance();
+        int lessonCredit = student.getLessonCredit();
+        List<Lesson> lessonList = student.getLessonList();
+        Map<Integer, Integer> lessonsAndTeachersForStudent = new HashMap();
+        putLessonUIDAndTeacherUIDToMap(lessonsAndTeachersForStudent, lessonList, uid);
+        converter.convertToWorkingStudent(userName, pass, name, lastName, uid, newUID, balance, debt, lessonCredit, lessonsAndTeachersForStudent, phoneNumber);
+    }
+
+    private void putLessonUIDAndTeacherUIDToMap(Map<Integer, Integer> lessonsAndTeachers, List<Lesson> lessons, int studentUID) throws SQLException {
+        for (Lesson currentLesson : lessons) {
+            int lessonUID = lessonFetchingQuery.getLessonUIDByLessonName(currentLesson.getName());
+            int teacherUID = lessonCourseQuery.findTeacherUIDFromNormalStudentCourse(studentUID, lessonUID);
+            lessonsAndTeachers.put(lessonUID, teacherUID);
         }
-        while (resultSet2.next()) {
-            String userNameInDb = resultSet2.getString("username");
-            String passInDb = resultSet2.getString("pass");
-            if (userName.equals(userNameInDb) && password.equals(passInDb)) {
-                System.out.println("False2");
-                return false;
-            }
-        }
-        while (resultSet3.next()) {
-            String userNameInDb = resultSet3.getString("username");
-            String passInDb = resultSet3.getString("pass");
-            if (userName.equals(userNameInDb) && password.equals(passInDb)) {
-                System.out.println("False3");
-                return false;
-            }
-        }
-        return true;
     }
 
     @Override
     public int sendRecoverySMS(String userName, String phoneNumber) throws IncompatibleUsernameAndPhoneNumberException, SQLException {
         int verificationCode = 0;
-        if (isValidUsernameAndPhoneNumber(userName, phoneNumber)) {
-            otpGen = Generator.getOTPGenerator();
-            verificationCode = otpGen.generateOTP();
-            messageSender = MessageSendingManager.getInstance();
-            messageSender.sendMessage(phoneNumber, verificationCode);
-        }
+        throwExceptionIfInvalidUsernameAndPhoneNumber(userName, phoneNumber);
+        otpGen = Generator.getOTPGenerator();
+        verificationCode = otpGen.generateOTP();
+        messageSender = MessageSendingManager.getInstance();
+        messageSender.sendMessage(phoneNumber, verificationCode);
         return verificationCode;
     }
 
-    private boolean isValidUsernameAndPhoneNumber(String userName, String phoneNumber) throws IncompatibleUsernameAndPhoneNumberException, SQLException {
-        Map<String, String> mapForNormalStudent = personValidation.getAllNormalStudentUsernameAndPhoneNumber();
-        for (Map.Entry<String, String> entry : mapForNormalStudent.entrySet()) {
-            String userNameInDb = entry.getValue();
-            String phoneNumberInDb = entry.getKey();
-            if (userNameInDb.equals(userName) && phoneNumberInDb.equals(phoneNumber)) {
-                return true;
-            }
+    private void throwExceptionIfInvalidUsernameAndPhoneNumber(String userName, String phoneNumber) throws SQLException, IncompatibleUsernameAndPhoneNumberException {
+        Map<String, String> normalStudentUsernamesAndPhoneNumbers = personValidation.getAllNormalStudentUsernameAndPhoneNumber();
+        Map<String, String> workingStudentUsernamesAndPhoneNumbers = personValidation.getAllWorkingStudentUsernameAndPhoneNumber();
+        Map<String, String> teacherUsernamesAndPhoneNumbers = personValidation.getAllTeacherUsernameAndPhoneNumber();
+
+        boolean isValidForNormalStudent = isValidUsernameAndPhoneNumber(userName, phoneNumber, normalStudentUsernamesAndPhoneNumbers);
+        boolean isValidForWorkingStudent = isValidUsernameAndPhoneNumber(userName, phoneNumber, workingStudentUsernamesAndPhoneNumbers);
+        boolean isValidForTeacher = isValidUsernameAndPhoneNumber(userName, phoneNumber, teacherUsernamesAndPhoneNumbers);
+
+        if (!(isValidForNormalStudent || isValidForWorkingStudent || isValidForTeacher)) {
+            throw new IncompatibleUsernameAndPhoneNumberException();
         }
-        Map<String, String> mapForWorkingStudent = personValidation.getAllWorkingStudentUsernameAndPhoneNumber();
-        for (Map.Entry<String, String> entry : mapForWorkingStudent.entrySet()) {
-            String userNameInDb = entry.getValue();
-            String phoneNumberInDb = entry.getKey();
-            if (userNameInDb.equals(userName) && phoneNumberInDb.equals(phoneNumber)) {
-                return true;
-            }
-        }
-        Map<String, String> mapForTeacher = personValidation.getAllTeacherUsernameAndPhoneNumber();
-        for (Map.Entry<String, String> entry : mapForTeacher.entrySet()) {
-            String userNameInDb = entry.getValue();
-            String phoneNumberInDb = entry.getKey();
-            if (userNameInDb.equals(userName) && phoneNumberInDb.equals(phoneNumber)) {
-                return true;
-            }
-        }
-        throw new IncompatibleUsernameAndPhoneNumberException();
     }
 
-    private boolean phoneNumberValidation(String phoneNumber) throws InvalidPhoneNumberLengthException, InvalidPhoneCountryCodeException, NotUniquePhoneNumberException, SQLException {
+    private boolean isValidUsernameAndPhoneNumber(String userName, String phoneNumber, Map<String, String> personUsernamesAndPhoneNumbers) throws IncompatibleUsernameAndPhoneNumberException {
+        for (Map.Entry<String, String> entry : personUsernamesAndPhoneNumbers.entrySet()) {
+            String userNameInDb = entry.getValue();
+            String phoneNumberInDb = entry.getKey();
+            if (userNameInDb.equals(userName) && phoneNumberInDb.equals(phoneNumber)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void throwExceptionIfInvalidPhoneNumber(String phoneNumber) throws InvalidPhoneNumberLengthException, InvalidPhoneCountryCodeException {
         if (phoneNumber.length() != 13) {
             throw new InvalidPhoneNumberLengthException();
         }
         if (!phoneNumber.substring(0, 3).equals("+90")) {
             throw new InvalidPhoneCountryCodeException();
         }
-        if (isUniquePhoneNumber(personFetchingQuery.getAllNormalStudentInfo(), phoneNumber) && isUniquePhoneNumber(personFetchingQuery.getAllWorkingStudentInfo(), phoneNumber) && isUniquePhoneNumber(personFetchingQuery.getAllTeacherInfo(), phoneNumber)) {
-            return true;
+    }
+
+    private void throwExceptionIfNotUniquePhoneNumber(String phoneNumber) throws NotUniquePhoneNumberException, SQLException {
+        boolean isUniqueForNormalStudents = isUniquePhoneNumber(personFetchingQuery.getAllNormalStudentInfo(), phoneNumber);
+        boolean isUniqueForWorkingStudents = isUniquePhoneNumber(personFetchingQuery.getAllWorkingStudentInfo(), phoneNumber);
+        boolean isUniqueForTeacher = isUniquePhoneNumber(personFetchingQuery.getAllTeacherInfo(), phoneNumber);
+        if (!(isUniqueForNormalStudents && isUniqueForWorkingStudents && isUniqueForTeacher)) {
+            throw new NotUniquePhoneNumberException();
         }
-        throw new NotUniquePhoneNumberException();
+    }
+
+    private void phoneNumberControl(String PhoneNumber) throws InvalidPhoneNumberLengthException, InvalidPhoneCountryCodeException, NotUniquePhoneNumberException, SQLException {
+        throwExceptionIfInvalidPhoneNumber(PhoneNumber);
+        throwExceptionIfNotUniquePhoneNumber(PhoneNumber);
     }
 
     @Override
     public void changeNormalStudentPhoneNumber(int uid, String phoneNumber) throws InvalidPhoneNumberLengthException, InvalidPhoneCountryCodeException, NotUniquePhoneNumberException, SQLException {
-        if (phoneNumberValidation(phoneNumber)) {
-            studentChangingQuery.changeNormalStudentPhoneNumber(uid, phoneNumber);
-        }
+        phoneNumberControl(phoneNumber);
+        throwExceptionIfNotUniquePhoneNumber(phoneNumber);
+        studentChangingQuery.changeNormalStudentPhoneNumber(uid, phoneNumber);
+
     }
 
     @Override
     public void changeWorkingStudentPhoneNumber(int uid, String phoneNumber) throws InvalidPhoneNumberLengthException, InvalidPhoneCountryCodeException, NotUniquePhoneNumberException, SQLException {
-        if (phoneNumberValidation(phoneNumber)) {
-            studentChangingQuery.changeWorkingStudentPhoneNumber(uid, phoneNumber);
-        }
+        phoneNumberControl(phoneNumber);
+        throwExceptionIfNotUniquePhoneNumber(phoneNumber);
+        studentChangingQuery.changeWorkingStudentPhoneNumber(uid, phoneNumber);
     }
 
     @Override
     public void changeTeacherPhoneNumber(int uid, String phoneNumber) throws InvalidPhoneNumberLengthException, InvalidPhoneCountryCodeException, NotUniquePhoneNumberException, SQLException {
-        if (phoneNumberValidation(phoneNumber)) {
-            studentChangingQuery.changeTeacherPhoneNumber(uid, phoneNumber);
-        }
+        phoneNumberControl(phoneNumber);
+        throwExceptionIfNotUniquePhoneNumber(phoneNumber);
+        teacherChangingQuery.changeTeacherPhoneNumber(uid, phoneNumber);
     }
 
     @Override
     public void changeForgottenPass(String phoneNumber, String pass) throws InvalidPassLengthException, SQLException {
-        if (pass.length() < 8) {
-            throw new InvalidPassLengthException();
-        }
+        throwExceptionIfInvalidPasswordLength(pass);
         studentChangingQuery.changeNormalStudentPassWithPhoneNumber(phoneNumber, pass);
         studentChangingQuery.changeWorkingStudentPassWithPhoneNumber(phoneNumber, pass);
         teacherChangingQuery.changeTeacherPassWithPhoneNumber(phoneNumber, pass);

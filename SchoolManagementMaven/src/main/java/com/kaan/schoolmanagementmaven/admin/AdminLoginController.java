@@ -8,6 +8,8 @@ import com.kaan.schoolmanagementmaven.dataaccess.query.IAdminValidationQueries;
 import com.kaan.schoolmanagementmaven.dataaccess.query.AdminValidationQueries;
 import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -39,16 +41,21 @@ public class AdminLoginController implements IAdminLoginController {
      */
     public boolean isValidUserNameAndPass(String userName, String pass) throws SQLException {
         ResultSet resultSet = adminQuery.getAdminInformations();
-        String realUserName = null, realPass = null;
-        while (resultSet.next()) {
-            realUserName = resultSet.getString("username");
-            realPass = resultSet.getString("pass");
-            if (realPass.equals(pass) && realUserName.equals(userName)) {
-                return true;
-            }
-
+        for (Map.Entry<String,String> adminUsernameAndPass: getAdminUsernameAndPassPairFrom(resultSet).entrySet()) {
+            if (adminUsernameAndPass.getKey().equals(userName) && adminUsernameAndPass.getValue().equals(pass)) return true ;
         }
         return false;
+    }
+    
+    private Map <String , String> getAdminUsernameAndPassPairFrom (ResultSet adminInfoResultSet) throws SQLException{
+        Map <String,String> adminUsernameAndPass = new HashMap () ;
+        while (adminInfoResultSet.next()) {
+            String userName = null , pass = null ;
+            userName = adminInfoResultSet.getString(("username")) ;
+            pass = adminInfoResultSet.getString("pass"); 
+            adminUsernameAndPass.put(userName , pass);
+        }
+        return adminUsernameAndPass ;
     }
 
 }

@@ -25,8 +25,8 @@ import com.kaan.schoolmanagementmaven.log.LogManager;
 public class WorkingStudent extends Student {
 
     private static int costForPerHour;
-    private static ILogManager logManager ;
-    private static Optional <ILogManager> optionalLogManager ;
+    private static ILogManager logManager;
+    private static Optional<ILogManager> optionalLogManager;
 
     static {
         try {
@@ -38,24 +38,26 @@ public class WorkingStudent extends Student {
         optionalLogManager = Optional.ofNullable(logManager);
     }
 
-    public WorkingStudent(String userName, String pass, int debt, int lessonCredit, String name, String lastName, int uid, int balance, List<Lesson> lessonList , String phoneNumber) throws SQLException{
-        super(userName, pass, debt, lessonCredit, name, lastName, uid, balance, lessonList , phoneNumber);
+    public WorkingStudent(String userName, String pass, int debt, int lessonCredit, String name, String lastName, int uid, int balance, List<Lesson> lessonList, String phoneNumber) throws SQLException {
+        super(userName, pass, debt, lessonCredit, name, lastName, uid, balance, lessonList, phoneNumber);
     }
 
-    
-    public void beNormalStudent () throws SQLException{
+    public void beNormalStudent() throws SQLException {
         super.getStudentConvertingManager().convertToNormalStudent(this);
     }
-    
+
     @Override
-    public void addLesson(Lesson lesson , int teacherUID) throws NotSufficentCreditException, SQLException  , OutOfQuotaException{
-        if (lesson.getLessonCredit() > super.getLessonCredit()) {
+    public void addLesson(Lesson lesson, int teacherUID) throws NotSufficentCreditException, SQLException, OutOfQuotaException {
+        throwExceptionIfNotSufficenCredit(teacherUID);
+        super.getLessonList().add(lesson);
+        super.setLessonCredit(super.getLessonCredit() - lesson.getLessonCredit());
+        super.getPersonChangingManager().changeNormalStudentLessonCredit(super.getPersonFetcher().getPersonUIDByNameAndLastname(super.getName(), super.getLastName()), super.getLessonCredit());
+        super.getLessonManager().addLessonToNormalStudentCourse(lesson.getName(), super.getPersonFetcher().getPersonUIDByNameAndLastname(super.getName(), super.getLastName()), teacherUID);
+    }
+
+    private void throwExceptionIfNotSufficenCredit(int lessonCredit) throws NotSufficentCreditException {
+        if (lessonCredit > super.getLessonCredit()) {
             throw new NotSufficentCreditException();
-        } else {
-            super.getLessonList().add(lesson);
-            super.setLessonCredit (super.getLessonCredit() -  lesson.getLessonCredit());
-            super.getPersonChangingManager().changeNormalStudentLessonCredit(super.getPersonFetcher().getPersonUIDByNameAndLastname(super.getName(), super.getLastName()), super.getLessonCredit());
-            super.getLessonManager().addLessonToNormalStudentCourse(lesson.getName(), super.getPersonFetcher().getPersonUIDByNameAndLastname(super.getName(), super.getLastName()) , teacherUID);
         }
     }
 
@@ -69,35 +71,23 @@ public class WorkingStudent extends Student {
 
     @Override
     public String showExamInfo() throws SQLException {
-        StringBuilder sb = new StringBuilder();
-        int uid = super.getPersonFetcher().getPersonUIDByNameAndLastname(super.getName(), super.getLastName()) ;
-        List <String> lessonNames = super.getLessonFetcher().getWorkingStudentLessonNames(uid);
-        List <Integer> lessonUIDList = new ArrayList() ;
-        for (String currentLessonName : lessonNames) {
-            lessonUIDList.add(super.getLessonFetcher().getLessonUIDByLessonName(currentLessonName));
-        }
-        for (int currentLessonUID : lessonUIDList) {
-            String lessonName = super.getLessonFetcher().getLessonNamebyUID(currentLessonUID) ;
-            int currentExamMidterm = super.getExamGetter().getWorkingStudentMidtermValues(uid, currentLessonUID) ;
-            int currentExamFinal = super.getExamGetter().getWorkingStudentFinalValues(uid, currentLessonUID);
-            int currentExamAverage = super.getExamGetter().getWorkingStudentAverage(uid, currentLessonUID);
-            sb.append("Lesson name :    ").append(lessonName).append("    ").append("Midterm :   ").append(currentExamMidterm).append("    ").append("final :    ").append(currentExamFinal).append("     ").append("Average :    ").append(currentExamAverage).append("\n");
-        }
-        return sb.toString() ;
+        int uid = super.getPersonFetcher().getPersonUIDByNameAndLastname(super.getName(), super.getLastName());
+        List<String> lessonNames = super.getLessonFetcher().getWorkingStudentLessonNames(uid);
+        List<Integer> lessonUIDs = new ArrayList();
+        fillLessonUIDListFromLessonNameList(lessonNames, lessonUIDs);
+        return createExamInfoString(uid, lessonUIDs);
     }
-    
-    public static ILogManager getLogManager () {
-        return WorkingStudent.logManager ;
+
+    public static ILogManager getLogManager() {
+        return WorkingStudent.logManager;
     }
-    
-    public static void setLogManager (File logFile) throws IOException{
-        WorkingStudent.logManager = new LogManager (logFile) ;
+
+    public static void setLogManager(File logFile) throws IOException {
+        WorkingStudent.logManager = new LogManager(logFile);
     }
 
     public static Optional<ILogManager> getOptionalLogManager() {
         return optionalLogManager;
     }
-    
-    
-    
+
 }

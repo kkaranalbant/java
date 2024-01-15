@@ -14,5 +14,7 @@ import java.sql.SQLException;
  */
 public interface IUsernameAndPassGenerator {
 
+    final int DEFAULT_USERNAME_AND_PASSWORD_LENGTH = 16 ;
+    
     public Map <String , String> generateUsernameAndPass() throws SQLException;
 }

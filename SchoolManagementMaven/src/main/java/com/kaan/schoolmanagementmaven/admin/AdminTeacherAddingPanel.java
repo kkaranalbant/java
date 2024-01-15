@@ -245,7 +245,7 @@ public class AdminTeacherAddingPanel extends javax.swing.JFrame {
         String originText = teacherUIDOriginTextField.getText();
         try {
             int origin = Integer.parseInt(originText);
-            admin.getAdminDefaultTeacherProcesesObject().setTeacherUIDOrigin(origin);
+            admin.getAdminDefaultTeacherProcessesObject().setTeacherUIDOrigin(origin);
             JOptionPane.showMessageDialog(null, "Successful");
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Teacher UID origin value changed . New value : " + origin);
@@ -270,7 +270,7 @@ public class AdminTeacherAddingPanel extends javax.swing.JFrame {
         String boundText = teacherUIDBoundTextField.getText();
         try {
             int bound = Integer.parseInt(boundText);
-            admin.getAdminDefaultTeacherProcesesObject().setTeacherUIDBound(bound);
+            admin.getAdminDefaultTeacherProcessesObject().setTeacherUIDBound(bound);
             JOptionPane.showMessageDialog(null, "Successful");
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Teacher UID bound value changed . New value : " + bound);

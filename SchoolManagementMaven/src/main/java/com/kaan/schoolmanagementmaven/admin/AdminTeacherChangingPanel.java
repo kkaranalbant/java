@@ -16,6 +16,7 @@ import com.kaan.schoolmanagementmaven.exception.InvalidSalaryException;
 import com.kaan.schoolmanagementmaven.exception.NotUniqueNameAndLastnameException;
 import com.kaan.schoolmanagementmaven.exception.NotUniqueUsernameAndPassException;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonFetchingQuery;
+import com.kaan.schoolmanagementmaven.dataaccess.query.ITeacherInformationQueries;
 import com.kaan.schoolmanagementmaven.exception.InvalidPhoneCountryCodeException;
 import com.kaan.schoolmanagementmaven.exception.InvalidPhoneNumberLengthException;
 import com.kaan.schoolmanagementmaven.exception.NotUniquePhoneNumberException;
@@ -27,7 +28,8 @@ import com.kaan.schoolmanagementmaven.exception.NotUniquePhoneNumberException;
 public class AdminTeacherChangingPanel extends javax.swing.JFrame {
 
     private IAdminSettingManager settingManager;
-    private ILessonFetchingQuery lessonCreatingQuery;
+    private ILessonFetchingQuery lessonFetcher;
+    private ITeacherInformationQueries teacherInfo ;
     private String nameDb;
     private String lastNameDb;
     private String userNameDb;
@@ -60,11 +62,11 @@ public class AdminTeacherChangingPanel extends javax.swing.JFrame {
         salary.setText(Integer.toString(salaryDb));
         phoneNumberDb = teacherInfo.getString("phone_number") ;
         phoneNumberTf.setText(phoneNumberDb);
-        lessonCreatingQuery = LessonFetchingQuery.getInstance();
-        branchIdDb = lessonCreatingQuery.getBranchId(uid);
+        lessonFetcher = LessonFetchingQuery.getInstance();
+        branchIdDb = this.teacherInfo.getBranchId(uid);
         lessonList.removeAllItems();
-        lessonCreatingQuery = LessonFetchingQuery.getInstance();
-        for (String name : lessonCreatingQuery.getAllLessonNames()) {
+        lessonFetcher = LessonFetchingQuery.getInstance();
+        for (String name : lessonFetcher.getAllLessonNames()) {
             lessonList.addItem(name);
         }
         settingManager = AdminSettingManager.getInstance();
@@ -302,7 +304,7 @@ public class AdminTeacherChangingPanel extends javax.swing.JFrame {
             }
             
             String lessonName = (String) lessonList.getSelectedItem();
-            int newBranchId = lessonCreatingQuery.getLessonUIDByLessonName(lessonName);
+            int newBranchId = lessonFetcher.getLessonUIDByLessonName(lessonName);
             if (newBranchId != branchIdDb) {
                 settingManager.setBranch(uid, newBranchId);
                 branchIdDb = newBranchId;

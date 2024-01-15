@@ -10,5 +10,5 @@ import java.sql.SQLException ;
  * @author kaan
  */
 public interface IAdminTeacherInformationManager {
-    String teacherInfo () throws SQLException ;
+    String getTeacherInfo () throws SQLException ;
 }

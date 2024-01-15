@@ -11,5 +11,5 @@ import java.sql.SQLException;
  * @author kaan
  */
 public interface ILessonUIDGenerator {
-    public int generatorUIDForLesson () throws SQLException;
+    public int generateUIDForLesson () throws SQLException;
 }

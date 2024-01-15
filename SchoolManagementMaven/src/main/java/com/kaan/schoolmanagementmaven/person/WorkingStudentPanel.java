@@ -229,8 +229,8 @@ public class WorkingStudentPanel extends javax.swing.JFrame {
                 lessonFetchingQuery = LessonFetchingQuery.getInstance();
                 teacherInfo = PersonInformationQuery.getInstanceForTeacher();
                 int branchUID = lessonFetchingQuery.getLessonUIDByLessonName((String) lessonListForAdding.getSelectedItem());
-                List<String> teacherNameList = teacherInfo.getAllTeacherNameForBranchID(branchUID);
-                List<String> teacherLastnameList = teacherInfo.getAllTeacherLastnameForBranchID(branchUID);
+                List<String> teacherNameList = teacherInfo.getAllTeacherNameWith(branchUID);
+                List<String> teacherLastnameList = teacherInfo.getAllTeacherLastnameWith(branchUID);
                 for (int i = 0; i < teacherNameList.size(); i++) {
                     teacherList.addItem(teacherNameList.get(i) + " " + teacherLastnameList.get(i));
                 }

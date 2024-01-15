@@ -22,10 +22,10 @@ public interface IPersonCreatorManager {
 
     Teacher createTeacher(String userName, String pass) throws SQLException, InvalidUserNameOrPassException;
 
-    Map<String, String> createNewNormalStudent(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException , NotUniquePhoneNumberException;
+    Map<String, String> createNewNormalStudentAndReturnLoginInfo(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException , NotUniquePhoneNumberException;
 
-    Map<String, String> createNewWorkingStudent(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException , NotUniquePhoneNumberException;
+    Map<String, String> createNewWorkingStudentAndReturnLoginInfo(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException , NotUniquePhoneNumberException;
 
-    Map<String, String> createNewTeacher(String name, String lastName, String branchName, int salary, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException , NotUniquePhoneNumberException;
+    Map<String, String> createNewTeacherAndReturnLoginInfo(String name, String lastName, String branchName, int salary, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException , NotUniquePhoneNumberException;
     
 }

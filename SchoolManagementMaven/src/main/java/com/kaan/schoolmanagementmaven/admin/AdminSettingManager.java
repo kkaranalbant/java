@@ -51,7 +51,6 @@ public class AdminSettingManager implements IAdminSettingManager{
 
     @Override
     public void setUsername(int uid, String newUsername) throws SQLException, NotUniqueUsernameAndPassException , InvalidUsernameLengthException{
-        if (newUsername.length() < 8 ) throw new InvalidUsernameLengthException () ;
         personManager.changeNormalStudentUserNameWithUID(uid, newUsername);
         personManager.changeTeacherUserNameWithUID(uid, newUsername);
         personManager.changeWorkingStudentUserNameWithUID(uid, newUsername);
@@ -59,7 +58,6 @@ public class AdminSettingManager implements IAdminSettingManager{
 
     @Override
     public void setPass(int uid, String newPass) throws SQLException, NotUniqueUsernameAndPassException , InvalidPassLengthException {
-        if (newPass.length() < 8) throw new InvalidPassLengthException () ;
         personManager.changeNormalStudentPassWithUID(uid, newPass);
         personManager.changeWorkingStudentPassWithUID(uid, newPass);
         personManager.changeTeacherPassWithUID(uid, newPass);

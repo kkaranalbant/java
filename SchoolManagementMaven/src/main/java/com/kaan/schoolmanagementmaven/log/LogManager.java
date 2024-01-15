@@ -45,20 +45,24 @@ public class LogManager implements ILogManager{
     }
 
     public static void closeAllLogFiles () throws IOException {
-        if (Admin.getLogManager() != null) {
-            Admin.getLogManager().close(); 
+        if (isLogManagerExists(Admin.getLogManager())) {
+            Admin.getLogManager().close();
         }
-        if (Student.getLogManager() != null) {
+        if (isLogManagerExists(Student.getLogManager())) {
             Student.getLogManager().close();
         }
-        if (WorkingStudent.getLogManager() != null) {
+        if (isLogManagerExists(WorkingStudent.getLogManager())) {
             WorkingStudent.getLogManager().close();
         }
-        if (Teacher.getLogManager() != null) {
+        if (isLogManagerExists(Teacher.getLogManager())) {
             Teacher.getLogManager().close(); 
-        }
-        
+        }       
     }
+    
+    private static boolean isLogManagerExists (ILogManager logManager) {
+        return logManager != null ;
+    }
+
     
     
 }

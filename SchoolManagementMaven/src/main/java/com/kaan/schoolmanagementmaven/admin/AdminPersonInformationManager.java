@@ -20,7 +20,7 @@ public class AdminPersonInformationManager implements IAdminStudentInformationMa
     private ITeacherInformationQueries teacherInfo;
     private IStudentInformationQueries studentInfo;
 
-    private AdminPersonInformationManager() throws SQLException{
+    private AdminPersonInformationManager() throws SQLException {
         teacherInfo = PersonInformationQuery.getInstanceForTeacher();
         studentInfo = PersonInformationQuery.getInstanceForStudent();
     }
@@ -40,31 +40,27 @@ public class AdminPersonInformationManager implements IAdminStudentInformationMa
     }
 
     @Override
-    public String normalStudentInfo() throws SQLException {
+    public String getNormalStudentInfo() throws SQLException {
         ResultSet resultSet = studentInfo.getAllNormalStudentNameLastnameAndUID();
-        StringBuilder sb = new StringBuilder();
-        while (resultSet.next()) {
-            sb.append("name : ").append(resultSet.getString("name")).append("\n").append("Lastname : ").append(resultSet.getString("last_name")).append("\n").append("UID : ").append(resultSet.getInt("UID")).append("\n\n");
-        }
-        return sb.toString();
+        return createInfoStringFrom(resultSet);
     }
 
     @Override
-    public String workingStudentInfo() throws SQLException {
+    public String getWorkingStudentInfo() throws SQLException {
         ResultSet resultSet = studentInfo.getAllWorkingStudentNameLastnameAndUID();
-        StringBuilder sb = new StringBuilder();
-        while (resultSet.next()) {
-            sb.append("name : ").append(resultSet.getString("name")).append("\n").append("Lastname : ").append(resultSet.getString("last_name")).append("\n").append("UID : ").append(resultSet.getInt("UID")).append("\n\n");
-        }
-        return sb.toString();
+        return createInfoStringFrom(resultSet);
     }
 
     @Override
-    public String teacherInfo() throws SQLException {
-        ResultSet resultSet = teacherInfo.getAllTeacherNameLastnameAndUID() ;
+    public String getTeacherInfo() throws SQLException {
+        ResultSet resultSet = teacherInfo.getAllTeacherNameLastnameAndUID();
+        return createInfoStringFrom(resultSet);
+    }
+
+    private String createInfoStringFrom(ResultSet infoResultSet) throws SQLException {
         StringBuilder sb = new StringBuilder();
-        while (resultSet.next()) {
-            sb.append("name : ").append(resultSet.getString("name")).append("\n").append("Lastname : ").append(resultSet.getString("last_name")).append("\n").append("UID : ").append(resultSet.getInt("UID")).append("\n\n");
+        while (infoResultSet.next()) {
+            sb.append("name : ").append(infoResultSet.getString("name")).append("\n").append("Lastname : ").append(infoResultSet.getString("last_name")).append("\n").append("UID : ").append(infoResultSet.getInt("UID")).append("\n\n");
         }
         return sb.toString();
     }

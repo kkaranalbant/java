@@ -25,6 +25,7 @@ public class Admin {
     private static IAdminLoginController loginController;
     private IAdminPersonDeletingManager personDeletingManager ;
     private IAdminDefaultStudentProcesses defStudentProcesses ;
+    private IAdminDefaultTeacherProcesses defTeacherProcesses ;
     private static ILogManager logManager ;
     private static Optional<ILogManager> optionalLogManager ;
     
@@ -38,7 +39,8 @@ public class Admin {
     private Admin(String userName, String pass) throws SQLException{
         this.userName = userName;
         this.pass = pass;
-        this.defStudentProcesses = AdminDefaultPersonProcesses.getInstance() ;
+        defStudentProcesses = AdminDefaultPersonProcesses.getInstanceForStudent();
+        defTeacherProcesses = AdminDefaultPersonProcesses.getInstanceForTeacher();
         addingManager = AdminAddingManager.getInstance() ;
         personDeletingManager = AdminPersonDeletingManager.getInstance() ;
     }
@@ -61,14 +63,20 @@ public class Admin {
         dogrulama saglanmadiysa geriye null doner 
         dogrulama saglandiysa ve eger daha onceden admin nesnesi olusturulmus ise yeni nesne olusturulmaz var olan nesne geriye doner .
      */
-    public static Admin getInstance(String userName, String pass) throws SQLException , InvalidUserNameOrPassException{
+    public static Admin getInstanceIfValidUsernameAndPass(String userName, String pass) throws SQLException , InvalidUserNameOrPassException{
         loginController = AdminLoginController.getInstance();
-        if (admin != null && !loginController.isValidUserNameAndPass(userName, pass)) throw new InvalidUserNameOrPassException() ;
-        if (admin == null && loginController.isValidUserNameAndPass(userName, pass)) {
+        if (isAdminCreated() && !loginController.isValidUserNameAndPass(userName, pass)) throw new InvalidUserNameOrPassException() ;
+        if (!isAdminCreated() && loginController.isValidUserNameAndPass(userName, pass)) {
             admin = new Admin(userName, pass);
         }
         return admin;
     }
+    
+    private static boolean isAdminCreated () {
+        if (admin == null) return false ;
+        return true ;
+    }
+    
 
     public IAdminAddingManager getAdminAddingManager() {
         return addingManager;
@@ -78,11 +86,13 @@ public class Admin {
         return defStudentProcesses ;
     }
     
-    IAdminDefaultTeacherProcesses getAdminDefaultTeacherProcesesObject () {
-        return (IAdminDefaultTeacherProcesses) defStudentProcesses ;
-    }
     IAdminPersonDeletingManager getAdminPersonDeletingManager () {
         return  personDeletingManager ;
     }
+
+    IAdminDefaultTeacherProcesses getAdminDefaultTeacherProcessesObject() {
+        return defTeacherProcesses;
+    }
+    
 
 }

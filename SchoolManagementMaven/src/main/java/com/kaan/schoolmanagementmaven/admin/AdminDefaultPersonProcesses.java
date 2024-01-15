@@ -18,19 +18,22 @@ public class AdminDefaultPersonProcesses implements IAdminDefaultStudentProcesse
 
     private IDefaultValuesQuery defValQuery;
 
-    private static IAdminDefaultStudentProcesses defStudentProcesses;
+    private static AdminDefaultPersonProcesses defPersonProcesses;
 
     private AdminDefaultPersonProcesses() throws SQLException {
         defValQuery = DefaultValuesQuery.getInstance();
     }
 
-    static IAdminDefaultStudentProcesses getInstance() throws SQLException {
-        if (defStudentProcesses == null) {
-            defStudentProcesses = new AdminDefaultPersonProcesses();
+    static IAdminDefaultStudentProcesses getInstanceForStudent() throws SQLException {
+        if (defPersonProcesses == null) {
+            defPersonProcesses = new AdminDefaultPersonProcesses();
         }
-        return defStudentProcesses;
+        return defPersonProcesses;
     }
-
+    
+    static IAdminDefaultTeacherProcesses getInstanceForTeacher () throws SQLException {
+        return (IAdminDefaultTeacherProcesses) getInstanceForStudent() ;
+    }
     @Override
     public void setDefaultMaxDebtCredit(int value) throws SQLException {
         defValQuery.setDefaultMaxDebtCredit(value);

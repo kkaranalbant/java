@@ -5,7 +5,6 @@
 package com.kaan.schoolmanagementmaven.lesson;
 
 import java.sql.SQLException;
-import java.util.List;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonAttendanceQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonChangingQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonCourseQuery;
@@ -17,9 +16,6 @@ import com.kaan.schoolmanagementmaven.dataaccess.query.LessonCourseQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.LessonFetchingQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.PersonInformationQuery;
 import com.kaan.schoolmanagementmaven.exception.OutOfQuotaException;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  *
@@ -56,20 +52,22 @@ public class LessonManager implements ILessonManager {
 
     @Override
     public void addLessonToNormalStudentCourse(String lessonName, int studentUID, int teacherUID) throws SQLException, OutOfQuotaException {
-        if (lessonFetcher.getLessonQuota(lessonName) > attendanceQuery.getLessonAttendance(lessonName)) {
-            lessonCourseQuery.addLessonAndStudentToNormalStudentCourse(lessonName, studentUID, teacherUID);
-            attendanceQuery.increaseAttendance(lessonName);
-        } else {
-            throw new OutOfQuotaException();
-        }
+        throwExceptionIfOutOfQuota(lessonName);
+        lessonCourseQuery.addLessonAndStudentToNormalStudentCourse(lessonName, studentUID, teacherUID);
+        attendanceQuery.increaseAttendance(lessonName);
     }
 
     @Override
     public void addLessonToWorkingStudentCourse(String lessonName, int studentUID, int teacherUID) throws SQLException, OutOfQuotaException {
-        if (lessonFetcher.getLessonQuota(lessonName) > attendanceQuery.getLessonAttendance(lessonName)) {
-            lessonCourseQuery.addLessonAndStudentToWorkingStudentCourse(lessonName, studentUID, teacherUID);
-            attendanceQuery.decreaseAttendance(lessonName);
-        } else {
+        throwExceptionIfOutOfQuota(lessonName);
+        lessonCourseQuery.addLessonAndStudentToWorkingStudentCourse(lessonName, studentUID, teacherUID);
+        attendanceQuery.increaseAttendance(lessonName);
+    }
+
+    private void throwExceptionIfOutOfQuota(String lessonName) throws OutOfQuotaException , SQLException {
+        int quota = lessonFetcher.getLessonQuota(lessonName);
+        int attendance = attendanceQuery.getLessonAttendanceAmount(lessonName);
+        if (quota == attendance) {
             throw new OutOfQuotaException();
         }
     }

@@ -11,10 +11,10 @@ import java.util.InputMismatchException;
 import javax.swing.JOptionPane;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ExamNoteQueries;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IExamNoteGettingQueries;
-import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonFetchingQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IPersonFetchingQueries;
-import com.kaan.schoolmanagementmaven.dataaccess.query.LessonFetchingQuery;
+import com.kaan.schoolmanagementmaven.dataaccess.query.ITeacherInformationQueries;
 import com.kaan.schoolmanagementmaven.dataaccess.query.PersonFetchingQueries;
+import com.kaan.schoolmanagementmaven.dataaccess.query.PersonInformationQuery;
 import com.kaan.schoolmanagementmaven.exception.InvalidExamNoteException;
 import com.kaan.schoolmanagementmaven.exception.InvalidStudentUIDException;
 
@@ -26,7 +26,7 @@ public class TeacherPanel extends javax.swing.JFrame {
 
     private Teacher teacher;
     private IExamNoteGettingQueries examGetter;
-    private ILessonFetchingQuery lessonFetcher;
+    private ITeacherInformationQueries teacherInfo ;
     private IPersonFetchingQueries personFetcher;
 
     /**
@@ -36,7 +36,7 @@ public class TeacherPanel extends javax.swing.JFrame {
         initComponents();
         this.teacher = teacher;
         examGetter = ExamNoteQueries.getInstanceForGettingQueries();
-        lessonFetcher = LessonFetchingQuery.getInstance();
+        teacherInfo = PersonInformationQuery.getInstanceForTeacher();
         personFetcher = PersonFetchingQueries.getInstance();
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -164,7 +164,7 @@ public class TeacherPanel extends javax.swing.JFrame {
             teacher.enterMidtermNote(studentUID, midtermNote);
             teacher.enterFinalNote(studentUID, finalNote);
             int teacherUID = personFetcher.getPersonUIDByNameAndLastname(teacher.getName(), teacher.getLastName());
-            int lessonUID = lessonFetcher.getBranchId(teacherUID);
+            int lessonUID = teacherInfo.getBranchId(teacherUID);
             int average = teacher.setAverage(studentUID, lessonUID);
             JOptionPane.showMessageDialog(null, "Successful.\nAverage : " + average);
             if (Teacher.getLogManager() != null) {

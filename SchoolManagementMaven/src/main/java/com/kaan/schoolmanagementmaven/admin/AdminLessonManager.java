@@ -43,8 +43,8 @@ public class AdminLessonManager implements IAdminLessonManager {
 
     @Override
     public void removeLesson(int uid) throws InvalidUIDException , SQLException{
-        int value = lessonDeletor.deleteLesson(uid);
-        if (value == 0) throw new InvalidUIDException () ;
+        boolean isDeleted = lessonDeletor.deleteLesson(uid);
+        if (!isDeleted) throw new InvalidUIDException () ;
     }
 
 }

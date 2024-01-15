@@ -8,6 +8,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAdminLoginInfoChangeQuery {
     void setUsername (String userName) throws SQLException ;

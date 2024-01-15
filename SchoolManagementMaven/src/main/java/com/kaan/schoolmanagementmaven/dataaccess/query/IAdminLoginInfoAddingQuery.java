@@ -8,6 +8,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAdminLoginInfoAddingQuery {
     void addAdmin (String userName , String pass) throws SQLException;

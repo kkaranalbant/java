@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 /**
  *
  * @author kaan
+ * 
  */
 public class ExamNoteQueries extends Query implements IExamNoteGettingQueries, IExamNoteSettingQueries, IExamNoteAddingQueries, IExamNoteRemovingQueries {
 

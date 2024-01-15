@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 /**
  *
  * @author kaan
+ * 
  */
 public class DefaultValuesQuery extends Query implements IDefaultValuesQuery {
 

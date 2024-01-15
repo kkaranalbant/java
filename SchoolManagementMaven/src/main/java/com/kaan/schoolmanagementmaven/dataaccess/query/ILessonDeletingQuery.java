@@ -8,6 +8,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface ILessonDeletingQuery {
     boolean deleteLesson (int uid) throws SQLException ;

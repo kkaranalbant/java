@@ -12,6 +12,7 @@ import java.util.Map;
 /**
  *
  * @author kaan
+ * 
  */
 public class PersonValidationQueries extends Query implements IPersonValidationQueries {
 

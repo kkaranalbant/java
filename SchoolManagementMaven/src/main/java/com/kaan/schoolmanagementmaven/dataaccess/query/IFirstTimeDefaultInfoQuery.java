@@ -8,6 +8,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IFirstTimeDefaultInfoQuery {
     void addDefaultValuesRow () throws SQLException ;

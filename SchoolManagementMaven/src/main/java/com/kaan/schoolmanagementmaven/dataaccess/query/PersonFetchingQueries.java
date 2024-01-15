@@ -6,16 +6,11 @@ package com.kaan.schoolmanagementmaven.dataaccess.query;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import com.kaan.schoolmanagementmaven.lesson.Lesson;
 
 /**
- *
- * Ogrencilerin giris yaptiktan sonra nesnelerinin olusabilmesi icin
- * veritabanindan gerekli bilgileri almaya yarayacak sinif .
- *
+ * 
  * @author kaan
+ * 
  */
 public class PersonFetchingQueries extends Query implements IPersonFetchingQueries {
 

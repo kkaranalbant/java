@@ -9,6 +9,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
+ * 
  */
 public class PersonCreatingQuery extends Query implements IPersonCreatingQuery , IPersonCreatingQueryForConverting {
 

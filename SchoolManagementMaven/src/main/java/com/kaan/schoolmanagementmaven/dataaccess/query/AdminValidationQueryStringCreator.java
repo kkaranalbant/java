@@ -7,6 +7,7 @@ package com.kaan.schoolmanagementmaven.dataaccess.query;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminValidationQueryStringCreator {
     public static String createQueryString (String tableName) {

@@ -8,6 +8,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IExamNoteRemovingQueries {
     void removeNormalStudentFromExamTable (int studentUID) throws SQLException ;

@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 /**
  *
  * @author kaan
+ * 
  */
 public class PersonLoginQueries extends Query implements IPersonLoginQueries {
 

@@ -5,13 +5,12 @@
 package com.kaan.schoolmanagementmaven.dataaccess.query;
 
 import java.sql.ResultSet;
-import com.kaan.schoolmanagementmaven.dataaccess.connection.Access;
-import com.kaan.schoolmanagementmaven.dataaccess.connection.IAccess;
 import java.sql.SQLException;
 
 /**
  *
  * @author kaan
+ * 
  */
 public final class AdminValidationQueries extends Query implements IAdminValidationQueries {
 

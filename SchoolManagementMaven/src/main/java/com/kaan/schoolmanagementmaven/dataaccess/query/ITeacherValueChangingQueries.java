@@ -8,6 +8,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface ITeacherValueChangingQueries extends IPersonValueChangingQueries{
     public void setTeacherSalary (int uid , int value) throws SQLException ;

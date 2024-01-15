@@ -6,12 +6,11 @@ package com.kaan.schoolmanagementmaven.dataaccess.query;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import com.kaan.schoolmanagementmaven.lesson.Lesson;
 
 /**
  *
  * @author kaan
+ * 
  */
 public interface IPersonFetchingQueries {
 

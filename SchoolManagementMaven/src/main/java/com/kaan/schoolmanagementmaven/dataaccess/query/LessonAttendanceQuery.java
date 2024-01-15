@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 /**
  *
  * @author kaan
+ * 
  */
 public class LessonAttendanceQuery extends Query implements ILessonAttendanceQuery {
 

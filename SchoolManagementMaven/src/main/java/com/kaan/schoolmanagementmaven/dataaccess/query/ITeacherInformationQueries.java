@@ -11,6 +11,7 @@ import java.util.List;
 /**
  *
  * @author kaan
+ * 
  */
 public interface ITeacherInformationQueries {
     public ResultSet getAllTeacherNameLastnameAndUID() throws SQLException; 

@@ -9,6 +9,7 @@ import java.util.Map;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IPersonValidationQueries {
     ResultSet getAllNormalStudentNameAndLastname () throws SQLException ;

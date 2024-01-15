@@ -9,6 +9,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminLoginInfoQuery extends Query implements IAdminLoginInfoChangeQuery, IAdminLoginInfoAddingQuery {
 

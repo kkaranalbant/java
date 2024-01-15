@@ -12,6 +12,7 @@ import java.util.List;
 /**
  *
  * @author kaan
+ * 
  */
 public class LessonFetchingQuery extends Query implements ILessonFetchingQuery {
 

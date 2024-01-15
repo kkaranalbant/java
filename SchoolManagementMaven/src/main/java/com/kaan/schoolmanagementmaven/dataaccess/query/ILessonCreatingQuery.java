@@ -7,6 +7,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface ILessonCreatingQuery {
     public void addLessonToDb (String lessonName , int lessonCredit , int lessonHour , int lessonUID , int quota, int midtermRate , int finalRate) throws SQLException ;

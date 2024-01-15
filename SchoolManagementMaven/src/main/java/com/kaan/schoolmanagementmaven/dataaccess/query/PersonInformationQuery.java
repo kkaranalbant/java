@@ -11,6 +11,7 @@ import java.util.List;
 
 /**
  *
+ * 
  * @author kaan
  */
 public class PersonInformationQuery extends Query implements IStudentInformationQueries, ITeacherInformationQueries {

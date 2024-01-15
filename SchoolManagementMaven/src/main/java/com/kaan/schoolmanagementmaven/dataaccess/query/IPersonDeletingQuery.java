@@ -9,6 +9,7 @@ import com.kaan.schoolmanagementmaven.exception.InvalidUIDException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IPersonDeletingQuery {
     void deletePersonFromDb (int uid) throws SQLException , InvalidUIDException;

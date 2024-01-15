@@ -5,10 +5,10 @@
 package com.kaan.schoolmanagementmaven.dataaccess.query;
 
 import java.sql.SQLException;
-import java.sql.ResultSet ;
 /**
  *
  * @author kaan
+ * 
  */
 public class LessonDeletingQuery extends Query implements ILessonDeletingQuery {
 

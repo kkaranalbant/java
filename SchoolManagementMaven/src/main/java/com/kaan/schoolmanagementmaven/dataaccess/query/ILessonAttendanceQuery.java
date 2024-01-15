@@ -7,6 +7,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface ILessonAttendanceQuery {
     void increaseAttendance (String lessonName) throws SQLException ;

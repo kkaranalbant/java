@@ -12,6 +12,7 @@ import java.sql.ResultSet ;
 /**
  *
  * @author kaan
+ * 
  */
 public abstract class Query {
 

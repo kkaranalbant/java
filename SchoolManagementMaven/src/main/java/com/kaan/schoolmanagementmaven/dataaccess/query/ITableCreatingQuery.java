@@ -9,6 +9,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface ITableCreatingQuery {
     void addAllTables () throws SQLException ;

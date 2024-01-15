@@ -10,6 +10,7 @@ import java.util.Map;
 /**
  *
  * @author kaan
+ * 
  */
 public class PersonConvertingQuery extends Query implements IPersonConvertingQuery {
 

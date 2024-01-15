@@ -10,6 +10,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAdminValidationQueries {
     ResultSet getAdminInformations () throws SQLException;

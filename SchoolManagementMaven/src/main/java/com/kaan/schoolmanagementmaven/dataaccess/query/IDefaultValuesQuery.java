@@ -4,12 +4,12 @@
  */
 package com.kaan.schoolmanagementmaven.dataaccess.query;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
  *
  * @author kaan
+ * 
  */
 public interface IDefaultValuesQuery {
 

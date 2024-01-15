@@ -8,6 +8,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IStudentValueChangingQueries extends IPersonValueChangingQueries{
     void changeNormalStudentDebt (int uid , int value) throws SQLException ;

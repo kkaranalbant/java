@@ -35,13 +35,14 @@ public class AccessManager implements IAccessManager {
     private static File connectionFile;
     private static BufferedReader bufferedReader;
     private static FileReader fileReader;
-    private ITableCreatingQuery tableCreator ;
+    private ITableCreatingQuery tableCreator;
 
     static {
         connectionFile = new File("databaseinfo.txt");
         try {
             fileReader = new FileReader(connectionFile);
             bufferedReader = new BufferedReader(fileReader);
+            bufferedReader.mark(1000);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage());
         }
@@ -54,9 +55,9 @@ public class AccessManager implements IAccessManager {
         this.userName = userName;
         this.pass = pass;
         access = Access.getInstance();
-        String url = getConnectionURLString(host, port, dbName) ;
+        String url = getConnectionURLString(host, port, dbName);
         access.setConnection(DriverManager.getConnection(url, userName, pass));
-        tableCreator = TableCreatingQuery.getInstance() ;
+        tableCreator = TableCreatingQuery.getInstance();
     }
 
     public static IAccessManager changeAccessInformations(String hostName, int port, String dbName, String userName, String pass) throws SQLException, IOException {
@@ -66,30 +67,29 @@ public class AccessManager implements IAccessManager {
         return new AccessManager(hostName, port, dbName, userName, pass);
     }
 
-
-    public static Access loadAccessObject() throws SQLException, IOException , EmptyConnectionFileException {
-        List <String> resultList = throwExceptionIfEmptyConnectionFileOrElseReturnInformations();
+    public static Access loadAccessObject() throws SQLException, IOException, EmptyConnectionFileException {
+        List<String> resultList = throwExceptionIfEmptyConnectionFileOrElseReturnInformations();
         Connection connection = throwExceptionIfInvalidConnectionInformationsOrElseCreateConnection(resultList.get(0), Integer.parseInt(resultList.get(1)), resultList.get(2), resultList.get(3), resultList.get(4));
         changeDefaultDatabaseInfo(resultList.get(0), Integer.parseInt(resultList.get(1)), resultList.get(2), resultList.get(3), resultList.get(4));
         Access.getInstance().setConnection(connection);
         return Access.getInstance();
     }
 
-    private static Connection throwExceptionIfInvalidConnectionInformationsOrElseCreateConnection (String host, int port, String dbName, String userName, String pass) throws SQLException {
-        String url = getConnectionURLString(host, port, dbName) ;
-        return DriverManager.getConnection(url, userName, pass); 
+    private static Connection throwExceptionIfInvalidConnectionInformationsOrElseCreateConnection(String host, int port, String dbName, String userName, String pass) throws SQLException {
+        String url = getConnectionURLString(host, port, dbName);
+        return DriverManager.getConnection(url, userName, pass);
     }
-    
-    private static String getConnectionURLString (String host , int port , String dbName ) {
+
+    private static String getConnectionURLString(String host, int port, String dbName) {
         return "jdbc:mysql://" + host + ":" + port + "/" + dbName;
     }
-    
-    private static List<String> throwExceptionIfEmptyConnectionFileOrElseReturnInformations () throws EmptyConnectionFileException , IOException{
+
+    private static List<String> throwExceptionIfEmptyConnectionFileOrElseReturnInformations() throws EmptyConnectionFileException, IOException {
         List<String> resultList = getConnectionInformations();
         if (resultList == null) {
             throw new EmptyConnectionFileException();
         }
-        return resultList ;
+        return resultList;
     }
 
     private static void changeDefaultDatabaseInfo(String hostName, int port, String dbName, String userName, String pass) {
@@ -102,24 +102,24 @@ public class AccessManager implements IAccessManager {
 
     public static void changeConnectionFile(String host, int port, String dbName, String userName, String pass) throws IOException {
         resetConnectionFile();
-        BufferedWriter bufferedWriter = createNewBufferedWriterForConnectionFile () ;
+        BufferedWriter bufferedWriter = createNewBufferedWriterForConnectionFile();
         printInformationsToConnectionFile(host, port, dbName, userName, pass, bufferedWriter);
         bufferedWriter.close();
-        bufferedWriter = null ;
+        bufferedWriter = null;
     }
-    
-    private static void resetConnectionFile ()throws IOException {
+
+    private static void resetConnectionFile() throws IOException {
         connectionFile.delete();
         connectionFile.createNewFile();
     }
-    
-    private static BufferedWriter createNewBufferedWriterForConnectionFile () throws IOException{
+
+    private static BufferedWriter createNewBufferedWriterForConnectionFile() throws IOException {
         FileWriter fileWriter = new FileWriter(connectionFile);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-        return bufferedWriter ;
-    } 
-    
-    private static void printInformationsToConnectionFile (String host, int port, String dbName, String userName, String pass , BufferedWriter bufferedWriter) throws IOException {
+        return bufferedWriter;
+    }
+
+    private static void printInformationsToConnectionFile(String host, int port, String dbName, String userName, String pass, BufferedWriter bufferedWriter) throws IOException {
         bufferedWriter.write(host);
         bufferedWriter.newLine();
         bufferedWriter.write(Integer.toString(port));
@@ -134,10 +134,10 @@ public class AccessManager implements IAccessManager {
 
     private static boolean isEmptyConnectionFile() throws IOException {
         if (bufferedReader.readLine() == null) {
-            bufferedReaderReset();
+
             return true;
         }
-        bufferedReaderReset();
+        bufferedReader.reset();
         return false;
     }
 
@@ -146,19 +146,14 @@ public class AccessManager implements IAccessManager {
             return null;
         }
         List<String> informations = new ArrayList();
-        String accessInformation = null ;
+        String accessInformation = null;
         while ((accessInformation = bufferedReader.readLine()) != null) {
             informations.add(accessInformation);
         }
-        bufferedReaderReset();
+        bufferedReader.reset();
         return informations;
     }
     
-    private static void bufferedReaderReset () throws IOException{
-        bufferedReader.mark(0);
-        bufferedReader.reset();
-    }
-
     @Override
     public void createTables() throws SQLException {
         tableCreator.addAllTables();

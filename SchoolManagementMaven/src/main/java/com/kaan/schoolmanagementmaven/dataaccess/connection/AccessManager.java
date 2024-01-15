@@ -134,8 +134,10 @@ public class AccessManager implements IAccessManager {
 
     private static boolean isEmptyConnectionFile() throws IOException {
         if (bufferedReader.readLine() == null) {
+            bufferedReaderReset();
             return true;
         }
+        bufferedReaderReset();
         return false;
     }
 
@@ -147,9 +149,6 @@ public class AccessManager implements IAccessManager {
         String accessInformation = null ;
         while ((accessInformation = bufferedReader.readLine()) != null) {
             informations.add(accessInformation);
-        }
-        for (String xx : informations) {
-            System.out.println(xx);
         }
         bufferedReaderReset();
         return informations;

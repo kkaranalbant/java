@@ -20,6 +20,7 @@ import com.kaan.schoolmanagementmaven.exception.InvalidQuotaException;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminLessonChangingPanel extends javax.swing.JFrame {
 

@@ -17,6 +17,7 @@ import com.kaan.schoolmanagementmaven.person.IPersonCreatorManager;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminAddingManager implements IAdminAddingManager {
 

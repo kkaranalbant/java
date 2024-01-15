@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminPersonInformationManager implements IAdminStudentInformationManager, IAdminTeacherInformationManager {
 

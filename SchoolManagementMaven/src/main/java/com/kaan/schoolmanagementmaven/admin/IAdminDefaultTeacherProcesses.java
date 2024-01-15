@@ -10,6 +10,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAdminDefaultTeacherProcesses {
     void setTeacherUIDOrigin (int value) throws InvalidBoundAndOriginPairException , SQLException;

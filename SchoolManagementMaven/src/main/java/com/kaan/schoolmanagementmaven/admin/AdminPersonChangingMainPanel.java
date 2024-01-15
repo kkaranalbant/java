@@ -17,6 +17,7 @@ import com.kaan.schoolmanagementmaven.exception.InvalidUIDException;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminPersonChangingMainPanel extends javax.swing.JFrame {
 

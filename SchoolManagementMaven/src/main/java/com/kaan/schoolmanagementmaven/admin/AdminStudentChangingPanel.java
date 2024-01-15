@@ -23,6 +23,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniqueUsernameAndPassExceptio
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminStudentChangingPanel extends javax.swing.JFrame {
 

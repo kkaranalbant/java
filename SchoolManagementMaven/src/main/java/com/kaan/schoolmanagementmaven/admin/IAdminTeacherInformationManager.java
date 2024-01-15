@@ -8,6 +8,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAdminTeacherInformationManager {
     String getTeacherInfo () throws SQLException ;

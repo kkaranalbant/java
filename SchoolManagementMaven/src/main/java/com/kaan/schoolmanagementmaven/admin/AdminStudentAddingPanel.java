@@ -23,6 +23,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniquePhoneNumberException;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminStudentAddingPanel extends javax.swing.JFrame {
 

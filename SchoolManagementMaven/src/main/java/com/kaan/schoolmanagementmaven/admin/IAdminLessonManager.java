@@ -15,6 +15,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniqueLessonNameException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAdminLessonManager {
     public void addLesson (String name , int lesson_credit , int lessonHour , int quota , int midtermRate , int finalRate) throws SQLException, NotUniqueLessonNameException , InvalidQuotaException , InvalidLessonCreditException , InvalidFinalRateException , InvalidMidtermRateException;

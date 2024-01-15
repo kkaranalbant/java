@@ -14,11 +14,9 @@ import java.util.Map;
 /**
  *
  * @author kaan
+ * 
  */
 
-/*
-    Bu sinifin nesnesi veritabani kontrol nesnesi olacak bundan dolayi bir tane nesnesinin olusmasi yeterli.
-*/
 
 public class AdminLoginController implements IAdminLoginController {
 

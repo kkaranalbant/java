@@ -14,6 +14,7 @@ import com.kaan.schoolmanagementmaven.person.WorkingStudent;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminLogFileProcessPanel extends javax.swing.JFrame {
     private File file ;

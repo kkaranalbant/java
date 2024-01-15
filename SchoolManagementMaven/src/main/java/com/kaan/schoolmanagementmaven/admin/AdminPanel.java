@@ -10,6 +10,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminPanel extends javax.swing.JFrame {
 

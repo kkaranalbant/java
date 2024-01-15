@@ -17,6 +17,7 @@ import com.kaan.schoolmanagementmaven.exception.InvalidPassLengthException;
 /**
  *
  * @author kaan
+ * 
  */
 public class DatabaseProcessPanel extends javax.swing.JFrame {
 

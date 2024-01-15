@@ -15,6 +15,7 @@ import com.kaan.schoolmanagementmaven.log.LogManager;
 /**
  *
  * @author kaan
+ * 
  */
 public class Admin {
 

@@ -17,6 +17,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniqueLessonNameException;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminLessonManager implements IAdminLessonManager {
 

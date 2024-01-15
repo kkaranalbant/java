@@ -26,6 +26,7 @@ import com.kaan.schoolmanagementmaven.exception.InvalidMidtermRateException;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminLessonProcessPanel extends javax.swing.JFrame {
 

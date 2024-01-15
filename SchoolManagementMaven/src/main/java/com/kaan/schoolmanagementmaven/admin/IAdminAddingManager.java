@@ -15,6 +15,7 @@ import java.util.Map;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAdminAddingManager {
 

@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminPersonDeletingPanel extends javax.swing.JFrame {
 

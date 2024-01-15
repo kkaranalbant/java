@@ -8,6 +8,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAdminLoginController {
     boolean isValidUserNameAndPass (String userName , String pass) throws SQLException;

@@ -12,6 +12,7 @@ import com.kaan.schoolmanagementmaven.person.IPersonDeletingManager;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminPersonDeletingManager implements IAdminPersonDeletingManager {
 

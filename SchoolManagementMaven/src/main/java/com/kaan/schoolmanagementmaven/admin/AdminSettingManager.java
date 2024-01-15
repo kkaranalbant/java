@@ -22,6 +22,7 @@ import com.kaan.schoolmanagementmaven.person.PersonManager;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminSettingManager implements IAdminSettingManager{
 

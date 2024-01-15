@@ -19,6 +19,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniqueUsernameAndPassExceptio
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAdminSettingManager {
 

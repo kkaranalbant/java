@@ -10,6 +10,7 @@ import java.sql.SQLException ;
 /**
  *
  * @author kaan
+ * 
  */
 public interface IAdminPersonDeletingManager {
     void deletePersonByUID (int uid) throws InvalidUIDException , SQLException ;

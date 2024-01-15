@@ -13,6 +13,7 @@ import com.kaan.schoolmanagementmaven.exception.InvalidCostForPerHourException;
 /**
  *
  * @author kaan
+ * 
  */
 public class AdminDefaultPersonProcesses implements IAdminDefaultStudentProcesses , IAdminDefaultTeacherProcesses{
 

@@ -4,14 +4,16 @@
  */
 package com.kaan.schoolmanagementmaven.dataaccess.connection;
 
-import com.kaan.schoolmanagementmaven.dataaccess.query.FirstTimeDefaultInfoQuery;
-import com.kaan.schoolmanagementmaven.dataaccess.query.IFirstTimeDefaultInfoQuery;
+import com.kaan.schoolmanagementmaven.dataaccess.query.ITableCreatingQuery;
+import com.kaan.schoolmanagementmaven.dataaccess.query.TableCreatingQuery;
+import com.kaan.schoolmanagementmaven.exception.EmptyConnectionFileException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,14 +35,11 @@ public class AccessManager implements IAccessManager {
     private static File connectionFile;
     private static BufferedReader bufferedReader;
     private static FileReader fileReader;
+    private ITableCreatingQuery tableCreator ;
 
-    /*
-    Bu sinif yuklendigi zaman connectionFile referansi databaseInfo.txt isimli dosyayi gosterecek . 
-     */
     static {
         connectionFile = new File("databaseinfo.txt");
         try {
-
             fileReader = new FileReader(connectionFile);
             bufferedReader = new BufferedReader(fileReader);
         } catch (IOException ex) {
@@ -55,42 +54,42 @@ public class AccessManager implements IAccessManager {
         this.userName = userName;
         this.pass = pass;
         access = Access.getInstance();
-        access.setConnection(DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + dbName, userName, pass));
+        String url = getConnectionURLString(host, port, dbName) ;
+        access.setConnection(DriverManager.getConnection(url, userName, pass));
+        tableCreator = TableCreatingQuery.getInstance() ;
     }
 
-    /*
-    Metot once verilen baglanti bilgilerinin dogrulugunu kontrol eden baska bir metodu cagiriyor . 
-    Kontrol yapildiktan sonra eger bilgiler gecerli ise DefaultDatabaseInfo sinifindaki degerleri degistiren baska bir metot cagriliyor .
-    Daha sonra baglanti dosyasina verileri yazan baska bir metot cagiriyor .
-    En sonunda AccessMAnager nesnesini olusturuyor ve geriye donuyor .
-     */
     public static IAccessManager changeAccessInformations(String hostName, int port, String dbName, String userName, String pass) throws SQLException, IOException {
-        isValidDatabaseInformations(hostName, port, dbName, userName, pass);
+        throwExceptionIfInvalidConnectionInformationsOrElseCreateConnection(hostName, port, dbName, userName, pass);
         changeDefaultDatabaseInfo(hostName, port, dbName, userName, pass);
         changeConnectionFile(hostName, port, dbName, userName, pass);
         return new AccessManager(hostName, port, dbName, userName, pass);
     }
 
 
-    /*
-    Bu metot eger databaseinfo dosyasi dolu ise dogrulugunu kontrol ederek access nesnesi olusturmaya yariyor . 
-     */
-    public static Access loadAccessObject() throws SQLException, IOException {
-        List<String> resultList = getConnectionInformations();
-        if (resultList == null) {
-            throw new SQLException();
-        }
-        isValidDatabaseInformations(resultList.get(0), Integer.parseInt(resultList.get(1)), resultList.get(2), resultList.get(3), resultList.get(4));
+    public static Access loadAccessObject() throws SQLException, IOException , EmptyConnectionFileException {
+        List <String> resultList = throwExceptionIfEmptyConnectionFileOrElseReturnInformations();
+        Connection connection = throwExceptionIfInvalidConnectionInformationsOrElseCreateConnection(resultList.get(0), Integer.parseInt(resultList.get(1)), resultList.get(2), resultList.get(3), resultList.get(4));
         changeDefaultDatabaseInfo(resultList.get(0), Integer.parseInt(resultList.get(1)), resultList.get(2), resultList.get(3), resultList.get(4));
-        String url = "jdbc:mysql://" + DefaultDatabaseInfos.host + ":" + DefaultDatabaseInfos.port + "/" + DefaultDatabaseInfos.dbName;
-        Access.getInstance().setConnection(DriverManager.getConnection(url, DefaultDatabaseInfos.userName, DefaultDatabaseInfos.pass));
+        Access.getInstance().setConnection(connection);
         return Access.getInstance();
     }
 
-    private static boolean isValidDatabaseInformations(String host, int port, String dbName, String userName, String pass) throws SQLException {
-        String url = "jdbc:mysql://" + host + ":" + port + "/" + dbName;
-        DriverManager.getConnection(url, userName, pass); // burada exception firlatilirsa verilen bilgiler yanlis demek
-        return true;
+    private static Connection throwExceptionIfInvalidConnectionInformationsOrElseCreateConnection (String host, int port, String dbName, String userName, String pass) throws SQLException {
+        String url = getConnectionURLString(host, port, dbName) ;
+        return DriverManager.getConnection(url, userName, pass); 
+    }
+    
+    private static String getConnectionURLString (String host , int port , String dbName ) {
+        return "jdbc:mysql://" + host + ":" + port + "/" + dbName;
+    }
+    
+    private static List<String> throwExceptionIfEmptyConnectionFileOrElseReturnInformations () throws EmptyConnectionFileException , IOException{
+        List<String> resultList = getConnectionInformations();
+        if (resultList == null) {
+            throw new EmptyConnectionFileException();
+        }
+        return resultList ;
     }
 
     private static void changeDefaultDatabaseInfo(String hostName, int port, String dbName, String userName, String pass) {
@@ -102,10 +101,25 @@ public class AccessManager implements IAccessManager {
     }
 
     public static void changeConnectionFile(String host, int port, String dbName, String userName, String pass) throws IOException {
+        resetConnectionFile();
+        BufferedWriter bufferedWriter = createNewBufferedWriterForConnectionFile () ;
+        printInformationsToConnectionFile(host, port, dbName, userName, pass, bufferedWriter);
+        bufferedWriter.close();
+        bufferedWriter = null ;
+    }
+    
+    private static void resetConnectionFile ()throws IOException {
         connectionFile.delete();
-        connectionFile.createNewFile(); // dosyanin icerisindeki daha onceden olan verileri silmek icin
+        connectionFile.createNewFile();
+    }
+    
+    private static BufferedWriter createNewBufferedWriterForConnectionFile () throws IOException{
         FileWriter fileWriter = new FileWriter(connectionFile);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        return bufferedWriter ;
+    } 
+    
+    private static void printInformationsToConnectionFile (String host, int port, String dbName, String userName, String pass , BufferedWriter bufferedWriter) throws IOException {
         bufferedWriter.write(host);
         bufferedWriter.newLine();
         bufferedWriter.write(Integer.toString(port));
@@ -115,16 +129,10 @@ public class AccessManager implements IAccessManager {
         bufferedWriter.write(userName);
         bufferedWriter.newLine();
         bufferedWriter.write(pass);
-        bufferedWriter.flush(); // close etmedigimiz icin ve metot bittiginden dolayi tampondaki verileri dosyaya kaydetmeye yariyor . 
-        bufferedWriter.close();
-        fileWriter.close(); 
-        bufferedWriter = null ;
-        fileWriter = null ;
+        bufferedWriter.flush();
     }
 
     private static boolean isEmptyConnectionFile() throws IOException {
-        FileReader fileReader = new FileReader(connectionFile);
-        BufferedReader bufferedReader = new BufferedReader(fileReader);
         if (bufferedReader.readLine() == null) {
             return true;
         }
@@ -136,221 +144,27 @@ public class AccessManager implements IAccessManager {
             return null;
         }
         List<String> resultList = new ArrayList();
-        FileReader fileReader = new FileReader(connectionFile);
-        BufferedReader bufferedReader = new BufferedReader(fileReader);
         String value = null;
         while ((value = bufferedReader.readLine()) != null) {
             resultList.add(value);
         }
-        bufferedReader.mark(0); // birdaha veriler istenirse readerin basa donmesi icin isaretledim .
-        bufferedReader.reset(); // isaretlenen yere geri dondurmek icin .
+        bufferedReaderReset();
         return resultList;
+    }
+    
+    private static void bufferedReaderReset () throws IOException{
+        bufferedReader.mark(0);
+        bufferedReader.reset();
     }
 
     @Override
     public void createTables() throws SQLException {
-        addAdminTable();
-        addNormalStudentsTable();
-        addWorkingStudentsTable();
-        addTeacherTable();
-        addLessonTable();
-        addNormalStudentCourse();
-        addWorkingStudentCourse();
-        addNormalStudentsLoginInfo();
-        addWorkingStudentsLoginInfo();
-        addTeacherLoginInfo();
-        addNormalStudentExamNote();
-        addWorkingStudentExamNote();
-        addDefaultValues();
-        addCourseAttendance();
-        addTeacherBranch();
-
+        tableCreator.addAllTables();
     }
 
     public static void closeAllStreams() throws IOException {
         bufferedReader.close();
         fileReader.close();
-    }
-
-    private void addAdminTable() throws SQLException {
-        String query = "create table admin ("
-                + "username varchar(25),"
-                + "pass varchar(25)"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addNormalStudentsTable() throws SQLException {
-        String query = "create table normal_students ("
-                + "name varchar(25),"
-                + "last_name varchar(25),"
-                + "UID int primary key ,"
-                + "balance int,"
-                + "debt int,"
-                + "student_lesson_credit int,"
-                + "phone_number char (13)"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addWorkingStudentsTable() throws SQLException {
-        String query = "create table working_students ("
-                + "name varchar(25),"
-                + "last_name varchar(25),"
-                + "UID int primary key ,"
-                + "balance int,"
-                + "debt int,"
-                + "student_lesson_credit int,"
-                + "phone_number char (13)"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addTeacherTable() throws SQLException {
-        String query = "create table teachers ("
-                + "name varchar(25),"
-                + "last_name varchar(25),"
-                + "UID int primary key ,"
-                + "balance int,"
-                + "salary int,"
-                + "phone_number char (13)"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addLessonTable() throws SQLException {
-        String query = "create table lesson ("
-                + "lesson_name varchar(20),"
-                + "lesson_credit int,"
-                + "lesson_hour int,"
-                + "lesson_UID int primary key,"
-                + "quota int,"
-                + "average_midterm_rate int ,"
-                + "average_final_rate int"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addNormalStudentCourse() throws SQLException {
-        String query = "create table normal_students_course("
-                + "normal_student_UID int,"
-                + "lesson_UID int ,"
-                + "teacher_UID int ,"
-                + "foreign key (normal_student_UID) references normal_students(UID) ,"
-                + "foreign key (lesson_UID) references lesson(lesson_UID),"
-                + "foreign key (teacher_UID) references teachers (UID)"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addWorkingStudentCourse() throws SQLException {
-        String query = "create table working_students_course("
-                + "working_student_UID int,"
-                + "lesson_UID int ,"
-                + "teacher_UID int ,"
-                + "foreign key (working_student_UID) references working_students(UID) ,"
-                + "foreign key (lesson_UID) references lesson(lesson_UID),"
-                + "foreign key (teacher_UID) references teachers (UID)"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addNormalStudentsLoginInfo() throws SQLException {
-        String query = "create table normal_students_login_infos ("
-                + "normal_student_UID int primary key,"
-                + "username varchar (25) ,"
-                + "pass varchar (25),"
-                + "foreign key (normal_student_UID) references normal_students (UID)"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addWorkingStudentsLoginInfo() throws SQLException {
-        String query = "create table working_students_login_infos ("
-                + "working_student_UID int primary key,"
-                + "username varchar (25) ,"
-                + "pass varchar (25),"
-                + "foreign key (working_student_UID) references working_students (UID)"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addTeacherLoginInfo() throws SQLException {
-        String query = "create table teacher_login_infos ("
-                + "teacher_UID int primary key ,"
-                + "username varchar (25),"
-                + "pass varchar(25),"
-                + "foreign key (teacher_UID) references teachers (UID)"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addTeacherBranch() throws SQLException {
-        String query = "create table teacher_branch ("
-                + "teacher_UID int primary key,"
-                + "lesson_UID int,"
-                + "foreign key (teacher_UID) references teachers (UID) ,"
-                + "foreign key (lesson_UID) references lesson(lesson_UID)"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addNormalStudentExamNote() throws SQLException {
-        String query = "create table normal_student_exam_notes ("
-                + "student_UID int ,"
-                + "lesson_UID int ,"
-                + "primary key (student_UID , lesson_UID) ,"
-                + "foreign key (student_UID) references normal_students (UID) ,"
-                + "foreign key (lesson_UID) references lesson (lesson_UID),"
-                + "midterm int ,"
-                + "final int ,"
-                + "average int "
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addWorkingStudentExamNote() throws SQLException {
-        String query = "create table working_student_exam_notes ("
-                + "student_UID int ,"
-                + "lesson_UID int ,"
-                + "primary key (student_UID , lesson_UID) ,"
-                + "foreign key (student_UID) references working_students (UID) ,"
-                + "foreign key (lesson_UID) references lesson (lesson_UID),"
-                + "midterm int ,"
-                + "final int ,"
-                + "average int "
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addCourseAttendance() throws SQLException {
-        String query = "create table course_attendance ("
-                + "lesson_UID int primary key,"
-                + "attendance int,"
-                + "foreign key (lesson_UID) references lesson(lesson_UID)"
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-    }
-
-    private void addDefaultValues() throws SQLException {
-        String query = "create table default_values ("
-                + "default_lesson_credit int,"
-                + "default_max_debt_credit int,"
-                + "default_balance int ,"
-                + "default_debt int ,"
-                + "default_normal_student_UID_origin int ,"
-                + "default_normal_student_UID_bound int ,"
-                + "default_working_student_UID_origin int ,"
-                + "default_working_student_UID_bound int ,"
-                + "default_teacher_UID_origin int ,"
-                + "default_teacher_UID_bound int ,"
-                + "cost_for_per_hour int ,"
-                + "default_lesson_UID_origin int ,"
-                + "default_lesson_UID_bound int "
-                + ");";
-        access.getConnection().prepareStatement(query).executeUpdate();
-        IFirstTimeDefaultInfoQuery rowAdder = FirstTimeDefaultInfoQuery.getInstance();
-        rowAdder.addDefaultValuesRow();
     }
 
     public static File getConnectionFile() {

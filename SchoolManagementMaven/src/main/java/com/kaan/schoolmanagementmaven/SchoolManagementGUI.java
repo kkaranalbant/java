@@ -43,13 +43,9 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
     public SchoolManagementGUI() {
         initComponents();
         try {
-            AccessManager.loadAccessObject() ;
+            AccessManager.loadAccessObject();
         } catch (IOException | SQLException ex) {
             if (ex instanceof SQLException) {
-                /*
-                Yukaridan SQLException geliyorsa baglanti dosyasinin icerisindeki veriler hatali demektir ya da baglanti dosyasinin icerisi bos demektir . 
-                Bundan dolayi uygulama baslamadan dogru baglanti bilgilerini girmek icin FirstTimeAdminAccessLoginPanele yonlendiriyor . 
-                 */
                 adminLoginButton1.setEnabled(false);
                 studentLoginButton.setEnabled(false);
                 teacherLoginButton.setEnabled(false);
@@ -333,6 +329,9 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
             new NormalStudentPanel(this, student).setVisible(true);
             return;
         } catch (InvalidUserNameOrPassException | SQLException ex) {
+            /*
+            Burada InvalidUserNameOrPassException istisnasi icin hicbirsey yapmiyorum . Cunku henuz Calisan ogrencilerin giris bilgileri incelenmedi
+             */
             if (ex instanceof SQLException) {
                 ex.printStackTrace();
             }
@@ -359,7 +358,7 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
         String pass = String.copyValueOf(data);
         Admin admin = null;
         try {
-            admin = Admin.getInstance(userName, pass);
+            admin = Admin.getInstanceIfValidUsernameAndPass(userName, pass);
         } catch (SQLException | InvalidUserNameOrPassException ex) {
             if (ex instanceof InvalidUserNameOrPassException) {
                 JOptionPane.showMessageDialog(null, ex.getMessage());

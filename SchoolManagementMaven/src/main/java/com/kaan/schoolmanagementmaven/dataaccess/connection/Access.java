@@ -19,7 +19,6 @@ public class Access implements IAccess {
     private String pass;
     private String dbName;
     private int port;
-
     private String adminTable;
     private String normalStudentTable;
     private String workingStudentTable;
@@ -45,10 +44,7 @@ public class Access implements IAccess {
         pass = DefaultDatabaseInfos.pass;
         dbName = DefaultDatabaseInfos.dbName;
         port = DefaultDatabaseInfos.port;
-
-        String url = "jdbc:mysql://" + host + ":" + port + "/" + dbName;
-        connection = DriverManager.getConnection(url, userName, pass);
-
+        connection = createConnection(host, port, dbName, userName, pass) ;
         adminTable = DefaultDatabaseInfos.adminTable;
         normalStudentTable = DefaultDatabaseInfos.normalStudentTable;
         teacherTable = DefaultDatabaseInfos.teacherTable;
@@ -71,6 +67,15 @@ public class Access implements IAccess {
             access = new Access();
         }
         return access;
+    }
+    
+    private Connection createConnection (String host , int port , String dbName , String userName , String pass) throws SQLException {
+        String url = createConnectionString(host, port, dbName, userName, pass) ;
+        return DriverManager.getConnection(url, userName, pass) ;
+    }
+    
+    private String createConnectionString (String host , int port , String dbName , String userName , String pass) {
+        return "jdbc:mysql://"+host+":"+port+"/"+dbName ;
     }
 
     @Override
@@ -136,26 +141,6 @@ public class Access implements IAccess {
 
     public String getWorkingStudentExamTable() {
         return workingStudentExamTable;
-    }
-
-    void setHost(String host) {
-        this.host = host;
-    }
-
-    void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    void setPass(String pass) {
-        this.pass = pass;
-    }
-
-    void setDbName(String dbName) {
-        this.dbName = dbName;
-    }
-
-    void setPort(int port) {
-        this.port = port;
     }
 
     void setConnection(Connection connection) {

@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import com.kaan.schoolmanagementmaven.admin.AdminPanel;
 import com.kaan.schoolmanagementmaven.admin.FirstTimeAdminAccessLoginPanel;
 import com.kaan.schoolmanagementmaven.dataaccess.connection.AccessManager;
+import com.kaan.schoolmanagementmaven.exception.EmptyConnectionFileException;
 import com.kaan.schoolmanagementmaven.exception.IncompatibleUsernameAndPhoneNumberException;
 import com.kaan.schoolmanagementmaven.exception.InvalidPassLengthException;
 import com.kaan.schoolmanagementmaven.exception.InvalidUserNameOrPassException;
@@ -43,15 +44,13 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
         initComponents();
         try {
             AccessManager.loadAccessObject();
-        } catch (IOException | SQLException ex) {
-            if (ex instanceof SQLException) {
-                adminLoginButton1.setEnabled(false);
-                studentLoginButton.setEnabled(false);
-                teacherLoginButton.setEnabled(false);
-                new FirstTimeAdminAccessLoginPanel(this).setVisible(true);
-            } else {
-                ex.printStackTrace();
-            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        } catch (EmptyConnectionFileException | SQLException ex) {
+            adminLoginButton1.setEnabled(false);
+            studentLoginButton.setEnabled(false);
+            teacherLoginButton.setEnabled(false);
+            new FirstTimeAdminAccessLoginPanel(this).setVisible(true);
         }
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -98,12 +97,12 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 0, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 88, Short.MAX_VALUE)
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 88, Short.MAX_VALUE)
         );
 
         Header.setText("School Management Application");
@@ -187,99 +186,99 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(120, 120, 120)
-                .addComponent(adminLoginInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(TeacherLoginInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(143, 143, 143))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(146, 146, 146)
-                        .addComponent(adminLoginButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(studentLoginButton)
-                        .addGap(42, 42, 42))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(129, 129, 129)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(adminPassField)
-                            .addComponent(adminUserName, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE))
-                        .addGap(277, 277, 277)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(studentUserName)
-                            .addComponent(studentPassField)
-                            .addComponent(normalStudentLoginInfo, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE))))
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(teacherLoginButton)
-                        .addGap(184, 184, 184))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(319, 319, 319)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(teacherUserName, javax.swing.GroupLayout.DEFAULT_SIZE, 107, Short.MAX_VALUE)
-                            .addComponent(teacherPasswordField))
-                        .addGap(168, 168, 168))))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(502, 502, 502)
-                        .addComponent(forgotPassButton))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(471, 471, 471)
-                        .addComponent(Header)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(120, 120, 120)
+                                .addComponent(adminLoginInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(TeacherLoginInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(143, 143, 143))
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addGap(146, 146, 146)
+                                                .addComponent(adminLoginButton1)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(studentLoginButton)
+                                                .addGap(42, 42, 42))
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addGap(129, 129, 129)
+                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                        .addComponent(adminPassField)
+                                                        .addComponent(adminUserName, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE))
+                                                .addGap(277, 277, 277)
+                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(studentUserName)
+                                                        .addComponent(studentPassField)
+                                                        .addComponent(normalStudentLoginInfo, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE))))
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(teacherLoginButton)
+                                                .addGap(184, 184, 184))
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addGap(319, 319, 319)
+                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                        .addComponent(teacherUserName, javax.swing.GroupLayout.DEFAULT_SIZE, 107, Short.MAX_VALUE)
+                                                        .addComponent(teacherPasswordField))
+                                                .addGap(168, 168, 168))))
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addGap(502, 502, 502)
+                                                .addComponent(forgotPassButton))
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addGap(471, 471, 471)
+                                                .addComponent(Header)))
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Header, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(114, 114, 114)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(normalStudentLoginInfo)
-                    .addComponent(TeacherLoginInfo)
-                    .addComponent(adminLoginInfo))
-                .addGap(29, 29, 29)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(adminUserName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(studentUserName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(teacherUserName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(33, 33, 33)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(studentPassField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(teacherPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(adminPassField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(32, 32, 32)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(studentLoginButton)
-                    .addComponent(teacherLoginButton)
-                    .addComponent(adminLoginButton1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(forgotPassButton)
-                .addGap(78, 78, 78))
+                jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(Header, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(114, 114, 114)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(normalStudentLoginInfo)
+                                        .addComponent(TeacherLoginInfo)
+                                        .addComponent(adminLoginInfo))
+                                .addGap(29, 29, 29)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(adminUserName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(studentUserName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(teacherUserName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(33, 33, 33)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(studentPassField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(teacherPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(adminPassField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(32, 32, 32)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(studentLoginButton)
+                                        .addComponent(teacherLoginButton)
+                                        .addComponent(adminLoginButton1))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(forgotPassButton)
+                                .addGap(78, 78, 78))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(1, 1, 1))
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(1, 1, 1))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(515, 515, 515)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addGap(515, 515, 515)
+                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -292,6 +291,10 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
     private void studentUserNameActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
     }
+    
+    private void adminUserNameActionPerformed(java.awt.event.ActionEvent evt) {                                    
+        // TODO add your handling code here:
+    } 
 
     private void teacherLoginButtonActionPerformed(java.awt.event.ActionEvent evt) {
         String userName = teacherUserName.getText();
@@ -303,19 +306,27 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Welcome.");
             this.setVisible(false);
             new TeacherPanel(this, teacher).setVisible(true);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        } catch (InvalidUserNameOrPassException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage());
+        } catch (InvalidUserNameOrPassException | SQLException ex) {
+            showErrorMessage(ex);
         }
     }
-
+    
+    private void studentPassFieldActionPerformed(java.awt.event.ActionEvent evt) {                                    
+        // TODO add your handling code here:
+    } 
+    
+    private void teacherPasswordFieldActionPerformed(java.awt.event.ActionEvent evt) {                                    
+        // TODO add your handling code here:
+    } 
+    
+    private void adminPassFieldActionPerformed(java.awt.event.ActionEvent evt) {                                    
+        // TODO add your handling code here:
+    } 
+    
     private void studentLoginButtonActionPerformed(java.awt.event.ActionEvent evt) {
         String userName = studentUserName.getText();
-        char[] passArray = studentPassField.getPassword();
-        String pass = String.copyValueOf(passArray);
+        String pass = getPassword(studentPassField);
         IPersonCreatorManager personManager = null;
-
         try {
             personManager = PersonManager.getInstanceForCreatingManager();
             Student student = personManager.createNormalStudent(userName, pass);
@@ -323,62 +334,36 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
             this.setVisible(false);
             new NormalStudentPanel(this, student).setVisible(true);
             return;
-        } catch (InvalidUserNameOrPassException | SQLException ex) {
-            if (ex instanceof SQLException) {
-                ex.printStackTrace();
-            }
+        }
+        
+        catch (InvalidUserNameOrPassException ex) {
+            
+        }
+        catch (SQLException ex) {
+            showErrorMessage(ex);
         }
         try {
             WorkingStudent wStudent = personManager.createWorkingStudent(userName, pass);
             JOptionPane.showMessageDialog(null, "Welcome.");
             this.setVisible(false);
             new WorkingStudentPanel(this, wStudent).setVisible(true);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        } catch (InvalidUserNameOrPassException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage());
+        } catch (InvalidUserNameOrPassException | SQLException ex) {
+            showErrorMessage(ex);
         }
-    }
-
-    private void adminUserNameActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
     }
 
     private void adminLoginButton1ActionPerformed(java.awt.event.ActionEvent evt) {
         String userName = adminUserName.getText();
-        char[] data = adminPassField.getPassword();
-        String pass = String.copyValueOf(data);
+        String pass = getPassword(adminPassField);
         Admin admin = null;
         try {
             admin = Admin.getInstanceIfValidUsernameAndPass(userName, pass);
-        } catch (SQLException | InvalidUserNameOrPassException ex) {
-            if (ex instanceof InvalidUserNameOrPassException) {
-                JOptionPane.showMessageDialog(null, ex.getMessage());
-            } else {
-                ex.printStackTrace();
-            }
-            return;
+            JOptionPane.showMessageDialog(null, "Welcome");
+            this.setVisible(false);
+            new AdminPanel(this, admin).setVisible(true);
+        } catch (InvalidUserNameOrPassException | SQLException ex) {
+            showErrorMessage(ex);
         }
-        if (admin == null) {
-            JOptionPane.showMessageDialog(null, "Invalid username or password.");
-            return;
-        }
-        JOptionPane.showMessageDialog(null, "Welcome");
-        this.setVisible(false);
-        new AdminPanel(this, admin).setVisible(true);
-
-    }
-
-    private void studentPassFieldActionPerformed(java.awt.event.ActionEvent evt) {
-
-    }
-
-    private void teacherPasswordFieldActionPerformed(java.awt.event.ActionEvent evt) {
-
-    }
-
-    private void adminPassFieldActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
     }
 
     private void forgotPassButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -398,19 +383,15 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
                         personChanger.changeForgottenPass(phoneNumber, newPass);
                         return;
                     } catch (NotUniqueUsernameAndPassException | InvalidPassLengthException ex) {
-                        JOptionPane.showMessageDialog(null, ex.getMessage());
+                        showErrorMessage(ex);
                     }
                 } else {
                     rightNumber--;
                 }
             }
 
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        } catch (IncompatibleUsernameAndPhoneNumberException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage());
-        } catch (NumberFormatException | InputMismatchException ex) {
-            JOptionPane.showMessageDialog(null, "Invalid Entry");
+        } catch (NumberFormatException | InputMismatchException | IncompatibleUsernameAndPhoneNumberException | SQLException ex) {
+            showErrorMessage(ex);
         }
     }
 
@@ -465,6 +446,14 @@ public class SchoolManagementGUI extends javax.swing.JFrame {
     private String getPassword(JPasswordField passField) {
         char[] passData = passField.getPassword();
         return String.copyValueOf(passData);
+    }
+
+    private void showErrorMessage(Exception ex) {
+        if (ex instanceof NumberFormatException || ex instanceof InputMismatchException) {
+            JOptionPane.showMessageDialog(null, "Invalid Entry.");
+        } else {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
     }
 
     // Variables declaration - do not modify

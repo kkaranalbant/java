@@ -23,6 +23,7 @@ import com.kaan.schoolmanagementmaven.dataaccess.query.LessonFetchingQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.PersonFetchingQueries;
 import com.kaan.schoolmanagementmaven.exception.NotSufficentCreditException;
 import com.kaan.schoolmanagementmaven.exception.OutOfQuotaException;
+import com.kaan.schoolmanagementmaven.exception.ReachedMaximumRowNumberException;
 import com.kaan.schoolmanagementmaven.lesson.ILessonManager;
 import com.kaan.schoolmanagementmaven.lesson.Lesson;
 import com.kaan.schoolmanagementmaven.lesson.LessonManager;
@@ -127,26 +128,37 @@ public class Student extends Person {
         }
     }
 
-    String createExamInfoString(int studentUID ,List <Integer> lessonUIDs) throws SQLException{
+    String createExamInfoString(int studentUID, List<Integer> lessonUIDs) throws SQLException {
         StringBuilder sb = new StringBuilder();
         for (int currentLessonUID : lessonUIDs) {
             String lessonName = lessonFetcher.getLessonNamebyUID(currentLessonUID);
-            int currentExamMidterm = examGetter.getWorkingStudentMidtermValues(studentUID, currentLessonUID);
-            int currentExamFinal = examGetter.getWorkingStudentFinalValues(studentUID, currentLessonUID);
-            int currentExamAverage = examGetter.getWorkingStudentAverage(studentUID, currentLessonUID);
+            int currentExamMidterm = examGetter.getNormalStudentMidtermValues(studentUID, currentLessonUID);
+            int currentExamFinal = examGetter.getNormalStudentFinalValues(studentUID, currentLessonUID);
+            int currentExamAverage = examGetter.getNormalStudentAverage(studentUID, currentLessonUID);
             sb.append("Lesson name :    ").append(lessonName).append("    ").append("Midterm :   ").append(currentExamMidterm).append("    ").append("final :    ").append(currentExamFinal).append("     ").append("Average :    ").append(currentExamAverage).append("\n");
         }
         return sb.toString();
     }
 
     public void removeLesson(Lesson lesson) throws SQLException {
-        lessonList.remove(lesson);
+        lessonList.remove(findMatchingLessonInList(lesson));
         lessonCredit += lesson.getLessonCredit();
         personChangingManager.changeNormalStudentLessonCredit(personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName()), lessonCredit);
         lessonManager.removeLessonFromNormalStudentCourse(lesson.getName(), personFetcher.getPersonUIDByNameAndLastname(super.getName(), super.getLastName()));
     }
+    
+    Lesson findMatchingLessonInList(Lesson lesson) throws SQLException {
+        int lessonUID = lessonFetcher.getLessonUIDByLessonName(lesson.getName());
+        for (Lesson lessonInList : lessonList) {
+            int lessonInListUID = lessonFetcher.getLessonUIDByLessonName(lessonInList.getName());
+            if (lessonInListUID == lessonUID) {
+                return lessonInList;
+            }
+        }
+        return null;
+    }
 
-    public void beWorkingStudent() throws SQLException {
+    public void beWorkingStudent() throws SQLException, ReachedMaximumRowNumberException {
         studentConvertingManager.convertToWorkingStudent(this);
     }
 

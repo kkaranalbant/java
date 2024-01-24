@@ -9,7 +9,7 @@ import java.sql.SQLException;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public interface IDefaultValuesQuery {
 
@@ -64,13 +64,5 @@ public interface IDefaultValuesQuery {
     public int getDefaultLessonUIDBound() throws SQLException;
 
     public void setDefaultLessonUIDBound(int value) throws SQLException;
-    
-    public int getDefaultUsernameLength () throws SQLException ;
-    
-    public void setDefaultUsernameLength (int value) throws SQLException ;
-    
-    public int getDefaultPassLength () throws SQLException ;
-    
-    public void setDefaultPassLength (int value) throws SQLException ;
 
 }

@@ -17,6 +17,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniqueNameAndLastnameExceptio
 import com.kaan.schoolmanagementmaven.exception.NotUniqueUsernameAndPassException;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonFetchingQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ITeacherInformationQueries;
+import com.kaan.schoolmanagementmaven.dataaccess.query.PersonInformationQuery;
 import com.kaan.schoolmanagementmaven.exception.InvalidPhoneCountryCodeException;
 import com.kaan.schoolmanagementmaven.exception.InvalidPhoneNumberLengthException;
 import com.kaan.schoolmanagementmaven.exception.NotUniquePhoneNumberException;
@@ -63,7 +64,7 @@ public class AdminTeacherChangingPanel extends javax.swing.JFrame {
         salary.setText(Integer.toString(salaryDb));
         phoneNumberDb = teacherInfo.getString("phone_number") ;
         phoneNumberTf.setText(phoneNumberDb);
-        lessonFetcher = LessonFetchingQuery.getInstance();
+        this.teacherInfo = PersonInformationQuery.getInstanceForTeacher();
         branchIdDb = this.teacherInfo.getBranchId(uid);
         lessonList.removeAllItems();
         lessonFetcher = LessonFetchingQuery.getInstance();

@@ -32,7 +32,7 @@ public class FirstTimeDefaultInfoQuery extends Query implements IFirstTimeDefaul
     }
 
     private String getAddingDefaultValuesRowStringQuery() {
-        return "insert into " + super.getAccess().getDefaultValuesTable() + " values (" + 0 + "," + 0 + "," + 0 + "," + 0 + "," + 0 + "," + 1 + "," + 0 + "," + 1 + "," + 0 + "," + 1 + "," + 0 + "," + 0 + "," + 1 + ") ;";
+        return "insert into " + super.getAccess().getDefaultValuesTable() + " values ("+0+","+0+","+0+","+0+","+0+","+1+","+2+","+3+","+4+","+5+","+6+","+7+","+0+") ;" ;
     }
 
 }

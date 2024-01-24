@@ -19,9 +19,11 @@ public class LessonCourseQuery extends Query implements ILessonCourseQuery {
     private static ILessonCourseQuery courseQuery;
     private ILessonFetchingQuery lessonInfoFetcher;
     private IPersonFetchingQueries personFetcher ;
+    private static final int INVALID_UID ; 
 
     static {
         courseQuery = null;
+        INVALID_UID = -1 ;
     }
 
     private LessonCourseQuery() throws SQLException {
@@ -89,12 +91,15 @@ public class LessonCourseQuery extends Query implements ILessonCourseQuery {
     
     private int findTeacherUID (int studentUID , int lessonUID , String tableName , String columnName) throws SQLException {
         ResultSet teacherResultSet = findTeacher(studentUID, lessonUID, tableName, columnName);
-        teacherResultSet.next();
+        if (super.isEmptyResultSet(teacherResultSet)){
+            return INVALID_UID;
+        }
         return teacherResultSet.getInt("teacher_UID") ;
     }
     
     private ResultSet findTeacher (int studentUID , int lessonUID , String tableName , String columnName) throws SQLException {
         String query = getFindingTeacherQueryString(studentUID, lessonUID, tableName, columnName);
+        System.out.println(query);
         return super.runGettingQuery(query);
     }
     
@@ -149,11 +154,12 @@ public class LessonCourseQuery extends Query implements ILessonCourseQuery {
     
     private void addLessonAndStudentToCourse(String lessonName, int studentUID, int teacherUID, String tableName) throws SQLException {
         int lessonUID = lessonInfoFetcher.getLessonUIDByLessonName(lessonName);
-        String query = getAddingLessonAndStudentToCourseQueryString(lessonName, studentUID, teacherUID, tableName , lessonUID) ;
+        String query = getAddingLessonAndStudentToCourseQueryString(studentUID, teacherUID, tableName , lessonUID) ;
         super.runUpdatingQuery(query);
     }
     
-    private String getAddingLessonAndStudentToCourseQueryString (String lessonName, int studentUID, int teacherUID, String tableName , int lessonUID) throws SQLException {
+    private String getAddingLessonAndStudentToCourseQueryString (int studentUID, int teacherUID, String tableName , int lessonUID) throws SQLException {
+        System.out.println("insert into " + tableName + " values (" + studentUID + "," + lessonUID + "," + teacherUID + ") ;");
         return "insert into " + tableName + " values (" + studentUID + "," + lessonUID + "," + teacherUID + ") ;";
     }
 

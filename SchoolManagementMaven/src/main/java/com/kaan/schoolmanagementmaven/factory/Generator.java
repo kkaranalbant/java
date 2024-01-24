@@ -19,7 +19,7 @@ import com.kaan.schoolmanagementmaven.dataaccess.query.LessonFetchingQuery;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class Generator implements IPersonUIDGenerator, IUsernameAndPassGenerator, ILessonUIDGenerator, IOTPGenerator {
 
@@ -132,9 +132,9 @@ public class Generator implements IPersonUIDGenerator, IUsernameAndPassGenerator
     }
 
     private int generateUIDForAllPersons(int origin, int bound) throws SQLException {
-        int id = random.nextInt(origin, bound);
+        int id = random.nextInt(origin, bound + 1);
         while (!(isUniqueIDForWorkingStudent(id) && isUniqueIDForNormalStudent(id) && isUniqueIDForTeacher(id))) {
-            id = random.nextInt(origin, bound);
+            id = random.nextInt(origin, bound + 1);
         }
         return id;
     }
@@ -143,9 +143,9 @@ public class Generator implements IPersonUIDGenerator, IUsernameAndPassGenerator
     public int generateUIDForLesson() throws SQLException {
         int origin = defaultValuesQuery.getDefaultLessonUIDOrigin();
         int bound = defaultValuesQuery.getDefaultLessonUIDBound();
-        int id = random.nextInt(origin, bound);
+        int id = random.nextInt(origin, bound+1);
         while (!isUniqueIDForLesson(id)) {
-            id = random.nextInt(origin, bound);
+            id = random.nextInt(origin, bound+1);
         }
         return id;
     }

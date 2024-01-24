@@ -131,7 +131,7 @@ public class PersonValueChangingQueries extends Query implements IStudentValueCh
 
     @Override
     public void changeWorkingStudentLessonCredit(int uid, int value) throws SQLException {
-        setStudentLessonCredit(uid, value, super.getAccess().getWorkingStudentTable(), "lesson_credit");
+        setStudentLessonCredit(uid, value, super.getAccess().getWorkingStudentTable(), "student_lesson_credit");
     }
 
     @Override
@@ -214,7 +214,7 @@ public class PersonValueChangingQueries extends Query implements IStudentValueCh
     }
 
     private String getChangingPersonLoginInfoQueryString(String tableName, String columnName, String newValue, String uidColumnName, int uid) {
-        return "update " + tableName + " set " + columnName + " = '" + newValue + " ' where " + uidColumnName + " = " + uid + " ;";
+        return "update " + tableName + " set " + columnName + " = '" + newValue + "' where " + uidColumnName + " = " + uid + " ;";
     }
 
     @Override

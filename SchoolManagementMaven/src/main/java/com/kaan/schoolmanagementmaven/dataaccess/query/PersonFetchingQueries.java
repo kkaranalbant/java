@@ -77,8 +77,7 @@ public class PersonFetchingQueries extends Query implements IPersonFetchingQueri
     }
 
     private ResultSet getAllPersonInfo(String tableName) throws SQLException {
-        String query = getPersonInfoStringQuery(tableName);
-        return super.runGettingQuery(query);
+        return super.runGettingQuery(getPersonInfoStringQuery(tableName));
     }
 
     private String getPersonInfoStringQuery(String tableName) {
@@ -88,30 +87,25 @@ public class PersonFetchingQueries extends Query implements IPersonFetchingQueri
     @Override
     public int getPersonUIDByNameAndLastname(String name, String lastName) throws SQLException {
         ResultSet normalStudentUID = getPersonUIDByNameAndLastname(name, lastName, super.getAccess().getNormalStudentTable());
-        if (isEmptyResultSet(normalStudentUID)) {
-            return getPersonUIDFromResultSet(normalStudentUID);
+        int uid = getPersonUIDFromResultSet(normalStudentUID);
+        if (uid != INVALID_UID) {
+            return uid;
         }
         ResultSet workingStudentUID = getPersonUIDByNameAndLastname(name, lastName, super.getAccess().getWorkingStudentTable());
-        if (isEmptyResultSet(workingStudentUID)) {
-            return getPersonUIDFromResultSet(workingStudentUID);
+        uid = getPersonUIDFromResultSet(workingStudentUID);
+        if (uid != INVALID_UID) {
+            return uid;
         }
         ResultSet teacherUID = getPersonUIDByNameAndLastname(name, lastName, super.getAccess().getTeacherTable());
-        if (isEmptyResultSet(teacherUID)) {
-            return getPersonUIDFromResultSet(teacherUID);
-        }
-        return INVALID_UID;
+        uid = getPersonUIDFromResultSet(teacherUID);
+        return uid;
     }
 
     private int getPersonUIDFromResultSet(ResultSet personUID) throws SQLException {
-        if (isEmptyResultSet(personUID)) {
+        if (super.isEmptyResultSet(personUID)) {
             return INVALID_UID;
         }
-        personUID.next();
         return personUID.getInt("UID");
-    }
-
-    private boolean isEmptyResultSet(ResultSet resultSet) throws SQLException {
-        return !resultSet.next();
     }
 
     private ResultSet getPersonUIDByNameAndLastname(String name, String lastName, String tableName) throws SQLException {
@@ -120,6 +114,7 @@ public class PersonFetchingQueries extends Query implements IPersonFetchingQueri
     }
 
     private String getPersonUIDByNameAndLastnameQueryString(String name, String lastName, String tableName) {
+        System.out.println("UID Command : " + "select UID from " + tableName + " where name = '" + name + "' and last_name = '" + lastName + "' ;");
         return "select UID from " + tableName + " where name = '" + name + "' and last_name = '" + lastName + "' ;";
     }
 

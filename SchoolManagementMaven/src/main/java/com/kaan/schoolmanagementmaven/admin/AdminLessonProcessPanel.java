@@ -8,12 +8,11 @@ import java.io.IOException;
 import javax.swing.JOptionPane;
 import java.sql.SQLException;
 import java.util.InputMismatchException;
-import com.kaan.schoolmanagementmaven.dataaccess.query.DefaultValuesQuery;
-import com.kaan.schoolmanagementmaven.dataaccess.query.IDefaultValuesQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonAttendanceQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonFetchingQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.LessonAttendanceQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.LessonFetchingQuery;
+import com.kaan.schoolmanagementmaven.exception.BoundAndOriginRangeSmallerThanRowNumberException;
 import com.kaan.schoolmanagementmaven.exception.InvalidBoundAndOriginPairException;
 import com.kaan.schoolmanagementmaven.exception.InvalidLessonCreditException;
 import com.kaan.schoolmanagementmaven.exception.InvalidQuotaException;
@@ -22,17 +21,18 @@ import com.kaan.schoolmanagementmaven.exception.NotUniqueLessonNameException;
 import java.sql.ResultSet;
 import com.kaan.schoolmanagementmaven.exception.InvalidFinalRateException;
 import com.kaan.schoolmanagementmaven.exception.InvalidMidtermRateException;
+import com.kaan.schoolmanagementmaven.exception.ReachedMaximumRowNumberException;
 
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class AdminLessonProcessPanel extends javax.swing.JFrame {
 
     private IAdminLessonManager lessonManager;
     private ILessonFetchingQuery lessonFetcher;
-    private IDefaultValuesQuery defValQuery;
+    private IAdminDefaultLessonProcessesManager defaultLessonProcessesManager;
     private ILessonAttendanceQuery lessonAttendanceQuery;
 
     /**
@@ -43,7 +43,7 @@ public class AdminLessonProcessPanel extends javax.swing.JFrame {
         lessonManager = AdminLessonManager.getInstance();
         lessonList.removeAllItems();
         lessonFetcher = LessonFetchingQuery.getInstance();
-        defValQuery = DefaultValuesQuery.getInstance();
+        defaultLessonProcessesManager = AdminDefaultLessonProcessesManager.getInstance();
         lessonAttendanceQuery = LessonAttendanceQuery.getInstance();
 
         for (String currentLessonName : lessonFetcher.getAllLessonNames()) {
@@ -285,13 +285,9 @@ public class AdminLessonProcessPanel extends javax.swing.JFrame {
                 Admin.getLogManager().saveMessage("Lesson added : " + name);
 
             }
-        } catch (NumberFormatException | InputMismatchException | SQLException | NotUniqueLessonNameException | InvalidQuotaException | InvalidLessonCreditException | InvalidFinalRateException | InvalidMidtermRateException | IOException ex) {
+        } catch (NumberFormatException | InputMismatchException | SQLException | NotUniqueLessonNameException | InvalidQuotaException | InvalidLessonCreditException | InvalidFinalRateException | InvalidMidtermRateException | IOException | ReachedMaximumRowNumberException ex) {
             if (ex instanceof NumberFormatException || ex instanceof InputMismatchException) {
                 JOptionPane.showMessageDialog(null, "Invalid entry.");
-            } else if (ex instanceof SQLException) {
-                ex.printStackTrace();
-            } else if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
             } else {
                 JOptionPane.showMessageDialog(null, ex.getMessage());
             }
@@ -312,13 +308,7 @@ public class AdminLessonProcessPanel extends javax.swing.JFrame {
 
             }
         } catch (SQLException | InvalidUIDException | IOException ex) {
-            if (ex instanceof SQLException) {
-                ex.printStackTrace();
-            } else if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
-                JOptionPane.showMessageDialog(null, ex.getMessage());
-            }
+            JOptionPane.showMessageDialog(null, ex.getMessage());
         }
     }//GEN-LAST:event_removeButtonActionPerformed
 
@@ -326,21 +316,20 @@ public class AdminLessonProcessPanel extends javax.swing.JFrame {
         String valueText = lessonUIDOrigin.getText();
         try {
             int value = Integer.parseInt(valueText);
-            if (value >= defValQuery.getDefaultLessonUIDBound()) throw new InvalidBoundAndOriginPairException() ;
-            defValQuery.setDefaultLessonUIDOrigin(value);
+            defaultLessonProcessesManager.setLessonUIDOrigin(value);
             JOptionPane.showMessageDialog(null, "Successful.");
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Lesson UID Origin value changed new value : " + value);
 
             }
-        } catch (SQLException | NumberFormatException | InputMismatchException |  InvalidBoundAndOriginPairException  | IOException ex) {
+        } catch (SQLException | NumberFormatException | InputMismatchException | InvalidBoundAndOriginPairException | IOException | BoundAndOriginRangeSmallerThanRowNumberException ex) {
             if (ex instanceof SQLException) {
                 ex.printStackTrace();
             } else if (ex instanceof IOException) {
                 JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
             } else if (ex instanceof InvalidBoundAndOriginPairException) {
                 JOptionPane.showMessageDialog(null, ex.getMessage());
-            }else {
+            } else {
                 JOptionPane.showMessageDialog(null, "Invalid Entry");
             }
         }
@@ -350,23 +339,20 @@ public class AdminLessonProcessPanel extends javax.swing.JFrame {
         String valueText = lessonUIDBound.getText();
         try {
             int value = Integer.parseInt(valueText);
-            if (defValQuery.getDefaultLessonUIDOrigin() >= value) throw new InvalidBoundAndOriginPairException () ;
-            defValQuery.setDefaultLessonUIDBound(value);
+            defaultLessonProcessesManager.setLessonUIDBound(value);
             JOptionPane.showMessageDialog(null, "Successful.");
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Lesson UID Bound value changed new value : " + value);
 
             }
-        } catch (SQLException | NumberFormatException | InputMismatchException | IOException | InvalidBoundAndOriginPairException ex) {
+        } catch (SQLException | NumberFormatException | InputMismatchException | IOException | InvalidBoundAndOriginPairException | BoundAndOriginRangeSmallerThanRowNumberException ex) {
             if (ex instanceof SQLException) {
                 ex.printStackTrace();
             } else if (ex instanceof IOException) {
                 JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            }
-            else if (ex instanceof InvalidBoundAndOriginPairException) {
+            } else if (ex instanceof InvalidBoundAndOriginPairException) {
                 JOptionPane.showMessageDialog(null, ex.getMessage());
-            }
-            else {
+            } else {
                 JOptionPane.showMessageDialog(null, "Invalid Entry");
             }
         }

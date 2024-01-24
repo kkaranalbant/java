@@ -104,7 +104,7 @@ public class PersonInformationQuery extends Query implements IStudentInformation
     private void addTeacherNameOrLastnameList(String columnName, int branchID, List<String> teacherNamesOrLastnames) throws SQLException {
         ResultSet teachers = getAllTeacherUIDWith(branchID);
         while (teachers.next()) {
-            int teacherUID = teachers.getInt("UID");
+            int teacherUID = teachers.getInt("teacher_UID");
             ResultSet teacher = personFetcher.getTeacherInfo(teacherUID);
             String nameOrLastname = getTeacherNameOrLastName(columnName, teacher);
             teacherNamesOrLastnames.add(nameOrLastname);

@@ -41,4 +41,9 @@ public abstract class Query {
         return pStatement.executeQuery() ;
     }
     
+    boolean isEmptyResultSet (ResultSet resultSet) throws SQLException{
+        
+        return !resultSet.next();
+    }
+    
 }

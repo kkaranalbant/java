@@ -183,7 +183,7 @@ public class DatabaseProcessPanel extends javax.swing.JFrame {
                 String adminUsername = JOptionPane.showInputDialog("New Admin Username : ") ;
                 String adminPass = JOptionPane.showInputDialog("New Admin Password : ") ;
                 if (adminUsername.length() < 8 || adminPass.length() < 8) throw new InvalidPassLengthException () ; // bir managerde kontrol edilsin .
-                adminLoginInfoSetter.addAdmin(userName, pass);
+                adminLoginInfoSetter.addAdmin(adminUsername, adminPass);
                 if (Admin.getLogManager() != null) {
                     Admin.getLogManager().saveMessage("Database values changed .\n Host : " + host + "\n Port : " + port + "\nDatabase name : " + dbName + "\nUsername :" + userName + "\nPassword : " + pass);
                 }

@@ -9,8 +9,6 @@ import com.kaan.schoolmanagementmaven.dataaccess.connection.AccessManager;
 import com.kaan.schoolmanagementmaven.dataaccess.connection.IAccessManager;
 import com.kaan.schoolmanagementmaven.dataaccess.query.AdminLoginInfoQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.IAdminLoginInfoAddingQuery;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
@@ -18,7 +16,7 @@ import javax.swing.JOptionPane;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class FirstTimeAdminAccess extends javax.swing.JFrame {
 
@@ -30,8 +28,6 @@ public class FirstTimeAdminAccess extends javax.swing.JFrame {
     private String pass;
     private SchoolManagementGUI mainPanel;
 
-    
-
     /**
      * Creates new form FirstTimeAdminAccess
      */
@@ -39,8 +35,6 @@ public class FirstTimeAdminAccess extends javax.swing.JFrame {
         initComponents();
         this.mainPanel = mainPanel;
     }
-
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -160,11 +154,11 @@ public class FirstTimeAdminAccess extends javax.swing.JFrame {
                 pass = passwordTf.getText();
                 userName = userNameTf.getText();
                 dbName = dbNameTf.getText();
-                AccessManager.changeAccessInformations(host, port, dbName, userName, pass).createTables(); 
-                String userName = JOptionPane.showInputDialog("Admin username : ");
-                String password = JOptionPane.showInputDialog("Admin password : "); // kullanici adi ve sifrenin uzunlugunun kontrolu yapilsin .
-                IAdminLoginInfoAddingQuery adminInfoAdder = AdminLoginInfoQuery.getInstanceForAdding(); // manager yapsin.
-                adminInfoAdder.addAdmin(userName, password);
+                AccessManager.changeAccessInformations(host, port, dbName, userName, pass).createTables();
+                String adminUsername = JOptionPane.showInputDialog("Admin username : ");
+                String adminPassword = JOptionPane.showInputDialog("Admin password : ");
+                IAdminLoginInfoAddingQuery adminInfoAdder = AdminLoginInfoQuery.getInstanceForAdding();
+                adminInfoAdder.addAdmin(adminUsername, adminPassword);
                 mainPanel.getAdminLoginButton1().setEnabled(true);
                 mainPanel.getStudentLoginButton().setEnabled(true);
                 mainPanel.getTeacherLoginButton().setEnabled(true);
@@ -173,24 +167,9 @@ public class FirstTimeAdminAccess extends javax.swing.JFrame {
         } catch (SQLException | IOException | NumberFormatException ex) {
             if (ex instanceof NumberFormatException) {
                 JOptionPane.showMessageDialog(null, "Invalid Port entry.");
-            }
-            else {
-                    JOptionPane.showMessageDialog(null, ex.getMessage());
-            } /*
-            else {
+            } else {
                 JOptionPane.showMessageDialog(null, ex.getMessage());
-                try {
-                    FileWriter fileWriter = new FileWriter (AccessManager.getConnectionFile()) ; 
-                    BufferedWriter bufferedWriter = new BufferedWriter (fileWriter) ;
-                    bufferedWriter.write("");
-                    bufferedWriter.close(); 
-                    fileWriter.close();
-                }
-                catch (IOException ex1) {
-                    JOptionPane.showMessageDialog(null, ex1.getMessage());
-                }
             }
-            */
         }
     }//GEN-LAST:event_changeButtonActionPerformed
 

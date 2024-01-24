@@ -4,6 +4,8 @@
  */
 package com.kaan.schoolmanagementmaven.person;
 
+import com.kaan.schoolmanagementmaven.dataaccess.query.DefaultValuesQuery;
+import com.kaan.schoolmanagementmaven.dataaccess.query.IDefaultValuesQuery;
 import java.sql.SQLException;
 import com.kaan.schoolmanagementmaven.exception.InvalidUserNameOrPassException;
 import java.sql.ResultSet;
@@ -46,12 +48,12 @@ import com.kaan.schoolmanagementmaven.exception.InvalidPhoneCountryCodeException
 import com.kaan.schoolmanagementmaven.exception.InvalidPhoneNumberLengthException;
 import com.kaan.schoolmanagementmaven.exception.InvalidUsernameLengthException;
 import com.kaan.schoolmanagementmaven.exception.NotUniquePhoneNumberException;
+import com.kaan.schoolmanagementmaven.exception.ReachedMaximumRowNumberException;
 import com.kaan.schoolmanagementmaven.factory.IOTPGenerator;
 import com.kaan.schoolmanagementmaven.factory.IPersonUIDGenerator;
 import com.kaan.schoolmanagementmaven.lesson.Lesson;
 import com.kaan.schoolmanagementmaven.sms.IMessageSendingManager;
 import com.kaan.schoolmanagementmaven.sms.MessageSendingManager;
-import javax.activation.DataContentHandler;
 
 /**
  *
@@ -81,6 +83,8 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
     private IMessageSendingManager messageSender;
     private IOTPGenerator otpGen;
 
+    private IDefaultValuesQuery defValQuery;
+
     private static final int INVALID_UID_NUMBER;
 
     static {
@@ -102,6 +106,7 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
         teacherChangingQuery = PersonValueChangingQueries.getInstanceForTeacher();
         converter = PersonConvertingQuery.getInstance();
         lessonCourseQuery = LessonCourseQuery.getInstance();
+        defValQuery = DefaultValuesQuery.getInstance();
     }
 
     public static IPersonDeletingManager getInstanceForDeletingManager() throws SQLException {
@@ -181,7 +186,8 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
     }
 
     @Override
-    public Map<String, String> createNewNormalStudentAndReturnLoginInfo(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException {
+    public Map<String, String> createNewNormalStudentAndReturnLoginInfo(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException, ReachedMaximumRowNumberException {
+        throwExceptionIfReachedMaxRowNumberInNormalStudentTable();
         phoneNumberControl(phoneNumber);
         throwExceptionIfNotUniqueNameAndLastname(name, lastName);
         Map<String, String> usernameAndPass = usernameAndPassGen.generateUsernameAndPass();
@@ -194,7 +200,8 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
     }
 
     @Override
-    public Map<String, String> createNewWorkingStudentAndReturnLoginInfo(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException {
+    public Map<String, String> createNewWorkingStudentAndReturnLoginInfo(String name, String lastName, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException, ReachedMaximumRowNumberException {
+        throwExceptionIfReachedMaxRowNumberInWorkingStudentTable();
         phoneNumberControl(phoneNumber);
         throwExceptionIfNotUniqueNameAndLastname(name, lastName);
         Map<String, String> usernameAndPass = usernameAndPassGen.generateUsernameAndPass();
@@ -206,7 +213,8 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
     }
 
     @Override
-    public Map<String, String> createNewTeacherAndReturnLoginInfo(String name, String lastName, String branchName, int salary, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException, InvalidPhoneCountryCodeException, InvalidPhoneNumberLengthException {
+    public Map<String, String> createNewTeacherAndReturnLoginInfo(String name, String lastName, String branchName, int salary, String phoneNumber) throws NotUniqueNameAndLastnameException, SQLException, NotUniquePhoneNumberException, InvalidPhoneCountryCodeException, InvalidPhoneNumberLengthException, ReachedMaximumRowNumberException {
+        throwExceptionIfReachedMaxRowNumberInTeacherTable();
         phoneNumberControl(phoneNumber);
         throwExceptionIfNotUniqueNameAndLastname(name, lastName);
         Map<String, String> usernameAndPass = usernameAndPassGen.generateUsernameAndPass();
@@ -243,6 +251,7 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
         while (resultSet.next()) {
             String nameInDb = resultSet.getString("name");
             String lastNameInDb = resultSet.getString("last_name");
+            System.out.println("Name:"+nameInDb+"\nLastname: "+lastNameInDb);
             if (name.equals(nameInDb) && lastName.equals(lastNameInDb)) {
                 return false;
             }
@@ -264,15 +273,6 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
             throw new NotUniqueNameAndLastnameException();
         }
 
-    }
-
-    private boolean isUniquePhoneNumber(ResultSet resultSet, String phoneNumber) throws SQLException {
-        while (resultSet.next()) {
-            if (resultSet.getString("phone_number").equals(phoneNumber)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     @Override
@@ -519,8 +519,9 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
     }
 
     @Override
-    public void convertToNormalStudent(WorkingStudent workingStudent) throws SQLException {
-        int newUID = uidGen.generateUIDForWorkingStudent();
+    public void convertToNormalStudent(WorkingStudent workingStudent) throws SQLException, ReachedMaximumRowNumberException {
+        throwExceptionIfReachedMaxRowNumberInNormalStudentTable();
+        int newUID = uidGen.generateUIDForNormalStudent();
         String userName = workingStudent.getUserName();
         String pass = workingStudent.getPass();
         String name = workingStudent.getName();
@@ -537,7 +538,8 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
     }
 
     @Override
-    public void convertToWorkingStudent(Student student) throws SQLException {
+    public void convertToWorkingStudent(Student student) throws SQLException, ReachedMaximumRowNumberException {
+        throwExceptionIfReachedMaxRowNumberInWorkingStudentTable();
         int newUID = uidGen.generateUIDForWorkingStudent();
         String userName = student.getUserName();
         String pass = student.getPass();
@@ -548,9 +550,12 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
         int debt = student.getDebt();
         int balance = student.getBalance();
         int lessonCredit = student.getLessonCredit();
-        List<Lesson> lessonList = student.getLessonList();
+        List<Lesson> lessons = student.getLessonList();
+        for(Lesson lesson : lessons) {
+            System.out.println(lesson.getName());
+        }
         Map<Integer, Integer> lessonsAndTeachersForStudent = new HashMap();
-        putLessonUIDAndTeacherUIDToMap(lessonsAndTeachersForStudent, lessonList, uid);
+        putLessonUIDAndTeacherUIDToMap(lessonsAndTeachersForStudent, lessons, uid);
         converter.convertToWorkingStudent(userName, pass, name, lastName, uid, newUID, balance, debt, lessonCredit, lessonsAndTeachersForStudent, phoneNumber);
     }
 
@@ -558,6 +563,11 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
         for (Lesson currentLesson : lessons) {
             int lessonUID = lessonFetchingQuery.getLessonUIDByLessonName(currentLesson.getName());
             int teacherUID = lessonCourseQuery.findTeacherUIDFromNormalStudentCourse(studentUID, lessonUID);
+            System.out.println("Teacher UID : "+teacherUID);
+            if (teacherUID == INVALID_UID_NUMBER) {
+                teacherUID = lessonCourseQuery.findTeacherUIDFromWorkingStudentCourse(studentUID, lessonUID) ;
+                System.out.println("Teacher UID : "+teacherUID);
+            }
             lessonsAndTeachers.put(lessonUID, teacherUID);
         }
     }
@@ -616,9 +626,67 @@ public class PersonManager implements IPersonCreatorManager, IPersonDeletingMana
         }
     }
 
-    private void phoneNumberControl(String PhoneNumber) throws InvalidPhoneNumberLengthException, InvalidPhoneCountryCodeException, NotUniquePhoneNumberException, SQLException {
-        throwExceptionIfInvalidPhoneNumber(PhoneNumber);
-        throwExceptionIfNotUniquePhoneNumber(PhoneNumber);
+    private boolean isUniquePhoneNumber(ResultSet resultSet, String phoneNumber) throws SQLException {
+        boolean isUnique = true;
+        while (resultSet.next()) {
+            if (resultSet.getString("phone_number").equals(phoneNumber)) {
+                isUnique = false;
+                break;
+            }
+        }
+        return isUnique;
+    }
+
+    private void phoneNumberControl(String phoneNumber) throws InvalidPhoneNumberLengthException, InvalidPhoneCountryCodeException, NotUniquePhoneNumberException, SQLException {
+        throwExceptionIfInvalidPhoneNumber(phoneNumber);
+        throwExceptionIfNotUniquePhoneNumber(phoneNumber);
+    }
+
+    private int getRowNumberOfTable(ResultSet table) throws SQLException {
+        int counter = 0;
+        while (table.next()) {
+            counter++;
+        }
+        return counter;
+    }
+
+    private void throwExceptionIfReachedMaxRowNumberInNormalStudentTable() throws ReachedMaximumRowNumberException, SQLException {
+        boolean isReached = isReachedMaxRowNumberInNormalStudentTable(personFetchingQuery.getAllNormalStudentInfo());
+        if (isReached) {
+            throw new ReachedMaximumRowNumberException();
+        }
+    }
+
+    private boolean isReachedMaxRowNumberInNormalStudentTable(ResultSet normalStudents) throws SQLException {
+        int rowNumber = getRowNumberOfTable(normalStudents);
+        int range = defValQuery.getDefaultNormalStudentUIDBound() - defValQuery.getDefaultNormalStudentUIDOrigin() + 1;
+        return rowNumber == range;
+    }
+
+    private void throwExceptionIfReachedMaxRowNumberInWorkingStudentTable() throws ReachedMaximumRowNumberException, SQLException {
+        boolean isReached = isReachedMaxRowNumberInWorkingStudentTable(personFetchingQuery.getAllWorkingStudentInfo());
+        if (isReached) {
+            throw new ReachedMaximumRowNumberException();
+        }
+    }
+
+    private boolean isReachedMaxRowNumberInWorkingStudentTable(ResultSet workingStudents) throws SQLException {
+        int rowNumber = getRowNumberOfTable(workingStudents);
+        int range = defValQuery.getDefaultWorkingStudentUIDBound() - defValQuery.getDefaultWorkingStudentUIDOrigin() + 1;
+        return rowNumber == range;
+    }
+
+    private void throwExceptionIfReachedMaxRowNumberInTeacherTable() throws ReachedMaximumRowNumberException, SQLException {
+        boolean isReached = isReachedMaxRowNumberInTeacherTable(personFetchingQuery.getAllTeacherInfo());
+        if (isReached) {
+            throw new ReachedMaximumRowNumberException();
+        }
+    }
+
+    private boolean isReachedMaxRowNumberInTeacherTable(ResultSet teachers) throws SQLException {
+        int rowNumber = getRowNumberOfTable(personFetchingQuery.getAllTeacherInfo());
+        int range = defValQuery.getDefaultTeacherUIDBound() - defValQuery.getDefaultTeacherUIDOrigin() + 1;
+        return rowNumber == range;
     }
 
     @Override

@@ -15,6 +15,9 @@ import javax.swing.JOptionPane;
 import com.kaan.schoolmanagementmaven.exception.InvalidBoundAndOriginPairException;
 import com.kaan.schoolmanagementmaven.exception.NotUniqueNameAndLastnameException;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonFetchingQuery;
+import com.kaan.schoolmanagementmaven.exception.BoundAndOriginRangeSmallerThanRowNumberException;
+import com.kaan.schoolmanagementmaven.exception.IntersectingUIDRangeException;
+import com.kaan.schoolmanagementmaven.exception.InvalidBalanceException;
 import com.kaan.schoolmanagementmaven.exception.InvalidBranchException;
 import com.kaan.schoolmanagementmaven.exception.InvalidPhoneCountryCodeException;
 import com.kaan.schoolmanagementmaven.exception.InvalidPhoneNumberLengthException;
@@ -24,7 +27,7 @@ import com.kaan.schoolmanagementmaven.exception.NotUniquePhoneNumberException;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class AdminTeacherAddingPanel extends javax.swing.JFrame {
 
@@ -76,6 +79,9 @@ public class AdminTeacherAddingPanel extends javax.swing.JFrame {
         teacherUIDOriginButton = new javax.swing.JButton();
         teacherUIDBoundButton = new javax.swing.JButton();
         phoneNumber = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        defaultBalanceChangingButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -121,47 +127,64 @@ public class AdminTeacherAddingPanel extends javax.swing.JFrame {
 
         phoneNumber.setText("Phone Number");
 
+        jLabel4.setText("Default Balance");
+
+        defaultBalanceChangingButton.setText("change");
+        defaultBalanceChangingButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                defaultBalanceChangingButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(244, 244, 244))
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(33, 33, 33)
-                        .addComponent(teacherName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(50, 50, 50)
-                        .addComponent(teacherLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(62, 62, 62)
-                        .addComponent(teacherSalary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel2))
-                        .addGap(105, 105, 105)))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(lessonList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(63, 63, 63)
-                        .addComponent(phoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(35, 35, 35))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(teacherUIDBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(teacherUIDOriginTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(136, 136, 136)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(33, 33, 33)
+                                .addComponent(teacherName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(50, 50, 50)
+                                .addComponent(teacherLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(62, 62, 62)
+                                .addComponent(teacherSalary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel2))
+                                .addGap(105, 105, 105)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(lessonList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(63, 63, 63)
+                                .addComponent(phoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(35, 35, 35))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(teacherUIDBoundTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
+                                    .addComponent(teacherUIDOriginTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE)
+                                    .addComponent(jTextField1))
+                                .addGap(136, 136, 136))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(176, 176, 176)
+                        .addComponent(jLabel4)
+                        .addGap(407, 407, 407)))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(teacherAddingButton)
                         .addComponent(teacherUIDOriginButton))
-                    .addComponent(teacherUIDBoundButton))
-                .addGap(31, 31, 31))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(244, 244, 244))
+                    .addComponent(teacherUIDBoundButton)
+                    .addComponent(defaultBalanceChangingButton))
+                .addGap(25, 25, 25))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -181,12 +204,18 @@ public class AdminTeacherAddingPanel extends javax.swing.JFrame {
                     .addComponent(teacherUIDOriginTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addComponent(teacherUIDOriginButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
+                .addGap(38, 38, 38)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(teacherUIDBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(teacherUIDBoundButton))
-                .addGap(38, 38, 38))
+                .addGap(42, 42, 42)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel4)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(defaultBalanceChangingButton)))
+                .addContainerGap(75, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -226,19 +255,8 @@ public class AdminTeacherAddingPanel extends javax.swing.JFrame {
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Teacher added : " + name + "  " + lastName);
             }
-        } catch (NumberFormatException | InputMismatchException | NotUniqueNameAndLastnameException | SQLException | IOException | InvalidPhoneNumberLengthException | InvalidPhoneCountryCodeException | NotUniquePhoneNumberException | InvalidBranchException | InvalidSalaryException ex) {
-            if (ex instanceof NumberFormatException) {
-                JOptionPane.showMessageDialog(null, "Invalid number format.");
-            } else if (ex instanceof InputMismatchException) {
-                JOptionPane.showMessageDialog(null, "Invalid entry.");
-            } else if (ex instanceof SQLException) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, ex.getMessage());
-            } else if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
-                JOptionPane.showMessageDialog(null, ex.getMessage());
-            }
+        } catch (NumberFormatException | InputMismatchException | NotUniqueNameAndLastnameException | SQLException | IOException | InvalidPhoneNumberLengthException | InvalidPhoneCountryCodeException | NotUniquePhoneNumberException | InvalidBranchException | InvalidSalaryException | IntersectingUIDRangeException ex) {
+            showErrorMessage(ex);
         }
     }//GEN-LAST:event_teacherAddingButtonActionPerformed
 
@@ -246,24 +264,14 @@ public class AdminTeacherAddingPanel extends javax.swing.JFrame {
         String originText = teacherUIDOriginTextField.getText();
         try {
             int origin = Integer.parseInt(originText);
+            System.out.println("Girilen deger" + origin);
             admin.getAdminDefaultTeacherProcessesObject().setTeacherUIDOrigin(origin);
             JOptionPane.showMessageDialog(null, "Successful");
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Teacher UID origin value changed . New value : " + origin);
-
             }
-        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException ex) {
-            if (ex instanceof NumberFormatException) {
-                JOptionPane.showMessageDialog(null, "Invalid number format.");
-            } else if (ex instanceof InputMismatchException) {
-                JOptionPane.showMessageDialog(null, "Invalid entry.");
-            } else if (ex instanceof SQLException) {
-                ex.printStackTrace();
-            } else if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
-                ex.getMessage();
-            }
+        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException | BoundAndOriginRangeSmallerThanRowNumberException ex) {
+            showErrorMessage(ex);
         }
     }//GEN-LAST:event_teacherUIDOriginButtonActionPerformed
 
@@ -275,22 +283,24 @@ public class AdminTeacherAddingPanel extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Successful");
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Teacher UID bound value changed . New value : " + bound);
-
             }
-        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException ex) {
-            if (ex instanceof NumberFormatException) {
-                JOptionPane.showMessageDialog(null, "Invalid number format.");
-            } else if (ex instanceof InputMismatchException) {
-                JOptionPane.showMessageDialog(null, "Invalid entry.");
-            } else if (ex instanceof SQLException) {
-                ex.printStackTrace();
-            } else if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
-                ex.getMessage();
-            }
+        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException | BoundAndOriginRangeSmallerThanRowNumberException ex) {
+            showErrorMessage(ex);
         }
     }//GEN-LAST:event_teacherUIDBoundButtonActionPerformed
+
+    private void defaultBalanceChangingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_defaultBalanceChangingButtonActionPerformed
+        String balanceText = defaultBalanceChangingButton.getText();
+        try {
+            int balanceValue = Integer.parseInt(balanceText);
+            admin.getAdminDefaultTeacherProcessesObject().setDefaultBalance(balanceValue);
+            if (Admin.getLogManager() != null) {
+                Admin.getLogManager().saveMessage("Default balance value changed . New value : " + balanceValue);
+            }
+        } catch (InvalidBalanceException | SQLException | IOException ex) {
+            showErrorMessage(ex);
+        }
+    }//GEN-LAST:event_defaultBalanceChangingButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -326,11 +336,22 @@ public class AdminTeacherAddingPanel extends javax.swing.JFrame {
         });
     }
 
+    private void showErrorMessage(Exception ex) {
+        if (ex instanceof NumberFormatException || ex instanceof InputMismatchException) {
+            JOptionPane.showMessageDialog(null, "Invalid number format.");
+        } else {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton defaultBalanceChangingButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JComboBox<String> lessonList;
     private javax.swing.JTextField phoneNumber;
     private javax.swing.JButton teacherAddingButton;

@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
 package com.kaan.schoolmanagementmaven.person;
+import com.kaan.schoolmanagementmaven.exception.ReachedMaximumRowNumberException;
 import java.sql.SQLException; 
 
 /**
@@ -11,6 +12,6 @@ import java.sql.SQLException;
  * 
  */
 public interface IStudentConvertingManager {
-    void convertToWorkingStudent (Student student) throws SQLException;
-    void convertToNormalStudent (WorkingStudent workingStudent) throws SQLException;
+    void convertToWorkingStudent (Student student) throws SQLException, ReachedMaximumRowNumberException;
+    void convertToNormalStudent (WorkingStudent workingStudent) throws SQLException, ReachedMaximumRowNumberException;
 }

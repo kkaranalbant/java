@@ -4,6 +4,9 @@
  */
 package com.kaan.schoolmanagementmaven.admin;
 
+import com.kaan.schoolmanagementmaven.exception.BoundAndOriginRangeSmallerThanRowNumberException;
+import com.kaan.schoolmanagementmaven.exception.IntersectingUIDRangeException;
+import com.kaan.schoolmanagementmaven.exception.InvalidBalanceException;
 import java.io.IOException;
 import javax.swing.JOptionPane;
 import com.kaan.schoolmanagementmaven.exception.InvalidLessonCreditException;
@@ -15,15 +18,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import com.kaan.schoolmanagementmaven.exception.InvalidBoundAndOriginPairException;
 import com.kaan.schoolmanagementmaven.exception.InvalidCostForPerHourException;
+import com.kaan.schoolmanagementmaven.exception.InvalidDebtException;
 import com.kaan.schoolmanagementmaven.exception.InvalidPhoneCountryCodeException;
 import com.kaan.schoolmanagementmaven.exception.InvalidPhoneNumberLengthException;
 import com.kaan.schoolmanagementmaven.exception.NotUniqueNameAndLastnameException;
 import com.kaan.schoolmanagementmaven.exception.NotUniquePhoneNumberException;
+import com.kaan.schoolmanagementmaven.exception.ReachedMaximumRowNumberException;
 
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class AdminStudentAddingPanel extends javax.swing.JFrame {
 
@@ -90,6 +95,12 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
         normalStudentPhoneNumber = new javax.swing.JTextField();
         workingStudentPhoneNumber = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        defaultBalanceTf = new javax.swing.JTextField();
+        defaultDebtTf = new javax.swing.JTextField();
+        defaultBalanceChangeButton = new javax.swing.JButton();
+        defaultDebtChangeButton = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -217,6 +228,24 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
 
         workingStudentPhoneNumber.setText("Phone Number");
 
+        jLabel11.setText("Default Balance");
+
+        jLabel12.setText("Default Debt");
+
+        defaultBalanceChangeButton.setText("change");
+        defaultBalanceChangeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                defaultBalanceChangeButtonActionPerformed(evt);
+            }
+        });
+
+        defaultDebtChangeButton.setText("   change");
+        defaultDebtChangeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                defaultDebtChangeButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -226,67 +255,74 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel4)
-                                    .addComponent(jLabel5))
-                                .addGap(163, 163, 163)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(workingStudentName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(normalStudentName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addGap(0, 0, Short.MAX_VALUE)
-                                                .addComponent(normalStudentLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 90, Short.MAX_VALUE)
-                                                .addComponent(workingStudentLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                        .addGap(70, 70, 70)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(normalStudentPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(workingStudentPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGap(62, 62, 62))
-                                    .addComponent(jLabel3)))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel9)
-                                        .addGap(218, 218, 218)
-                                        .addComponent(workingStudentUIDBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel10)
-                                        .addGap(144, 144, 144)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(normalStudentUIDOriginTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(costForPerHour, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(normalStudentUIDBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(workingStudentUIDOriginTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addGap(48, 48, 48)))
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
+                        .addGap(258, 258, 258)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(workingStudentUIDBoundButton)
-                            .addComponent(workingStudentUIDOriginButton)
+                            .addComponent(defaultLessonCreditTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(maxDebtCreditTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(379, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel4)
+                                        .addComponent(jLabel5))
+                                    .addGap(163, 163, 163)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(workingStudentName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(normalStudentName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                                    .addGap(0, 0, Short.MAX_VALUE)
+                                                    .addComponent(normalStudentLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                    .addComponent(workingStudentLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                            .addGap(70, 70, 70)
+                                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addComponent(normalStudentPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(workingStudentPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGap(62, 62, 62))
+                                        .addComponent(jLabel3)))
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel10)
+                                        .addComponent(jLabel7)
+                                        .addComponent(jLabel8)
+                                        .addComponent(jLabel6)
+                                        .addComponent(jLabel11)
+                                        .addComponent(jLabel12))
+                                    .addGap(144, 144, 144)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(normalStudentUIDOriginTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                                        .addComponent(normalStudentUIDBoundTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                                        .addComponent(workingStudentUIDOriginTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                                        .addComponent(workingStudentUIDBoundTextField)
+                                        .addComponent(costForPerHour, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                                        .addComponent(defaultBalanceTf)
+                                        .addComponent(defaultDebtTf))
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel9)
+                                .addGap(598, 598, 598)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(normalStudentUIDBoundButton)
-                            .addComponent(normalStudentUIDOriginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(maxDebtCreditButton)
                             .addComponent(defaultLessonCreditButton)
                             .addComponent(costForPerHourButton)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(normalStudentAddingButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(workingStudentAddingButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel8)
-                            .addComponent(jLabel2))
-                        .addGap(218, 218, 218)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(defaultLessonCreditTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(maxDebtCreditTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(33, Short.MAX_VALUE))
+                                .addComponent(workingStudentAddingButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(workingStudentUIDBoundButton)
+                            .addComponent(workingStudentUIDOriginButton)
+                            .addComponent(normalStudentUIDOriginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(defaultBalanceChangeButton)
+                            .addComponent(defaultDebtChangeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -306,49 +342,59 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
                             .addComponent(maxDebtCreditTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(maxDebtCreditButton))
                         .addGap(30, 30, 30)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(costForPerHourButton)
-                            .addComponent(costForPerHour, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(50, 50, 50)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(normalStudentUIDOriginButton)
-                            .addComponent(normalStudentUIDOriginTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(45, 45, 45)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(normalStudentUIDBoundButton)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel7)
-                                .addComponent(normalStudentUIDBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(36, 36, 36)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(workingStudentUIDOriginTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel8)
-                            .addComponent(workingStudentUIDOriginButton))
-                        .addGap(47, 47, 47)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(workingStudentUIDBoundButton)
-                            .addComponent(workingStudentUIDBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 185, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(normalStudentName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(normalStudentLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(normalStudentAddingButton)
-                            .addComponent(normalStudentPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(73, 73, 73)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(workingStudentAddingButton)
-                            .addComponent(workingStudentLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(workingStudentName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5)
-                            .addComponent(workingStudentPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(68, 68, 68))
+                        .addComponent(costForPerHourButton))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(165, 165, 165)
-                        .addComponent(jLabel10)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(162, 162, 162)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel10)
+                            .addComponent(costForPerHour, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel11)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(defaultBalanceTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(defaultBalanceChangeButton)))
+                .addGap(33, 33, 33)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(defaultDebtTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(defaultDebtChangeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(40, 40, 40)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(normalStudentUIDOriginTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6)
+                    .addComponent(normalStudentUIDOriginButton))
+                .addGap(44, 44, 44)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(normalStudentUIDBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(normalStudentUIDBoundButton))
+                .addGap(43, 43, 43)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(workingStudentUIDOriginTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8)
+                    .addComponent(workingStudentUIDOriginButton))
+                .addGap(48, 48, 48)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel9)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(workingStudentUIDBoundTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(workingStudentUIDBoundButton)))
+                .addGap(57, 57, 57)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(normalStudentName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(normalStudentLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(normalStudentAddingButton)
+                    .addComponent(normalStudentPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(73, 73, 73)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(workingStudentAddingButton)
+                    .addComponent(workingStudentLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(workingStudentName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5)
+                    .addComponent(workingStudentPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(68, 68, 68))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -381,16 +427,8 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
 
             }
             JOptionPane.showMessageDialog(null, "New lesson credit : " + value);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(null, "Invalid number format ! ");
-        } catch (InvalidLessonCreditException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage());
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            //JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            System.out.println("hata");
-            ex.printStackTrace();
+        } catch (NumberFormatException | InvalidLessonCreditException | SQLException | IOException ex) {
+            showErrorMessage(ex);
         }
     }//GEN-LAST:event_defaultLessonCreditButtonActionPerformed
 
@@ -405,14 +443,8 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Student's default max debt credit value changed . New value : " + value);
             }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(null, "Invalid number format ! ");
-        } catch (InvalidMaxDebtCreditException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage());
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "An error occured while executing the database query.");
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
+        } catch (NumberFormatException | InvalidMaxDebtCreditException | SQLException | IOException ex) {
+            showErrorMessage(ex);
         }
     }//GEN-LAST:event_maxDebtCreditButtonActionPerformed
 
@@ -427,9 +459,9 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
     private void normalStudentAddingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_normalStudentAddingButtonActionPerformed
         String name = normalStudentName.getText();
         String lastName = normalStudentLastName.getText();
-        String phoneNumber = normalStudentPhoneNumber.getText() ;
+        String phoneNumber = normalStudentPhoneNumber.getText();
         try {
-            Map<String, String> userNameAndPass = admin.getAdminAddingManager().addNormalStudent(name, lastName,phoneNumber);
+            Map<String, String> userNameAndPass = admin.getAdminAddingManager().addNormalStudent(name, lastName, phoneNumber);
             String userName = null, password = null;
             for (Entry<String, String> entry : userNameAndPass.entrySet()) {
                 userName = entry.getKey();
@@ -454,21 +486,17 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Normal student added : " + name + "  " + lastName);
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        } catch (NotUniqueNameAndLastnameException | InvalidPhoneCountryCodeException | InvalidPhoneNumberLengthException  | NotUniquePhoneNumberException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage());
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "An error occurred while writing to the log file.");
+        } catch (SQLException | IOException | IntersectingUIDRangeException | NotUniqueNameAndLastnameException | InvalidPhoneCountryCodeException | InvalidPhoneNumberLengthException | NotUniquePhoneNumberException | ReachedMaximumRowNumberException ex) {
+            showErrorMessage(ex);
         }
     }//GEN-LAST:event_normalStudentAddingButtonActionPerformed
 
     private void workingStudentAddingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_workingStudentAddingButtonActionPerformed
         String name = workingStudentName.getText();
         String lastName = workingStudentLastName.getText();
-        String phoneNumber = workingStudentPhoneNumber.getText () ;
+        String phoneNumber = workingStudentPhoneNumber.getText();
         try {
-            Map<String, String> userNameAndPass = admin.getAdminAddingManager().addWorkingStudent(name, lastName , phoneNumber);
+            Map<String, String> userNameAndPass = admin.getAdminAddingManager().addWorkingStudent(name, lastName, phoneNumber);
             String userName = null, password = null;
             for (Entry<String, String> entry : userNameAndPass.entrySet()) {
                 userName = entry.getKey();
@@ -487,12 +515,8 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Working student added : " + name + "  " + lastName);
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        } catch (NotUniqueNameAndLastnameException| InvalidPhoneCountryCodeException | InvalidPhoneNumberLengthException | NotUniquePhoneNumberException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage());
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "An error occurred while writing to the log file.");
+        } catch (IntersectingUIDRangeException | SQLException | NotUniqueNameAndLastnameException | InvalidPhoneCountryCodeException | InvalidPhoneNumberLengthException | NotUniquePhoneNumberException | IOException | ReachedMaximumRowNumberException ex) {
+            showErrorMessage(ex);
         }
     }//GEN-LAST:event_workingStudentAddingButtonActionPerformed
 
@@ -509,19 +533,8 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Normal student UID Origin value changed . New value : " + value);
             }
-        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException ex) {
-            if (ex instanceof NumberFormatException) {
-                JOptionPane.showMessageDialog(null, "Invalid Number Format.");
-            } else if (ex instanceof InputMismatchException) {
-                JOptionPane.showMessageDialog(null, "Invalid entry detected.");
-            } else if (ex instanceof SQLException) {
-                ex.printStackTrace();
-            } else if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
-                JOptionPane.showMessageDialog(rootPane, ex.getMessage());
-            }
-
+        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException | BoundAndOriginRangeSmallerThanRowNumberException ex) {
+            showErrorMessage(ex);
         }
 
     }//GEN-LAST:event_normalStudentUIDOriginButtonActionPerformed
@@ -535,18 +548,8 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Normal student UID Bound value changed . New value : " + value);
             }
-        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException ex) {
-            if (ex instanceof NumberFormatException) {
-                JOptionPane.showMessageDialog(null, "Invalid Number Format.");
-            } else if (ex instanceof InputMismatchException) {
-                JOptionPane.showMessageDialog(null, "Invalid entry detected.");
-            } else if (ex instanceof SQLException) {
-                ex.printStackTrace();
-            } else if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
-                JOptionPane.showMessageDialog(rootPane, ex.getMessage());
-            }
+        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException | BoundAndOriginRangeSmallerThanRowNumberException ex) {
+            showErrorMessage(ex);
         }
     }//GEN-LAST:event_normalStudentUIDBoundButtonActionPerformed
 
@@ -559,18 +562,8 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Working student UID Origin value changed . New value : " + value);
             }
-        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException ex) {
-            if (ex instanceof NumberFormatException) {
-                JOptionPane.showMessageDialog(null, "Invalid Number Format.");
-            } else if (ex instanceof InputMismatchException) {
-                JOptionPane.showMessageDialog(null, "Invalid entry detected.");
-            } else if (ex instanceof SQLException) {
-                ex.printStackTrace();
-            } else if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
-                JOptionPane.showMessageDialog(rootPane, ex.getMessage());
-            }
+        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException | BoundAndOriginRangeSmallerThanRowNumberException ex) {
+            showErrorMessage(ex);
         }
     }//GEN-LAST:event_workingStudentUIDOriginButtonActionPerformed
 
@@ -587,18 +580,8 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
             if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Working student UID Bound value changed . New value : " + value);
             }
-        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException ex) {
-            if (ex instanceof NumberFormatException) {
-                JOptionPane.showMessageDialog(null, "Invalid Number Format.");
-            } else if (ex instanceof InputMismatchException) {
-                JOptionPane.showMessageDialog(null, "Invalid entry detected.");
-            } else if (ex instanceof SQLException) {
-                ex.printStackTrace();
-            } else if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
-                JOptionPane.showMessageDialog(rootPane, ex.getMessage());
-            }
+        } catch (NumberFormatException | InputMismatchException | SQLException | InvalidBoundAndOriginPairException | IOException | BoundAndOriginRangeSmallerThanRowNumberException ex) {
+            showErrorMessage(ex);
         }
     }//GEN-LAST:event_workingStudentUIDBoundButtonActionPerformed
 
@@ -612,17 +595,37 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
                 Admin.getLogManager().saveMessage("Working student's cost for per hour value changed . New value : " + value);
             }
         } catch (NumberFormatException | InputMismatchException | InvalidCostForPerHourException | SQLException | IOException ex) {
-            if (ex instanceof SQLException) {
-                ex.printStackTrace();
-            } else if (ex instanceof InvalidCostForPerHourException) {
-                JOptionPane.showMessageDialog(null, ex.getMessage());
-            } else if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
-                JOptionPane.showMessageDialog(null, "Invalid Input.");
-            }
+            showErrorMessage(ex);
         }
     }//GEN-LAST:event_costForPerHourButtonActionPerformed
+
+    private void defaultBalanceChangeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_defaultBalanceChangeButtonActionPerformed
+        String valueText = defaultBalanceTf.getText();
+        try {
+            int value = Integer.parseInt(valueText);
+            admin.getAdminDefaultStudentProcessesObject().setDefaultBalance(value);
+            JOptionPane.showMessageDialog(null, "Successful.");
+            if (Admin.getLogManager() != null) {
+                Admin.getLogManager().saveMessage("Default balance value changed . New value : " + value);
+            }
+        } catch (NumberFormatException | InputMismatchException | InvalidBalanceException | SQLException | IOException ex) {
+            showErrorMessage(ex);
+        }
+    }//GEN-LAST:event_defaultBalanceChangeButtonActionPerformed
+
+    private void defaultDebtChangeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_defaultDebtChangeButtonActionPerformed
+        String valueText = defaultDebtTf.getText();
+        try {
+            int value = Integer.parseInt(valueText);
+            admin.getAdminDefaultStudentProcessesObject().setDefaultDebt(value);
+            JOptionPane.showMessageDialog(null, "Successful.");
+            if (Admin.getLogManager() != null) {
+                Admin.getLogManager().saveMessage("Default debt value changed . New value : " + value);
+            }
+        } catch (NumberFormatException | InputMismatchException | InvalidDebtException | SQLException | IOException ex) {
+            showErrorMessage(ex);
+        }
+    }//GEN-LAST:event_defaultDebtChangeButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -661,13 +664,27 @@ public class AdminStudentAddingPanel extends javax.swing.JFrame {
         });
     }
 
+    private void showErrorMessage(Exception ex) {
+        if (ex instanceof NumberFormatException || ex instanceof InputMismatchException) {
+            JOptionPane.showMessageDialog(null, "Invalid entry.");
+        } else {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField costForPerHour;
     private javax.swing.JButton costForPerHourButton;
+    private javax.swing.JButton defaultBalanceChangeButton;
+    private javax.swing.JTextField defaultBalanceTf;
+    private javax.swing.JTextField defaultDebtChangeButton;
+    private javax.swing.JTextField defaultDebtTf;
     private javax.swing.JButton defaultLessonCreditButton;
     private javax.swing.JTextField defaultLessonCreditTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

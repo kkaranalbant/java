@@ -4,41 +4,39 @@
  */
 package com.kaan.schoolmanagementmaven.admin;
 
-import com.kaan.schoolmanagementmaven.dataaccess.query.AdminLoginInfoQuery;
-import com.kaan.schoolmanagementmaven.dataaccess.query.AdminValidationQueries;
-import com.kaan.schoolmanagementmaven.dataaccess.query.IAdminLoginInfoChangeQuery;
 import com.kaan.schoolmanagementmaven.exception.IncompatiblePasswordPairException;
 import com.kaan.schoolmanagementmaven.exception.InvalidPassLengthException;
 import com.kaan.schoolmanagementmaven.exception.InvalidUsernameLengthException;
 import com.kaan.schoolmanagementmaven.exception.NotUniqueUsernameAndPassException;
-import com.kaan.schoolmanagementmaven.person.WorkingStudent;
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class AdminAccountSettingsPanel extends javax.swing.JFrame {
 
+    private Admin admin;
+
     /**
      * Creates new form AdminAccountSettingsPanel
+     *
      * @param adminPanel
      */
-    public AdminAccountSettingsPanel(AdminPanel adminPanel) throws SQLException{
+    public AdminAccountSettingsPanel(AdminPanel adminPanel, Admin admin) throws SQLException {
         initComponents();
-        ResultSet adminInfo = AdminValidationQueries.getInstance().getAdminInformations() ;
-        adminInfo.next() ;
-        userNameTf.setText(adminInfo.getString("username"));
-        passPf.setText(adminInfo.getString("pass"));
-        rePassPf.setText(adminInfo.getString("pass"));
+        this.admin = admin;
+        userNameTf.setText(admin.getUserName());
+        passPf.setText(admin.getPass());
+        rePassPf.setText(admin.getPass());
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosed(java.awt.event.WindowEvent windowEvent) {
-                adminPanel.setVisible(true); 
+                adminPanel.setVisible(true);
             }
         });
     }
@@ -141,36 +139,21 @@ public class AdminAccountSettingsPanel extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void changeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeButtonActionPerformed
+        throwExceptionIfInvalidPasswordPair(passPf, rePassPf);
         String userName = this.userNameTf.getText();
-        char[] passData = passPf.getPassword();
-        String pass = String.copyValueOf(passData);
-        if (userName.length() < 8 || pass.length() < 8) throw new InvalidPassLengthException () ;
-        char[] rePassData = rePassPf.getPassword();
-        String rePass = String.copyValueOf(rePassData);
+        String pass = String.copyValueOf(passPf.getPassword());
         try {
-            if (!pass.equals(rePass)) {
-                throw new IncompatiblePasswordPairException();
-            }
-
+            admin.getAdminInfoChanger().setUsername(userName);
+            admin.getAdminInfoChanger().setPassword(pass);
             this.userNameTf.setText(userName);
             this.passPf.setText(pass);
             this.rePassPf.setText(pass);
-            IAdminLoginInfoChangeQuery adminInfoChanger = AdminLoginInfoQuery.getInstanceForChanging() ;
-            adminInfoChanger.setUsername(userName);
-            adminInfoChanger.setPassword(pass);
             JOptionPane.showMessageDialog(null, "Successful.");
-            if (WorkingStudent.getLogManager() != null) {
+            if (Admin.getLogManager() != null) {
                 Admin.getLogManager().saveMessage("Admin's username and password changed. \n Username :  " + userName + "\n Password : " + pass);
-
             }
         } catch (IncompatiblePasswordPairException | NotUniqueUsernameAndPassException | InvalidPassLengthException | InvalidUsernameLengthException | IOException | SQLException ex) {
-            if (ex instanceof SQLException) {
-                ex.printStackTrace();
-            } else if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
-                JOptionPane.showMessageDialog(null, ex.getMessage());
-            }
+            JOptionPane.showMessageDialog(null, ex.getMessage());
         }
     }//GEN-LAST:event_changeButtonActionPerformed
 
@@ -207,6 +190,18 @@ public class AdminAccountSettingsPanel extends javax.swing.JFrame {
 
             }
         });
+    }
+
+    private String getPassword(JPasswordField passwordField) {
+        return String.copyValueOf(passwordField.getPassword());
+    }
+
+    private void throwExceptionIfInvalidPasswordPair(JPasswordField passField, JPasswordField rePassField) throws IncompatiblePasswordPairException {
+        String pass = getPassword(passField);
+        String rePass = getPassword(rePassField);
+        if (!(rePass.equals(pass))) {
+            throw new IncompatiblePasswordPairException();
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

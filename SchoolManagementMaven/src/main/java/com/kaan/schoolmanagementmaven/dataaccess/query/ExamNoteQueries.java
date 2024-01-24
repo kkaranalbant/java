@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class ExamNoteQueries extends Query implements IExamNoteGettingQueries, IExamNoteSettingQueries, IExamNoteAddingQueries, IExamNoteRemovingQueries {
 
@@ -107,7 +107,7 @@ public class ExamNoteQueries extends Query implements IExamNoteGettingQueries, I
     }
 
     private String getNoteSettingQuery(String examTableName, String column, int studentUID, int lessonUID, int value) {
-        return "update " + examTableName + " set " + column + " where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
+        return "update " + examTableName + " set " + column + " = "+value+" where student_UID = " + studentUID + " and lesson_UID = " + lessonUID + " ;";
     }
 
     @Override
@@ -181,7 +181,9 @@ public class ExamNoteQueries extends Query implements IExamNoteGettingQueries, I
     private int getStudentNote(int studentUID, int lessonUID, String tableName, String noteColumn) throws SQLException {
         String query = getStudentNoteQuery(tableName, studentUID, lessonUID, noteColumn);
         ResultSet studentNote = super.runGettingQuery(query);
-        studentNote.next();
+        if(super.isEmptyResultSet(studentNote)) {
+            return -1 ;
+        }
         return studentNote.getInt(noteColumn);
     }
 

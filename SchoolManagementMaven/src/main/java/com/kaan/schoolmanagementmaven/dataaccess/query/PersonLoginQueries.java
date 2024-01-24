@@ -103,10 +103,10 @@ public class PersonLoginQueries extends Query implements IPersonLoginQueries {
     private String getPersonUsernameOrPass(String query, String column) throws SQLException {
         ResultSet passOrUsernameOfPerson = super.runGettingQuery(query);
         String passOrUsername = null;
-        if (!isEmptyResultSet(passOrUsernameOfPerson)) {
+        if (!super.isEmptyResultSet(passOrUsernameOfPerson)) {
             passOrUsername = passOrUsernameOfPerson.getString(column);
         }
-        return passOrUsername ;
+        return passOrUsername;
     }
 
     private String getPersonPassByUIDQueryString(String tableName, String columnName, int uid) {
@@ -125,10 +125,6 @@ public class PersonLoginQueries extends Query implements IPersonLoginQueries {
         }
         String teacherUsername = getPersonUsernameByUID(uid, super.getAccess().getTeacherLoginInfos(), "teacher_UID");
         return teacherUsername;
-    }
-
-    private boolean isEmptyResultSet(ResultSet resultSet) throws SQLException {
-        return !resultSet.next();
     }
 
 }

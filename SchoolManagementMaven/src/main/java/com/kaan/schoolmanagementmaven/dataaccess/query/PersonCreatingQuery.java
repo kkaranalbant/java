@@ -92,7 +92,7 @@ public class PersonCreatingQuery extends Query implements IPersonCreatingQuery ,
     }
 
     private String createLoginInfoInDbQueryString(String tableName, String userName, String pass, int uid) {
-        return "insert into " + tableName + " values (" + uid + ",'" + userName + "','" + pass + "') ;";
+        return "insert into " + tableName + " values (" + uid + ",'"+userName+"','"+pass+"') ;";
     }
 
     private String getTeacherCreatingInDbQueryString(String tableName, String name, String lastName, int uid, int defBalance, int salary, String phoneNumber) {

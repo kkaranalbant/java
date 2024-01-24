@@ -11,6 +11,7 @@ import com.kaan.schoolmanagementmaven.exception.InvalidMidtermRateException;
 import com.kaan.schoolmanagementmaven.exception.InvalidQuotaException;
 import com.kaan.schoolmanagementmaven.exception.InvalidUIDException;
 import com.kaan.schoolmanagementmaven.exception.NotUniqueLessonNameException;
+import com.kaan.schoolmanagementmaven.exception.ReachedMaximumRowNumberException;
 
 /**
  *
@@ -18,6 +19,6 @@ import com.kaan.schoolmanagementmaven.exception.NotUniqueLessonNameException;
  * 
  */
 public interface IAdminLessonManager {
-    public void addLesson (String name , int lesson_credit , int lessonHour , int quota , int midtermRate , int finalRate) throws SQLException, NotUniqueLessonNameException , InvalidQuotaException , InvalidLessonCreditException , InvalidFinalRateException , InvalidMidtermRateException;
+    public void addLesson (String name , int lesson_credit , int lessonHour , int quota , int midtermRate , int finalRate) throws SQLException, NotUniqueLessonNameException , InvalidQuotaException , InvalidLessonCreditException , InvalidFinalRateException , InvalidMidtermRateException , ReachedMaximumRowNumberException;
     public void removeLesson (int uid) throws InvalidUIDException , SQLException;
 }

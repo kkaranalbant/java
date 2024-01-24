@@ -11,20 +11,31 @@ import java.util.List;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public interface ILessonFetchingQuery {
-    
-    public List <String> getNormalStudentLessonNames (int uid) throws SQLException ;
-    public List <String> getWorkingStudentLessonNames (int uid) throws SQLException ;
-    public ResultSet getNormalStudentLessonUID(int uid) throws SQLException;
-    public ResultSet getWorkingStudentLessonUID(int uid) throws SQLException ;
-    public ResultSet getLessonInfo (int uid) throws SQLException ;
-    public List <String> getAllLessonNames () throws SQLException;
-    public int getLessonUIDByLessonName (String lessonName) throws SQLException ;
-    public String getLessonNamebyUID (int uid) throws SQLException ;
-    public int getLessonQuota (String lessonName) throws SQLException ;
-    public int getLessonAverageMidtermRate (int uid) throws SQLException ;
-    public int getLessonAverageFinalRate (int uid) throws SQLException ;
 
+    public List<String> getNormalStudentLessonNames(int uid) throws SQLException;
+
+    public List<String> getWorkingStudentLessonNames(int uid) throws SQLException;
+
+    public ResultSet getNormalStudentLessonUID(int uid) throws SQLException;
+
+    public ResultSet getWorkingStudentLessonUID(int uid) throws SQLException;
+
+    public ResultSet getLessonInfo(int uid) throws SQLException;
+
+    public List<String> getAllLessonNames() throws SQLException;
+
+    public int getLessonUIDByLessonName(String lessonName) throws SQLException;
+
+    public String getLessonNamebyUID(int uid) throws SQLException;
+
+    public int getLessonQuota(String lessonName) throws SQLException;
+
+    public int getLessonAverageMidtermRate(int uid) throws SQLException;
+
+    public int getLessonAverageFinalRate(int uid) throws SQLException;
+
+    public ResultSet getAllLessons() throws SQLException;
 }

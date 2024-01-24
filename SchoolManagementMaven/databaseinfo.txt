@@ -1,5 +1,5 @@
 localhost
 3306
-asdw
+deneme
 root
 ssssss

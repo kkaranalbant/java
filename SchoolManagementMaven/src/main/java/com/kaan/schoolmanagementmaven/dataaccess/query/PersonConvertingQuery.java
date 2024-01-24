@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class PersonConvertingQuery extends Query implements IPersonConvertingQuery {
 
@@ -50,15 +50,15 @@ public class PersonConvertingQuery extends Query implements IPersonConvertingQue
         personDeletor.deletePersonFromDb(uid);
     }
 
-    private void convertStudent(String userName, String pass, String name, String lastName, int uid, int balance, int debt, int lessonCredit, Map<Integer, Integer> lessonTeacherMap, String personTableToConvert, String courseTable, String loginTable, String phoneNumber) throws SQLException {
-        String studentConvertingQuery = getConvertingStudentInfoStringQuery(name, lastName, uid, balance, debt, lessonCredit, personTableToConvert, phoneNumber);
+    private void convertStudent(String userName, String pass, String name, String lastName, int newUID, int balance, int debt, int lessonCredit, Map<Integer, Integer> lessonTeacherMap, String personTableToConvert, String courseTable, String loginTable, String phoneNumber) throws SQLException {
+        String studentConvertingQuery = getConvertingStudentInfoStringQuery(name, lastName, newUID, balance, debt, lessonCredit, phoneNumber, personTableToConvert);
         super.runUpdatingQuery(studentConvertingQuery);
-        convertLessonInfo(uid, lessonTeacherMap, courseTable);
-        convertLoginInfo(uid, userName, pass, loginTable);
+        convertLessonInfo(newUID, lessonTeacherMap, courseTable);
+        convertLoginInfo(newUID, userName, pass, loginTable);
     }
 
-    private String getConvertingStudentInfoStringQuery(String name, String lastName, int uid, int balance, int debt, int lessonCredit, String phoneNumber, String personTableToConvert) {
-        return "insert into " + personTableToConvert + " values ('" + name + "','" + lastName + "'," + uid + "," + balance + "," + debt + "," + lessonCredit + "," + phoneNumber + ") ;";
+    private String getConvertingStudentInfoStringQuery(String name, String lastName, int newUID, int balance, int debt, int lessonCredit, String phoneNumber, String personTableToConvert) {
+        return "insert into " + personTableToConvert + " values ('" + name + "','" + lastName + "'," + newUID + "," + balance + "," + debt + "," + lessonCredit + ",'" + phoneNumber + "') ;";
     }
 
     private void convertLessonInfo(int uid, Map<Integer, Integer> lessonTeacherMap, String tableName) throws SQLException {
@@ -66,6 +66,7 @@ public class PersonConvertingQuery extends Query implements IPersonConvertingQue
             int lessonUID = entry.getKey();
             int teacherUID = entry.getValue();
             String convertingLessonInfoQuery = getLessonInfoConvertingQueryString(tableName, uid, lessonUID, teacherUID);
+            System.out.println(convertingLessonInfoQuery);
             super.runUpdatingQuery(convertingLessonInfoQuery);
         }
     }
@@ -76,18 +77,18 @@ public class PersonConvertingQuery extends Query implements IPersonConvertingQue
 
     private void convertToNormalStudentExamInfo(int uid, int newUID, Map<Integer, Integer> lessonTeacherMap) throws SQLException {
         for (Map.Entry<Integer, Integer> lessonAndTeacherEntry : lessonTeacherMap.entrySet()) {
-            int midterm = examGetter.getNormalStudentMidtermValues(uid, lessonAndTeacherEntry.getKey());
-            int finalValue = examGetter.getNormalStudentFinalValues(uid, lessonAndTeacherEntry.getKey());
-            int average = examGetter.getNormalStudentAverage(uid, lessonAndTeacherEntry.getKey());
+            int midterm = examGetter.getWorkingStudentMidtermValues(uid, lessonAndTeacherEntry.getKey());
+            int finalValue = examGetter.getWorkingStudentFinalValues(uid, lessonAndTeacherEntry.getKey());
+            int average = examGetter.getWorkingStudentAverage(uid, lessonAndTeacherEntry.getKey());
             convertStudentExamInfo(newUID, lessonAndTeacherEntry.getKey(), midterm, finalValue, average, super.getAccess().getNormalStudentExamTable());
         }
     }
 
     private void convertToWorkingStudentExamInfo(int uid, int newUID, Map<Integer, Integer> lessonTeacherMap) throws SQLException {
         for (Map.Entry<Integer, Integer> lessonAndTeacherEntry : lessonTeacherMap.entrySet()) {
-            int midterm = examGetter.getWorkingStudentMidtermValues(uid, lessonAndTeacherEntry.getKey());
-            int finalValue = examGetter.getWorkingStudentFinalValues(uid, lessonAndTeacherEntry.getKey());
-            int average = examGetter.getWorkingStudentAverage(uid, lessonAndTeacherEntry.getKey());
+            int midterm = examGetter.getNormalStudentMidtermValues(uid, lessonAndTeacherEntry.getKey());
+            int finalValue = examGetter.getNormalStudentFinalValues(uid, lessonAndTeacherEntry.getKey());
+            int average = examGetter.getNormalStudentAverage(uid, lessonAndTeacherEntry.getKey());
             convertStudentExamInfo(newUID, lessonAndTeacherEntry.getKey(), midterm, finalValue, average, super.getAccess().getWorkingStudentExamTable());
         }
     }

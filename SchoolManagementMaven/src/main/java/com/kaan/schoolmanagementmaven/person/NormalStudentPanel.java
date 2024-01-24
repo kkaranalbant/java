@@ -18,6 +18,7 @@ import com.kaan.schoolmanagementmaven.dataaccess.query.LessonFetchingQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.PersonFetchingQueries;
 import com.kaan.schoolmanagementmaven.dataaccess.query.PersonInformationQuery;
 import com.kaan.schoolmanagementmaven.exception.NotSufficentCreditException;
+import com.kaan.schoolmanagementmaven.exception.ReachedMaximumRowNumberException;
 import com.kaan.schoolmanagementmaven.factory.ILessonFactory;
 import com.kaan.schoolmanagementmaven.factory.LessonFactory;
 import com.kaan.schoolmanagementmaven.lesson.Lesson;
@@ -25,7 +26,7 @@ import com.kaan.schoolmanagementmaven.lesson.Lesson;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class NormalStudentPanel extends javax.swing.JFrame {
 
@@ -35,7 +36,6 @@ public class NormalStudentPanel extends javax.swing.JFrame {
     private IPersonFetchingQueries personFetcher;
     private ILessonFactory lessonFactory;
     private ITeacherInformationQueries teacherInfo;
-    private IExamNoteAddingQueries examTableAdder;
 
     /**
      * Creates new form StudentPanel
@@ -50,7 +50,6 @@ public class NormalStudentPanel extends javax.swing.JFrame {
         lessonFetchingQuery = LessonFetchingQuery.getInstance();
         teacherInfo = PersonInformationQuery.getInstanceForTeacher();
         personFetcher = PersonFetchingQueries.getInstance();
-        examTableAdder = ExamNoteQueries.getInstanceForAddingQueries();
         lessonListForAdding.removeAllItems();
         lessonListForRemove.removeAllItems();
         int uid = personFetcher.getPersonUIDByNameAndLastname(student.getName(), student.getLastName());
@@ -230,16 +229,16 @@ public class NormalStudentPanel extends javax.swing.JFrame {
             mainPanel.setVisible(true);
             student = null;
             this.dispose();
-        } catch (SQLException | IOException ex) {
-            if (ex instanceof IOException) {
-                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
-            } else {
-                ex.printStackTrace();
-            }
+        } catch (SQLException | IOException | ReachedMaximumRowNumberException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex.getMessage());
         }
     }//GEN-LAST:event_beWorkingStudentButtonActionPerformed
 
     private void addLessonButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addLessonButtonActionPerformed
+        if (lessonListForAdding.getSelectedItem() == null) {
+            return ;
+        }
         try {
             lessonFactory = LessonFactory.getInstance();
             int lessonIndex = lessonListForAdding.getSelectedIndex();
@@ -247,11 +246,14 @@ public class NormalStudentPanel extends javax.swing.JFrame {
             int lessonUID = lessonFetchingQuery.getLessonUIDByLessonName(name);
             Lesson lesson = lessonFactory.createLessonWhichExistInDb(lessonUID);
             String teacherNameAndLastname = (String) teacherList.getSelectedItem();
+            if (teacherNameAndLastname == null) {
+                JOptionPane.showMessageDialog(null, "You cant choose this lesson.");
+                return;
+            }
             String[] nameAndLastname = teacherNameAndLastname.split(" ");
             int teacherUID = personFetcher.getPersonUIDByNameAndLastname(nameAndLastname[0], nameAndLastname[1]);
             student.addLesson(lesson, teacherUID);
             int studentUID = personFetcher.getPersonUIDByNameAndLastname(student.getName(), student.getLastName());
-            examTableAdder.addNormalStudentToExamNoteTable(studentUID, lessonUID);
             lessonListForAdding.removeItemAt(lessonIndex);
             lessonListForRemove.addItem(name);
             JOptionPane.showMessageDialog(null, "Successful.");
@@ -268,6 +270,40 @@ public class NormalStudentPanel extends javax.swing.JFrame {
         } catch (NotSufficentCreditException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage());
         }
+        
+        /*
+        try {
+            lessonFactory = LessonFactory.getInstance();
+            int lessonIndex = lessonListForAdding.getSelectedIndex();
+            String name = (String) lessonListForAdding.getSelectedItem();
+            int lessonUID = lessonFetchingQuery.getLessonUIDByLessonName(name);
+            Lesson lesson = lessonFactory.createLessonWhichExistInDb(lessonUID);
+            if (teacherList.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(null, "You cant choose this lesson.");
+                return;
+            }
+            String teacherNameAndLastname = (String) teacherList.getSelectedItem();
+            String[] nameAndLastname = teacherNameAndLastname.split(" ");
+            int teacherUID = personFetcher.getPersonUIDByNameAndLastname(nameAndLastname[0], nameAndLastname[1]);
+            workingStudent.addLesson(lesson, teacherUID);
+            int studentUID = personFetcher.getPersonUIDByNameAndLastname(workingStudent.getName(), workingStudent.getLastName());
+            examTableAdder.addWorkingStudentToExamNoteTable(studentUID, lessonUID);
+            lessonListForAdding.removeItemAt(lessonIndex);
+            lessonListForRemove.addItem(name);
+            JOptionPane.showMessageDialog(null, "Successful.");
+            if (WorkingStudent.getLogManager() != null) {
+                WorkingStudent.getLogManager().saveMessage(studentUID + " UID numbered student added " + lessonUID + " UID numbered lesson.");
+            }
+        } catch (SQLException | IOException ex) {
+            if (ex instanceof IOException) {
+                JOptionPane.showMessageDialog(null, "An error occured while writing to log file.");
+            } else {
+                ex.printStackTrace();
+            }
+        } catch (NotSufficentCreditException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
+        */
     }//GEN-LAST:event_addLessonButtonActionPerformed
 
     private void lessonListForAddingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lessonListForAddingActionPerformed
@@ -275,6 +311,9 @@ public class NormalStudentPanel extends javax.swing.JFrame {
     }//GEN-LAST:event_lessonListForAddingActionPerformed
 
     private void removeLessonButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeLessonButtonActionPerformed
+        if (lessonListForRemove.getSelectedItem() == null) {
+            return ;
+        }
         try {
             lessonFactory = LessonFactory.getInstance();
             int lessonIndex = lessonListForRemove.getSelectedIndex();
@@ -306,11 +345,16 @@ public class NormalStudentPanel extends javax.swing.JFrame {
 
     private void lessonListForAddingItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_lessonListForAddingItemStateChanged
         teacherList.removeAllItems();
-        if (lessonListForAdding.getItemCount() != 0) {
+        if (lessonListForAdding.getSelectedItem() != null) {
             try {
                 lessonFetchingQuery = LessonFetchingQuery.getInstance();
                 teacherInfo = PersonInformationQuery.getInstanceForTeacher();
-                int branchUID = lessonFetchingQuery.getLessonUIDByLessonName((String) lessonListForAdding.getSelectedItem());
+                String lessonName = (String) lessonListForAdding.getSelectedItem();
+                if (lessonName == null) {
+                    teacherList.removeAllItems();
+                    return;
+                }
+                int branchUID = lessonFetchingQuery.getLessonUIDByLessonName(lessonName);
                 List<String> teacherNameList = teacherInfo.getAllTeacherNameWith(branchUID);
                 List<String> teacherLastnameList = teacherInfo.getAllTeacherLastnameWith(branchUID);
                 for (int i = 0; i < teacherNameList.size(); i++) {

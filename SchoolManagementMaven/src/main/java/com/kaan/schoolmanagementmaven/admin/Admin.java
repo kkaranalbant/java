@@ -15,85 +15,125 @@ import com.kaan.schoolmanagementmaven.log.LogManager;
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class Admin {
 
-    private IAdminAddingManager addingManager;
-    private static Admin admin ;
+    private static IAdminLoginController loginController;
+
+    private static Admin admin;
     private String userName;
     private String pass;
-    private static IAdminLoginController loginController;
-    private IAdminPersonDeletingManager personDeletingManager ;
-    private IAdminDefaultStudentProcesses defStudentProcesses ;
-    private IAdminDefaultTeacherProcesses defTeacherProcesses ;
-    private static ILogManager logManager ;
-    private static Optional<ILogManager> optionalLogManager ;
-    
+
+    private IAdminPersonDeletingManager personDeletingManager;
+    private IAdminDefaultStudentProcessesManager defStudentProcesses;
+    private IAdminDefaultTeacherProcessesManager defTeacherProcesses;
+    private IAdminAddingManager addingManager;
+    private IAdminLessonManager lessonManager;
+    private IAdminStudentInformationManager studentInformation;
+    private IAdminTeacherInformationManager teacherInformation;
+    private IAdminSettingManager adminSetter;
+    private IAdminInfoChanger adminInfoChanger;
+
+    private static ILogManager logManager;
+    private static Optional<ILogManager> optionalLogManager;
+
     static {
-        admin = null ;
-        loginController = null ;
-        logManager = null ;
+        admin = null;
+        loginController = null;
+        logManager = null;
         optionalLogManager = Optional.ofNullable(logManager);
     }
 
-    private Admin(String userName, String pass) throws SQLException{
+    private Admin(String userName, String pass) throws SQLException {
         this.userName = userName;
         this.pass = pass;
-        defStudentProcesses = AdminDefaultPersonProcesses.getInstanceForStudent();
-        defTeacherProcesses = AdminDefaultPersonProcesses.getInstanceForTeacher();
-        addingManager = AdminAddingManager.getInstance() ;
-        personDeletingManager = AdminPersonDeletingManager.getInstance() ;
+        personDeletingManager = AdminPersonDeletingManager.getInstance();
+        defStudentProcesses = AdminDefaultPersonProcessesManager.getInstanceForStudent();
+        defTeacherProcesses = AdminDefaultPersonProcessesManager.getInstanceForTeacher();
+        addingManager = AdminAddingManager.getInstance();
+        lessonManager = AdminLessonManager.getInstance();
+        studentInformation = AdminPersonInformationManager.getInstanceForStudent();
+        teacherInformation = AdminPersonInformationManager.getInstanceForTeacher();
+        adminInfoChanger = AdminInfoChangerImpl.getInstance() ;
     }
 
-    public static ILogManager getLogManager () {
-        return Admin.logManager ;
+    public static ILogManager getLogManager() {
+        return Admin.logManager;
     }
-    
+
     public static Optional<ILogManager> getOptionalLogManager() {
         return Admin.optionalLogManager;
     }
 
-    public static void setLogManager(File logFile) throws IOException{
-        Admin.logManager = new LogManager (logFile) ;
+    public static void setLogManager(File logFile) throws IOException {
+        Admin.logManager = new LogManager(logFile);
     }
-    
 
-    /*
-        Admin daha onceden olusturulmamis ise ve parametredeki veriler veritabani ile dogru bilgilerse yeni bir admin ensnesi olusturur 
-        dogrulama saglanmadiysa geriye null doner 
-        dogrulama saglandiysa ve eger daha onceden admin nesnesi olusturulmus ise yeni nesne olusturulmaz var olan nesne geriye doner .
-     */
-    public static Admin getInstanceIfValidUsernameAndPass(String userName, String pass) throws SQLException , InvalidUserNameOrPassException{
+    public static Admin getInstanceIfValidUsernameAndPass(String userName, String pass) throws SQLException, InvalidUserNameOrPassException {
         loginController = AdminLoginController.getInstance();
-        if (isAdminCreated() && !loginController.isValidUserNameAndPass(userName, pass)) throw new InvalidUserNameOrPassException() ;
+        throwExceptionIfInvalidUsernameOrPass(userName, pass);
         if (!isAdminCreated() && loginController.isValidUserNameAndPass(userName, pass)) {
             admin = new Admin(userName, pass);
         }
         return admin;
     }
-    
-    private static boolean isAdminCreated () {
-        if (admin == null) return false ;
-        return true ;
+
+    private static void throwExceptionIfInvalidUsernameOrPass(String userName, String pass) throws SQLException {
+        if (!loginController.isValidUserNameAndPass(userName, pass)) {
+            throw new InvalidUserNameOrPassException();
+        }
     }
-    
+
+    private static boolean isAdminCreated() {
+        if (admin == null) {
+            return false;
+        }
+        return true;
+    }
 
     public IAdminAddingManager getAdminAddingManager() {
         return addingManager;
     }
-    
-    IAdminDefaultStudentProcesses getAdminDefaultStudentProcessesObject () {
-        return defStudentProcesses ;
-    }
-    
-    IAdminPersonDeletingManager getAdminPersonDeletingManager () {
-        return  personDeletingManager ;
+
+    IAdminDefaultStudentProcessesManager getAdminDefaultStudentProcessesObject() {
+        return defStudentProcesses;
     }
 
-    IAdminDefaultTeacherProcesses getAdminDefaultTeacherProcessesObject() {
+    IAdminPersonDeletingManager getAdminPersonDeletingManager() {
+        return personDeletingManager;
+    }
+
+    IAdminDefaultTeacherProcessesManager getAdminDefaultTeacherProcessesObject() {
         return defTeacherProcesses;
     }
-    
+
+    IAdminLessonManager getLessonManager() {
+        return lessonManager;
+    }
+
+    IAdminStudentInformationManager getStudentInformation() {
+        return studentInformation;
+    }
+
+    IAdminTeacherInformationManager getTeacherInformation() {
+        return teacherInformation;
+    }
+
+    IAdminSettingManager getAdminSetter() {
+        return adminSetter;
+    }
+
+    IAdminInfoChanger getAdminInfoChanger() {
+        return adminInfoChanger;
+    }
+
+    String getUserName() {
+        return userName;
+    }
+
+    String getPass() {
+        return pass;
+    }
 
 }

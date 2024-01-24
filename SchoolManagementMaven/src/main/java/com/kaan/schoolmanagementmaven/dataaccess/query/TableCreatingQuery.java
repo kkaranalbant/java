@@ -223,9 +223,9 @@ public class TableCreatingQuery extends Query implements ITableCreatingQuery {
                 + "default_working_student_UID_bound int ,"
                 + "default_teacher_UID_origin int ,"
                 + "default_teacher_UID_bound int ,"
-                + "cost_for_per_hour int ,"
                 + "default_lesson_UID_origin int ,"
-                + "default_lesson_UID_bound int "
+                + "default_lesson_UID_bound int ,"
+                + "cost_for_per_hour int "
                 + ");";
         super.getAccess().getConnection().prepareStatement(query).executeUpdate();
         IFirstTimeDefaultInfoQuery rowAdder = FirstTimeDefaultInfoQuery.getInstance();

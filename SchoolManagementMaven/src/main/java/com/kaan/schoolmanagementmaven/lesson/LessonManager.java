@@ -4,6 +4,11 @@
  */
 package com.kaan.schoolmanagementmaven.lesson;
 
+import com.kaan.schoolmanagementmaven.dataaccess.query.DefaultValuesQuery;
+import com.kaan.schoolmanagementmaven.dataaccess.query.ExamNoteQueries;
+import com.kaan.schoolmanagementmaven.dataaccess.query.IDefaultValuesQuery;
+import com.kaan.schoolmanagementmaven.dataaccess.query.IExamNoteAddingQueries;
+import com.kaan.schoolmanagementmaven.dataaccess.query.IExamNoteRemovingQueries;
 import java.sql.SQLException;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonAttendanceQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.ILessonChangingQuery;
@@ -16,11 +21,13 @@ import com.kaan.schoolmanagementmaven.dataaccess.query.LessonCourseQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.LessonFetchingQuery;
 import com.kaan.schoolmanagementmaven.dataaccess.query.PersonInformationQuery;
 import com.kaan.schoolmanagementmaven.exception.OutOfQuotaException;
+import com.kaan.schoolmanagementmaven.exception.ReachedMaximumRowNumberException;
+import java.sql.ResultSet;
 
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class LessonManager implements ILessonManager {
 
@@ -29,7 +36,9 @@ public class LessonManager implements ILessonManager {
     private ILessonAttendanceQuery attendanceQuery;
     private ILessonFetchingQuery lessonFetcher;
     private ITeacherInformationQueries teacherInfo;
-
+    private IExamNoteRemovingQueries examNoteRemovingObject;
+    private IExamNoteAddingQueries examNoteAddingObject;
+    private IDefaultValuesQuery defValQuery;
     private static ILessonManager lessonManager;
 
     static {
@@ -42,6 +51,9 @@ public class LessonManager implements ILessonManager {
         attendanceQuery = LessonAttendanceQuery.getInstance();
         lessonFetcher = LessonFetchingQuery.getInstance();
         teacherInfo = PersonInformationQuery.getInstanceForTeacher();
+        examNoteRemovingObject = ExamNoteQueries.getInstanceForRemovingQueries();
+        examNoteAddingObject = ExamNoteQueries.getInstanceForAddingQueries();
+        defValQuery = DefaultValuesQuery.getInstance();
     }
 
     public static ILessonManager getInstance() throws SQLException {
@@ -55,6 +67,8 @@ public class LessonManager implements ILessonManager {
     public void addLessonToNormalStudentCourse(String lessonName, int studentUID, int teacherUID) throws SQLException, OutOfQuotaException {
         throwExceptionIfOutOfQuota(lessonName);
         lessonCourseQuery.addLessonAndStudentToNormalStudentCourse(lessonName, studentUID, teacherUID);
+        int lessonUID = lessonFetcher.getLessonUIDByLessonName(lessonName);
+        examNoteAddingObject.addNormalStudentToExamNoteTable(studentUID, lessonUID);
         attendanceQuery.increaseAttendance(lessonName);
     }
 
@@ -62,10 +76,12 @@ public class LessonManager implements ILessonManager {
     public void addLessonToWorkingStudentCourse(String lessonName, int studentUID, int teacherUID) throws SQLException, OutOfQuotaException {
         throwExceptionIfOutOfQuota(lessonName);
         lessonCourseQuery.addLessonAndStudentToWorkingStudentCourse(lessonName, studentUID, teacherUID);
+        int lessonUID = lessonFetcher.getLessonUIDByLessonName(lessonName);
+        examNoteAddingObject.addWorkingStudentToExamNoteTable(studentUID, lessonUID);
         attendanceQuery.increaseAttendance(lessonName);
     }
 
-    private void throwExceptionIfOutOfQuota(String lessonName) throws OutOfQuotaException , SQLException {
+    private void throwExceptionIfOutOfQuota(String lessonName) throws OutOfQuotaException, SQLException {
         int quota = lessonFetcher.getLessonQuota(lessonName);
         int attendance = attendanceQuery.getLessonAttendanceAmount(lessonName);
         if (quota == attendance) {
@@ -76,13 +92,19 @@ public class LessonManager implements ILessonManager {
     @Override
     public void removeLessonFromNormalStudentCourse(String lessonName, int studentUID) throws SQLException {
         lessonCourseQuery.removeLessonAndStudentFromNormalStudentCourse(lessonName, studentUID);
+        int lessonUID = lessonFetcher.getLessonUIDByLessonName(lessonName);
+        examNoteRemovingObject.removeNormalStudentFromExamTable(studentUID, lessonUID);
         attendanceQuery.decreaseAttendance(lessonName);
     }
 
     @Override
     public void removeLessonFromWorkingStudentCourse(String lessonName, int studentUID) throws SQLException {
         lessonCourseQuery.removeLessonAndStudentFromWorkingStudentCourse(lessonName, studentUID);
+        int lessonUID = lessonFetcher.getLessonUIDByLessonName(lessonName);
+        examNoteRemovingObject.removeWorkingStudentFromExamTable(studentUID, lessonUID);
         attendanceQuery.decreaseAttendance(lessonName);
     }
+
+    
 
 }

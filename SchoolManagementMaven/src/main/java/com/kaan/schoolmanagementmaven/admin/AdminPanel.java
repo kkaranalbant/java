@@ -5,24 +5,23 @@
 package com.kaan.schoolmanagementmaven.admin;
 
 import com.kaan.schoolmanagementmaven.SchoolManagementGUI;
-import java.sql.SQLException ;
+import java.sql.SQLException;
 
 /**
  *
  * @author kaan
- * 
+ *
  */
 public class AdminPanel extends javax.swing.JFrame {
 
     private static Admin admin;
-    
 
     /**
      * Creates new form AdminPanel
      *
      * @param admin
      */
-    public AdminPanel(SchoolManagementGUI mainPanel ,Admin admin) {
+    public AdminPanel(SchoolManagementGUI mainPanel, Admin admin) {
         initComponents();
         AdminPanel.admin = admin;
         this.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -184,16 +183,15 @@ public class AdminPanel extends javax.swing.JFrame {
 
     private void studentAddingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studentAddingButtonActionPerformed
         this.setVisible(false);
-        new AdminStudentAddingPanel(this,admin).setVisible(true);
+        new AdminStudentAddingPanel(this, admin).setVisible(true);
     }//GEN-LAST:event_studentAddingButtonActionPerformed
 
     private void teacherAddingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_teacherAddingButtonActionPerformed
         this.setVisible(false);
         try {
-            new AdminTeacherAddingPanel(this,admin).setVisible(true);
-        }
-        catch (SQLException ex) {
-            ex.printStackTrace(); 
+            new AdminTeacherAddingPanel(this, admin).setVisible(true);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }//GEN-LAST:event_teacherAddingButtonActionPerformed
 
@@ -206,8 +204,7 @@ public class AdminPanel extends javax.swing.JFrame {
         this.setVisible(false);
         try {
             new AdminPersonChangingMainPanel(this).setVisible(true);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }//GEN-LAST:event_personChangingButtonActionPerformed
@@ -216,8 +213,7 @@ public class AdminPanel extends javax.swing.JFrame {
         this.setVisible(false);
         try {
             new AdminLessonProcessPanel(this).setVisible(true);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }//GEN-LAST:event_lessonProcessButtonActionPerformed
@@ -226,8 +222,7 @@ public class AdminPanel extends javax.swing.JFrame {
         try {
             this.setVisible(false);
             new DatabaseProcessPanel(this).setVisible(true);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }//GEN-LAST:event_dbProcessActionPerformed
@@ -240,9 +235,8 @@ public class AdminPanel extends javax.swing.JFrame {
     private void accountSettingsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_accountSettingsButtonActionPerformed
         this.setVisible(false);
         try {
-            new AdminAccountSettingsPanel(this).setVisible(true);
-        }
-        catch (SQLException ex) {
+            new AdminAccountSettingsPanel(this, admin).setVisible(true);
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }//GEN-LAST:event_accountSettingsButtonActionPerformed

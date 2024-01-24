@@ -174,7 +174,7 @@ public class AdminPersonChangingMainPanel extends javax.swing.JFrame {
                 String userName = personLogin.getWorkingStudentUsernameByUID(UID);
                 String pass = personLogin.getWorkingStudentPassByUID(UID);
                 this.setVisible(false);
-                new AdminStudentChangingPanel(this, result2, userName, pass, "lesson_credit").setVisible(true);
+                new AdminStudentChangingPanel(this, result2, userName, pass, "student_lesson_credit").setVisible(true);
                 return;
             }
             ResultSet result3 = personFetcher.getTeacherInfo(UID);

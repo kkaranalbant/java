@@ -1,5 +1,1 @@
-localhost
-3306
-deneme
-root
-ssssss
+

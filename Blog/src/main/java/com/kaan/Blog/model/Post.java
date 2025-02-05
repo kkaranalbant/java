@@ -1,26 +1,29 @@
 package com.kaan.Blog.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "posts")
-public class Post extends  BaseEntity{
+public class Post extends BaseModel{
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "user_id" , nullable = false)
     private User author ;
 
+    @Column(nullable = false)
+    private String title ;
 
-    private LocalDateTime creationTime ;
+    @Column(nullable = false)
+    private LocalDateTime creatingTime ;
 
+    @Column(nullable = false)
     private boolean isEditted ;
 
+    @Column(nullable = true)
+    private byte [] image ;
 
     public User getAuthor() {
         return author;
@@ -30,12 +33,20 @@ public class Post extends  BaseEntity{
         this.author = author;
     }
 
-    public LocalDateTime getCreationTime() {
-        return creationTime;
+    public String getTitle() {
+        return title;
     }
 
-    public void setCreationTime(LocalDateTime creationTime) {
-        this.creationTime = creationTime;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public LocalDateTime getCreatingTime() {
+        return creatingTime;
+    }
+
+    public void setCreatingTime(LocalDateTime creatingTime) {
+        this.creatingTime = creatingTime;
     }
 
     public boolean isEditted() {
@@ -44,5 +55,13 @@ public class Post extends  BaseEntity{
 
     public void setEditted(boolean editted) {
         isEditted = editted;
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 }

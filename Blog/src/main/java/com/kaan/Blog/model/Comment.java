@@ -9,20 +9,60 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
-public class Comment extends BaseEntity{
+public class Comment extends BaseModel{
+
+    @JoinColumn(nullable = false , name = "user_id")
+    @ManyToOne
+    private User sender ;
 
     @ManyToOne
-    @JoinColumn(name = "author_id")
-    private User author ;
-
-    @ManyToOne
-    @JoinColumn(name = "post_id")
+    @JoinColumn(nullable = false , name = "post_id")
     private Post post ;
-
-    private LocalDateTime commentTime ;
-
-    private boolean isEditted ;
 
     private String context ;
 
+    private LocalDateTime sendingTime ;
+
+    private boolean isEditted ;
+
+    public User getSender() {
+        return sender;
+    }
+
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
+    public String getContext() {
+        return context;
+    }
+
+    public void setContext(String context) {
+        this.context = context;
+    }
+
+    public LocalDateTime getSendingTime() {
+        return sendingTime;
+    }
+
+    public void setSendingTime(LocalDateTime sendingTime) {
+        this.sendingTime = sendingTime;
+    }
+
+    public boolean isEditted() {
+        return isEditted;
+    }
+
+    public void setEditted(boolean editted) {
+        isEditted = editted;
+    }
 }
+

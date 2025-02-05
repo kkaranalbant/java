@@ -1,25 +1,23 @@
 package com.kaan.Blog.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comment_likes")
-public class CommentLike extends BaseEntity{
+public class CommentLike extends BaseModel{
 
     @ManyToOne
-    @JoinColumn(name = "actor_id")
+    @JoinColumn(name = "user_id" , nullable = false)
     private User actor ;
 
     @ManyToOne
-    @JoinColumn(name = "comment_id")
+    @JoinColumn(name = "comment_id" , nullable = false)
     private Comment comment ;
 
-    private LocalDateTime likeTime ;
+    @Column(nullable = false)
+    private LocalDateTime likingTime ;
 
     public User getActor() {
         return actor;
@@ -37,11 +35,11 @@ public class CommentLike extends BaseEntity{
         this.comment = comment;
     }
 
-    public LocalDateTime getLikeTime() {
-        return likeTime;
+    public LocalDateTime getLikingTime() {
+        return likingTime;
     }
 
-    public void setLikeTime(LocalDateTime likeTime) {
-        this.likeTime = likeTime;
+    public void setLikingTime(LocalDateTime likingTime) {
+        this.likingTime = likingTime;
     }
 }

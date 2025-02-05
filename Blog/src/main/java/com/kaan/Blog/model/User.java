@@ -1,7 +1,6 @@
 package com.kaan.Blog.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -9,10 +8,9 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
-
 @Entity
-@Table(name = "users" , uniqueConstraints = @UniqueConstraint(columnNames = {"username" , "password"}))
-public class User extends BaseEntity implements UserDetails {
+@Table(name = "users" , uniqueConstraints = @UniqueConstraint(columnNames = {"name" , "lastname"}))
+public class User extends BaseModel implements UserDetails {
 
     @Column(unique = true , nullable = false)
     private String username ;
@@ -26,20 +24,23 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false)
     private String lastname ;
 
-    @Email
-    @Column(nullable = false)
-    private String email ;
-
     @Column(nullable = false)
     private LocalDate birthDate ;
 
+    @Column(nullable = true)
+    private byte [] image ;
+
+    @Column(nullable = false)
     private boolean isEnabled ;
 
+    @Column(nullable = false)
+    private boolean isAccountNonLocked ;
+
+    @Column(nullable = false)
     private boolean isAccountNonExpired ;
 
+    @Column(nullable = false)
     private boolean isCredentialsNonExpired ;
-
-    private boolean isAccountNonLocked ;
 
     @Enumerated(EnumType.STRING)
     private Role role ;
@@ -83,20 +84,20 @@ public class User extends BaseEntity implements UserDetails {
         this.lastname = lastname;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public LocalDate getBirthDate() {
         return birthDate;
     }
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 
     @Override
@@ -106,6 +107,15 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setEnabled(boolean enabled) {
         isEnabled = enabled;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return isAccountNonLocked;
+    }
+
+    public void setAccountNonLocked(boolean accountNonLocked) {
+        isAccountNonLocked = accountNonLocked;
     }
 
     @Override
@@ -124,22 +134,5 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setCredentialsNonExpired(boolean credentialsNonExpired) {
         isCredentialsNonExpired = credentialsNonExpired;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return isAccountNonLocked;
-    }
-
-    public void setAccountNonLocked(boolean accountNonLocked) {
-        isAccountNonLocked = accountNonLocked;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
     }
 }

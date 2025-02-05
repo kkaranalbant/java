@@ -1,34 +1,34 @@
 package com.kaan.Blog.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comment_complaints")
-public class CommentComplaint extends BaseEntity{
+public class CommentComplaint extends BaseModel{
 
     @ManyToOne
-    @JoinColumn(name = "user_şd")
-    private User user ;
+    @JoinColumn(name = "user_id" , nullable = false)
+    private User sender ;
 
     @ManyToOne
-    @JoinColumn(name = "comment_id")
+    @JoinColumn(name = "comment_id" , nullable = false)
     private Comment comment ;
 
-    private LocalDateTime complaintTime ;
+    @Column(nullable = false)
+    private LocalDateTime sendingTime ;
 
+    @Column(nullable = false)
     private String context ;
 
-    public User getUser() {
-        return user;
+
+    public User getSender() {
+        return sender;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setSender(User sender) {
+        this.sender = sender;
     }
 
     public Comment getComment() {
@@ -39,12 +39,12 @@ public class CommentComplaint extends BaseEntity{
         this.comment = comment;
     }
 
-    public LocalDateTime getComplaintTime() {
-        return complaintTime;
+    public LocalDateTime getSendingTime() {
+        return sendingTime;
     }
 
-    public void setComplaintTime(LocalDateTime complaintTime) {
-        this.complaintTime = complaintTime;
+    public void setSendingTime(LocalDateTime sendingTime) {
+        this.sendingTime = sendingTime;
     }
 
     public String getContext() {

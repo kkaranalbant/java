@@ -10,19 +10,21 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "dms")
-public class Dm extends BaseEntity{
+public class Dm extends BaseModel{
 
     @ManyToOne
-    @JoinColumn(name = "sender_id")
+    @JoinColumn(nullable = false , name = "sender_id")
     private User sender ;
 
+
     @ManyToOne
-    @JoinColumn(name = "sended_id")
-    private  User sended ;
+    @JoinColumn(nullable = false , name = "receiver_id")
+    private User receiver ;
 
     private LocalDateTime sendingTime ;
 
     private String context ;
+
 
     public User getSender() {
         return sender;
@@ -32,12 +34,12 @@ public class Dm extends BaseEntity{
         this.sender = sender;
     }
 
-    public User getSended() {
-        return sended;
+    public User getReceiver() {
+        return receiver;
     }
 
-    public void setSended(User sended) {
-        this.sended = sended;
+    public void setReceiver(User receiver) {
+        this.receiver = receiver;
     }
 
     public LocalDateTime getSendingTime() {

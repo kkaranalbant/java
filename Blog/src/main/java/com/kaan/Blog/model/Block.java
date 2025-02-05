@@ -1,22 +1,23 @@
 package com.kaan.Blog.model;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
+
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "blocks" , uniqueConstraints = @UniqueConstraint(columnNames = {"blocker_id" , "blocked_id"}))
-public class Block extends BaseEntity {
+@Table(name = "blocks")
+public class Block extends BaseModel{
 
     @ManyToOne
     @JoinColumn(name = "blocker_id" , nullable = false)
     private User blocker ;
 
     @ManyToOne
-    @JoinColumn (name = "blocked_id" , nullable = false)
+    @JoinColumn(name = "blocked_id" , nullable = false)
     private User blocked ;
 
+    @Column(nullable = false)
     private LocalDateTime blockingTime ;
 
     public User getBlocker() {
